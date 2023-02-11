@@ -1,0 +1,43 @@
+#!/usr/bin/env zsh
+# -*- mode: sh;sh-indentation: 4;indent-tabs-mode: nil;sh-basic-offset: 4; -*-
+#
+# Copyright (c) 2023 Sebastian Gniazdowski
+#
+
+iq::read-theme() {
+
+# Set options
+builtin emulate -L zsh -o extendedglob -o noshortloops \
+                        -o warncreateglobal -o typesetsilent \
+                        -o nopromptsubst
+
+# Recognize and save info on run as `#!/usr/bin/env zsh` script
+[[ $0 != iqmsg || -n $ZSH_SCRIPT ]]&&integer bescript=1
+
+# Set $0 with a new trik - use of %x prompt expansion
+0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
+# The color theme → customize via theme file or ZIQ global, first testing it
+(
+    {local -A ZIQ=("${(kv@)ZIQ}")} &>>!$ZIQLOG
+    return 3
+)&&\
+    (($?==3))&&local -A ZIQ=("${(kv@)ZIQ}")||local -A ZIQ
+
+local ZIQTHEME=$ZIQTHEME
+if [[ -f $ZIQ_DIR/themes/$ZIQTHEME:t:r.xzt(#qN) || -f ${ZIQTHEME::=$ZIQ_DIR/themes/default.xzt} ]]; then
+    local -a q=($ZIQ_DIR/themes/$ZIQTHEME(.xzt|)(N) $ZIQTHEME(N))
+    eval "ZIQ=(${(@z)"$(<$q[1])"})" &>>!$ZIQLOG ||\
+        builtin print -u2 iqmsg:$LINENO Couldn\'t read theme \
+            file $ZIQTHEME
+else
+     builtin print -u2 iqmsg:$LINENO Couldn\'t read default \
+        theme \($ZIQTHEME\)
+fi
+
+# Return theme
+reply=("${(kv@)ZIQ}")
+
+return !$#reply
+
+# vim:ft=zsh:sw=4:sts=4:et
+}
