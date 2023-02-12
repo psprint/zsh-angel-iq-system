@@ -17,9 +17,24 @@ if [[ ${zsh_loaded_plugins[-1]} != */zsh-alias-suite && -z ${fpath[(r)${0:h}]} ]
 # Standard hash for plugins, to not pollute the namespace
 typeset -gA Plugins ZIQ
 Plugins[IQ_SUITE_DIR]="${0:h}"
-export ZIQ_DIR="${0:h}" ZIQAES="${0:h}"/aliases ZIQLOG="${0:h}"/io.log
+export ZIQ_DIR="${0:h}" \
+        ZIQAES="${0:h}"/aliases \
+        ZIQLOG="${0:h}"/io.log
 
 builtin autoload -Uz $ZIQ_DIR/functions/*~*~(.N) regexp-replace
+autoload iq::browse-symbol
+
 iq::setup-aliases
+
+zle -N iq::browse-symbol
+zle -N iq::browse-symbol-backwards iq::browse-symbol
+zle -N iq::browse-symbol-pbackwards iq::browse-symbol
+zle -N iq::browse-symbol-pforwards iq::browse-symbol
+
+() {
+    local IQTMP
+    zstyle -s ':iq:browse-symbol' key IQTMP || IQTMP='\eQ'
+    [[ -n $IQTMP ]] && bindkey $IQTMP iq::browse-symbol
+}
 
 # vim:ft=zsh:tw=80:sw=4:sts=4:et:foldmarker=[[[,]]]
