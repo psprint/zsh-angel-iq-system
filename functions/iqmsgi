@@ -64,7 +64,7 @@ local funloc=$1 nick=$ZIQNICK tmp
 (($+Opts[-n]))&&local n=-n
 
 iqmsg_cmd_helper() {
-    [[ $(builtin type -w zs-format-$1) != *:\ none ]]&&print found
+    [[ $(builtin type -w iq::format-$1) != *:\ none ]]&&print found
 }
 
 # Main work function
@@ -80,7 +80,7 @@ ${${tmp::=$pstart$match[2]$pend}+}\
 ${${tmpb::=1}+}\
 ${${tmpa::=${match[1]//(#m)(#s)([\\][\\])#(#e)/\
 ${$(iqmsg_cmd_helper $match[2]):+\
-$(zs-format-"$match[2]" "$match[3]")\
+$(iq::format-"$match[2]" "$match[3]")\
 ${match[3]::=}${tmpb::=}${${match[1]::=${match[1]%[\\]}}+}}}}+}\
 $match[1]${tmpa/(#m)(#s)[\\]##(#e)/$tmp${tmpb::=}}\
 ${tmpb:+$tmp}$match[3]}"
