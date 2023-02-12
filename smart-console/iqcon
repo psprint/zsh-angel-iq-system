@@ -1,0 +1,206 @@
+#!/usr/bin/env zsh
+# -*- mode: sh; sh-indentation: 4; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+
+# Copyright (c) 2021 Sebastian Gniazdowski
+
+# Run as script? Or as a function? Supports both ways.
+
+scon_()
+{
+
+0="${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}"
+
+export SCON_DIR=${0:h}
+local orig_pwd=$PWD
+#builtin cd -q $SCON_DIR
+trap "cd -q ${(qqq)orig_pwd}; return 1" INT TERM QUIT HUP
+trap "cd -q ${(qqq)orig_pwd}" EXIT
+
+(($+ZUI))||source $SCON_DIR/zui-lib/zui.lib.zsh
+
+local -Ua fpath=($SCON_DIR $fpath) path=($SCON_DIR $path)
+
+
+# Dependency: load the local copy of zdharma/zui TUI library/plugin (only if needed).
+
+togg_ascr()
+{
+    #if [[ $1 == select ]]; then
+        (( ZUI[autscr]=!ZUI[autscr] ))
+        ZUI[autscr_color]=$toggle_colors[ZUI[autscr]+1]
+    #fi
+
+}
+
+cpstax()
+{
+    # Bunch of tweaked syntaxes
+    sudo cp ~/.config/mc/syntax/{sh,c,cxx,perl,python,syntax,slang,ini,diff,makefile,markdown,js,css,html}.syntax \
+                /usr/local/share/mc/syntax
+}
+
+separ()
+{
+    if (( $#coproc_output )); then
+        coproc_output+=( "$ZUI[BOLD]$ZUI[YELLOW]${(l:COLUMNS*3::—:):-}$ZUI[FMT_END]" )
+    fi
+}
+
+run_make()
+{
+    ( command $stdbuf1 make -j4 all; sleep 1 ) |& $stdbuf2 egrep --line-buffered -v '(resetting jobserver mode|Nothing to be done|Entering directory|jobserver)' | cat
+}
+
+run_make_install()
+{
+    ( command $stdbuf1 make -j4 install; sleep 1 ) |& $stdbuf2 egrep --line-buffered -v '(resetting jobserver mode|Nothing to be done|Entering directory|jobserver)'
+}
+
+zmodload zsh/zselect
+
+if [[ $1 != --refresh ]]; then
+    -zui_std_cleanup deserialize:"konsola"
+    -zui_std_init app:"konsola" app_name:"NeoMCEdit Build Console with error browsing/jumping"
+    emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal -o combining_chars
+    -zui_std_init2 # after emulate -LR
+
+
+    # Needed for immediate output from coprocesses (disables buffering).
+    ((${+commands[stdbuf]}))&& \
+        local -a stdbuf1=( stdbuf -o0 -i0 ) stdbuf2=( stdbuf -o0 -i0 )
+    ((${+commands[gstdbuf]}))&& \
+        local -a stdbuf1=( gstdbuf -o0 -i0 ) stdbuf2=( gstdbuf -o0 -i0 )
+
+    ZUI[COLORING_PATTERN]="((#s)[a-zA-Z0-9_.-]##:[0-9]##:[0-9]##: (error:|warning:)|(error:|warning:))" ZUI[COLORING_MATCH_MULTIPLE]=1
+    ZUI[COLORING_COLOR]=$ZUI[BOLD]$ZUI[YELLOW]       
+    ZUI[START_IN_SEARCH_MODE]=0
+
+    -zui_std_store_default_app_config s:select_mode "quit"   # Quit event loop on text-selection
+    -zui_std_store_default_app_config b:text_select 1        # Allow selection of text
+    -zui_std_store_default_app_config s:timeout 150
+    -zui_std_store_default_app_config s:text_mode off
+
+    local -a coproc_output GEN2_HOPS
+    local cstarted=0 mstarted=0 astarted=0 istarted=0  # denote if configure/make is running
+fi
+
+generator_A() {
+    local mod="$1" ice="$2"
+
+    local -a group1 group2 group3
+    reply=()
+
+    # First Group
+    -zui_std_rc_button "button1" "${ZUI[MAGENTA]}Run autogen${ZUI[FMT_END]}" 'internal=1; ZUI[redraw]=1; separ; coproc 2>&1 build-project --autogen --quick; astarted=1'
+    -zui_std_rc_button "button3" "${ZUI[MAGENTA]}Read CFLAGS${ZUI[FMT_END]}" 'internal=1; get_cflags'
+    -zui_std_rc_button "button5" "${ZUI[MAGENTA]}Install${ZUI[FMT_END]}" 'internal=1; ZUI[redraw]=1; separ; coproc 2>&1 run_make_install; istarted=1'
+    # -zui_std_rc_button "button5" "${ZUI[MAGENTA]}Copy syntax files${ZUI[FMT_END]}" 'internal=1; cpstax && -zui_std_stalog "Syntax files" " copied"'
+    -zui_std_rc_button "button17" "${ZUI[YELLOW]}Refresh console${ZUI[FMT_END]}" \
+        'reply=( ",all," ); source $SCON_DIR/konsola --refresh && -zui_std_stalog "Console " "source " reloaded'
+    group1=( $reply ) reply=()
+
+    # Second Group
+    print $ZUI[autscr] ${(q)toggle_colors} >> /tmp/reply
+    -zui_std_rc_button "button-1" "${ZUI[autscr_color]}Autoscroll${ZUI[FMT_END]}" \
+        "internal=1; togg_ascr; -zui_std_fly_mod_regen $mod $ice"
+    group2=( $reply ) reply=()
+
+    -zui_std_rc_button "buttonT1" "${ZUI[GREEN]}Run configure${ZUI[FMT_END]}" 'internal=1; ZUI[redraw]=1; separ; coproc 2>&1 build-project --conf --quick; cstarted=1'
+    -zui_std_rc_button "buttonT3" "${ZUI[GREEN]}Run make${ZUI[FMT_END]}" 'internal=1; ZUI[redraw]=1; separ; coproc 2>&1 run_make; mstarted=1'
+    group3=( $reply )
+
+    # Content
+    reply=( "${group1[1]} ${group1[2]} ${group1[3]} ${group1[4]}  "
+            "${group2[1]}"
+            "${group3[1]} ${group3[2]}" )
+
+    # Non-selectable lines  Hops to jump with [ and ]   Local anchors
+    reply2=( )              reply3=( 3 )                reply4=( )
+
+}
+
+generator_B() {
+    reply=()
+    -zui_std_special_text "Configure/Make output"
+    -zui_std_button "button25" "${ZUI[MAGENTA]}(clear)${ZUI[FMT_END]}" 'internal=1; coproc_output=( ); -zui_std_fly_mod_regen 2 1'
+    reply=( "${ZUI[YELLOW]}${reply[1]}${ZUI[FMT_END]} ${reply[2]}" "${coproc_output[@]}" )  reply2=( )  reply3=( 1 $GEN2_HOPS )  reply4=( )
+}
+
+# Read & publish configure/make output
+-zui-standard-timeout-callback() {
+    (( mstarted + cstarted + astarted + istarted == 0 )) && return
+
+    local line had_read=0 IFS=$'\n' limit=31
+    while zselect -t0 -r 0 && (( limit-- > 0 )); do
+        read -r line 2>/dev/null && { 
+            had_read=1
+            if [[ $line == (#b)(#b)(|$'\e'\[[[\;0-9A-Z]#[mK])(|$'\e'\[[[\;0-9A-Z]#[mK])([a-zA-Z0-9_.-]#/)#([a-zA-Z0-9_.-]##):([0-9]##):([0-9]##):*  ]]; then
+                #print "match: $line"
+                GEN2_HOPS+=( $(( $#coproc_output + 1 + 1 )) )
+            fi
+            
+            coproc_output+=( "$line" ); 
+        } || break
+    done <&p
+
+    if (( had_read )); then 
+        -zui_std_fly_mod_regen 2 1
+    elif (( ZUI[had_read_prev] )); then
+        -zui_std_fly_mod_regen 2 1
+        (( ZUI[update_cnt] += 8 - ZUI[update_cnt] % 8 ))
+    fi
+
+    if (( (ZUI[update_cnt]+=had_read) % 8 == 0 || !had_read && ZUI[had_read_prev] )); then
+        local loc=$mod2_ice1_global_index sz=$mod2_ice1_size
+        ZUI[CURRENT_IDX]=$(( loc + sz ))
+
+    fi
+
+    ZUI[had_read_prev]=$had_read
+
+    (( astarted != 0 && had_read == 0 )) && [[ "${jobtexts[*]}" != *build-project* ]] && { ZUI[redraw]=1; astarted=0; -zui_std_stalog "Message: " "°autogen° " "ended"; }
+    (( cstarted != 0 && had_read == 0 )) && [[ "${jobtexts[*]}" != *build-project* ]] && { ZUI[redraw]=1; cstarted=0; -zui_std_stalog "Message: " "°configure° " "ended"; }
+    (( mstarted != 0 && had_read == 0 )) && [[ "${jobtexts[*]}" != *run_make* ]] && { ZUI[redraw]=1; mstarted=0; -zui_std_stalog "Message: " "°make° " "ended"; }
+    (( istarted != 0 && had_read == 0 )) && [[ "${jobtexts[*]}" != *run_make_install* ]] && { ZUI[redraw]=1; istarted=0; -zui_std_stalog "Message: " "°make install° " "ended"; }
+    if [[ "${jobtexts[*]}" != *run_make(|_install)* && $mstarted != (0|2) ]]; then
+        ZUI[redraw]=1
+        mstarted=2
+    fi
+};
+
+get_cflags() {
+    local CFLAGS=`grep '^CFLAGS[[:space:]]*=' Makefile`
+    -zui_std_stalog "Obtained: " "CFLAGS = ${CFLAGS#*=[[:space:]]##}"
+    return 1
+}
+
+typeset -ag toggle_colors=( $ZUI[BLUE] $ZUI[BG_YELLOW] )
+ZUI[autscr_color]=$toggle_colors[ZUI[autscr]+1]
+
+if [[ $1 == --refresh ]]; then
+    return
+fi
+
+## Start application ##
+-zui_std_stalog "" "@@@ " "Welcome to " "NeoMCEdit " "build console!" " @@@";
+while (( 1 )); do
+    zui-event-loop 1:generator_A 1:generator_B
+    if [[ -z $REPLY ]]; then
+        break
+    fi
+    if [[ $REPLY == (#b)(|$'\e'\[[[\;0-9A-Z]#[mK])(|$'\e'\[[[\;0-9A-Z]#[mK])([a-zA-Z0-9_.-]#/)#([a-zA-Z0-9_.-]##):([0-9]##):([0-9]##):* ]]; then
+        mcedit +$match[5] **/$match[4](Y1)
+        zcurses clear main redraw
+        zcurses clear status redraw
+    fi
+done
+
+-zui_std_cleanup serialize
+
+return 0
+
+}
+
+scon_ "$@"
+
+# vim:ft=zsh:tw=80:sw=4:sts=4:et:foldmarker=[[[,]]]
