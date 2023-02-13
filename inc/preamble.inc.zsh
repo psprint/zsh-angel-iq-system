@@ -7,9 +7,9 @@ builtin setopt extendedglob kshglob warncreateglobal typesetsilent \
 # Possibly fix $0 with a new trick – use of a %x prompt expansion
 0="${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}"
 
-export ZIQ_DIR ZIQCMDS ZIQFUNCS ZIQAES ZIQLOG
+export ZIQDIR ZIQCMDS ZIQFUNCS ZIQAES ZIQLOG
 # Restore the variables if needed (i.e. not exported)
-: ${ZIQ_DIR:=$0:h:h} \
+: ${ZIQDIR:=$0:h:h} \
         ${ZIQCMDS=::$0:h:h/bin} \
         ${ZIQFUNCS=::$0:h:h/functions} \
         ${ZIQAES=::$0:h:h/aliases} \

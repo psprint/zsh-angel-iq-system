@@ -24,8 +24,8 @@ builtin emulate -L zsh -o extendedglob -o noshortloops \
     (($?==3))&&local -A ZIQ=("${(kv@)ZIQ}")||local -A ZIQ
 
 local ZIQTHEME=$ZIQTHEME
-if [[ -f $ZIQ_DIR/themes/$ZIQTHEME:t:r.xzt(#qN) || -f ${ZIQTHEME::=$ZIQ_DIR/themes/default.xzt} ]]; then
-    local -a q=($ZIQ_DIR/themes/$ZIQTHEME(.xzt|)(N) $ZIQTHEME(N))
+if [[ -f $ZIQDIR/themes/$ZIQTHEME:t:r.xzt(#qN) || -f ${ZIQTHEME::=$ZIQDIR/themes/default.xzt} ]]; then
+    local -a q=($ZIQDIR/themes/$ZIQTHEME(.xzt|)(N) $ZIQTHEME(N))
     eval "ZIQ=(${(@z)"$(<$q[1])"})" &>>!$ZIQLOG ||\
         builtin print -u2 iqmsg:$LINENO Couldn\'t read theme \
             file $ZIQTHEME

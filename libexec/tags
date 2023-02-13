@@ -1,0 +1,46 @@
+#!/usr/bin/env zsh
+# Copyright (c) 2023 Sebastian Gniazdowski
+#
+# iqsn – zs…quote…braces
+#
+
+iqsn() {
+
+# Run as script?
+[[ $0 != iqsn ]]&&integer bescript=1
+
+# Set options
+builtin emulate -L zsh -o extendedglob -o noshortloops \
+                        -o warncreateglobal -o typesetsilent \
+                        -o nopromptsubst
+
+# Set $0 with a new trik - use of %x prompt expansion
+0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
+source $0:h:h/share/preamble.inc.zsh --func
+
+local -A Opts
+builtin zparseopts \
+    ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} \
+    -D -E -A Opts --||return 7
+
+local TARGET_DIR=${1:-$PWD}
+
+(
+    builtin cd -q -- $TARGET_DIR||\
+        {
+            iqerr no such directory {path}$TARGET_DIR
+            return 1
+        }
+    iqmsg {note}Generating {tag}TAGS{%} index for {type}Zsh{%} and \
+        {type}Make{%}…
+
+    command ctags -R -e -G --totals \
+        --options=$ZIQDIR/share/zsh.ctags \
+        --languages=zsh,zsh3,make
+
+)||return $?
+
+}
+
+# To support autoloading the script as a function
+iqsn "$@"
