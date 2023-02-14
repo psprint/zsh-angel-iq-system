@@ -12,9 +12,6 @@ iqmsgi() {
 # infinite recursion. It sets up it's autoload functions by itself.
 #
 
-# Recognize and save info on run as `#!/usr/bin/env zsh` script
-[[ $0 != iqmsgi ]]&&integer bescript=1
-
 # Set options
 builtin emulate -L zsh -o extendedglob -o noshortloops \
                         -o warncreateglobal -o typesetsilent \
@@ -22,18 +19,18 @@ builtin emulate -L zsh -o extendedglob -o noshortloops \
 
 # Set $0 with a new trik - use of %x prompt expansion
 0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
-: ${ZIQDIR:=$0:h:h}
+source $0:h:h/share/preamble.inc.zsh
 
-source $ZIQDIR/inc/preamble.inc.zsh
+SNIP_EMULATE_OPTIONS_ZERO
 
 # -h - origin tag
 # -p - overwrite quiet mode
 # -q - quiet mode
 # -e - print to stderr
 # -n - no new line
-local -A Opts
-builtin zparseopts ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} -D -E -A Opts -- h p q e n || return 7
-
+local -A Opts; local -a opts
+int/iq::parse-opts "h p q e n" Opts opts "$@"
+set -- "$reply[@]"
 
 # Quiet mode? → no printing if so
 [[ ($+Opts[-q] == 1 || $2 == 1) && $+Opts[-p] != 1 ]]&&return
@@ -42,10 +39,7 @@ builtin zparseopts ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} -D -E -A Opts -- 
 local -a reply
 local TMP
 
-builtin autoload -Uz iq::setup-aliases iq::read-theme #zsweep:pass
-
-iq::setup-aliases||return 1
-iq::read-theme
+iq::read-theme||return 17
 local -A ZIQ=("$reply[@]")
 
 # Blue message origin tag?
@@ -62,7 +56,7 @@ local funloc=$1 nick=$ZIQNICK tmp
 (($+Opts[-n]))&&local n=-n
 
 iqmsg_cmd_helper() {
-    [[ $(builtin type -w iq::format-$1) != *:\ none ]]&&print found
+    [[ $(builtin type -w iq::format-$1) != *:\ none ]]&&print found|tee -a /tmp/reply
 }
 
 # Main work function
@@ -78,7 +72,7 @@ ${${tmp::=$pstart$match[2]$pend}+}\
 ${${tmpb::=1}+}\
 ${${tmpa::=${match[1]//(#m)(#s)([\\][\\])#(#e)/\
 ${$(iqmsg_cmd_helper $match[2]):+\
-$(iq::format-"$match[2]" "$match[3]")\
+$(iq::format-"$match[2]" -o "$match[3]")\
 ${match[3]::=}${tmpb::=}${${match[1]::=${match[1]%[\\]}}+}}}}+}\
 $match[1]${tmpa/(#m)(#s)[\\]##(#e)/$tmp${tmpb::=}}\
 ${tmpb:+$tmp}$match[3]}"
