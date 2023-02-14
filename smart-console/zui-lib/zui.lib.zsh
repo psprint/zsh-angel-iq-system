@@ -71,7 +71,6 @@ zmodload zsh/datetime && ZUI[datetime_available]="1" || ZUI[datetime_available]=
 }
 
 (( 0 == ${+functions[-zui_std_init]} )) && {
-    print qqq
     function -zui_std_init() {
         unfunction -- -zui_std_init
         [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
@@ -80,6 +79,5 @@ zmodload zsh/datetime && ZUI[datetime_available]="1" || ZUI[datetime_available]=
         -zui_std_init "$@"
     }
 }
-    print qqqQQQ ${(kv)ZUI}
 
 # vim:ft=zsh
