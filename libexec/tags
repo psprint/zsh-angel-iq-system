@@ -5,45 +5,44 @@
 #
 
 tags() {
+    # Preamble – emulate & 0=…
+    SNIP_EMULATE_OPTIONS_ZERO
+    source $0:h:h/share/preamble.inc.zsh --func
 
-# Preamble – emulate & 0=…
-SNIP_EMULATE_OPTIONS_ZERO
-source $0:h:h/share/preamble.inc.zsh --func
+    local -A Opts; local -a opts
+    int/iq::parse-opts "z -zsh c -c V -vim v -verbose" Opts opts "$@"
+    set -- "$reply[@]"
 
-local -A Opts; local -a opts
-int/iq::parse-opts "z -zsh c -c V -vim v -verbose" Opts opts "$@"
-set -- "$reply[@]"
+    # Cascade options to short ones
+    int/iq::opt-cascade Opts --zsh -z --c -c --vim -V
 
-# Cascade options to short ones
-int/iq::opt-cascade Opts --zsh -z --c -c --vim -V
+    ((!$+Opts[-V]))&&local eopt=-e
+    # Info texts
+    local TXT="{note}Generating {tag}${${eopt:+TAGS}:-tags}{%} index for"
+    command rm -f TAGS tags
+    integer EC
 
-((!$+Opts[-V]))&&local eopt=-e
-# Info texts
-local TXT="{note}Generating {tag}${${eopt:+TAGS}:-tags}{%} index for"
-command rm -f TAGS tags
-integer EC
+    # C programming language
+    if (($+Opts[-c]));then
+        local -a qcmd=(command ctags -a -R $eopt --totals
+                      --languages=C --langmap=C:.h.c
+                      --c-kinds=+px --extras=+r
+                      --extras=-{anonymous})
+        int/iq::run-command "$TXT {type}C{%}…" $PWD
+        EC+=$?
+    fi
 
-# C programming language
-if (($+Opts[-c]));then
-    local -a qcmd=(command ctags -a -R $eopt --totals
-                  --languages=C --langmap=C:.h.c
-                  --c-kinds=+px --extras=+r
-                  --extras=-{anonymous})
-    int/iq::run-command "$TXT {type}C{%}…" $PWD
-    EC+=$?
-fi
+    # default – Zsh script
+    if ((!$+Opts[-c]||$+Opts[-z]));then
+        local -a qcmd=(command ctags -a -R $eopt -G --totals
+                    --options=$ZIQDIR/share/zsh.ctags
+                    --languages=zsh,zsh3,make)
+        int/iq::run-command "$TXT {type}Zsh{%} and {type}Make{%}…" $PWD
+        EC+=$?
+    fi
 
-# default – Zsh script
-if ((!$+Opts[-c]||$+Opts[-z]));then
-    local -a qcmd=(command ctags -a -R $eopt -G --totals
-                --options=$ZIQDIR/share/zsh.ctags
-                --languages=zsh,zsh3,make)
-    int/iq::run-command "$TXT {type}Zsh{%} and {type}Make{%}…" $PWD
-    EC+=$?
-fi
-
-((EC))&&iqerr problems during {tag}TAGS{%} generation (code:{num}$EC{%})…
-return EC
+    ((EC))&&iqerr problems during {tag}TAGS{%} generation (code:{num}$EC{%})…
+    return EC
 
 }
 

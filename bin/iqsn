@@ -5,44 +5,54 @@
 #
 
 iqsn() {
+    #
+    # The only place where code repetition occurs
+    # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 
-#
-# The only place where code repetition occurs
-#
+    # Set options
+    builtin emulate -L zsh -o extendedglob -o noshortloops \
+                            -o warncreateglobal -o typesetsilent \
+                            -o nopromptsubst
 
-# Set options
-builtin emulate -L zsh -o extendedglob -o noshortloops \
-                        -o warncreateglobal -o typesetsilent \
-                        -o nopromptsubst
+    # Run as script?
+    integer BESCRIPT=${${${(M)0:#$ZSH_ARGZERO:t}:+1}:-0};
 
-# Run as script?
-integer BESCRIPT=${${${(M)0:#$ZSH_ARGZERO:t}:+1}:-0};
+    # Set $0 with a new trik - use of %x prompt expansion
+    0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
+    source $0:h:h/share/preamble.inc.zsh --func
 
-# Set $0 with a new trik - use of %x prompt expansion
-0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
-source $0:h:h/share/preamble.inc.zsh --func
+    # ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+    # End of code repetition
+    #
 
-#
-# End of code repetition
-#
+    integer EC
+    local -A Opts; local -a opts
+    int/iq::parse-opts "z -zsh c -c v -verbose V -vim \
+                            l e n q d -dump o:" Opts opts "$@"
+    set -- "$reply[@]"
+    local CMD=$1
+    (($#&&$#CMD))&&shift||CMD=help
 
-local -A Opts; local -a opts
-int/iq::parse-opts "z -zsh c -c d -dump v -verbose l q V -vim" Opts opts "$@"
-set -- "$reply[@]"
-local CMD=$1
-(($#&&$#CMD))&&shift||CMD=help
+    if [[ -s $ZIQDIR/libexec/$CMD ]];then
+        autoload -z $ZIQDIR/libexec/$CMD #zsweep:pass
 
-if [[ -s $ZIQDIR/libexec/$CMD ]];then
-    autoload -z $ZIQDIR/libexec/$CMD #zsweep:pass
-    $CMD "$opts[@]" "$@"
-else
-    iqmsgi $0:t\:$LINENO {err}Error:{txt} \
-        no such subcommand %B{quot}·{cmd}${(U)CMD}{%}%B{quot}·{%},\
-            exiting doing nothing…
-    return 1
-fi
+        # Edit source?
+        if (($+Opts[-e]));then
+            int/iq::get-editor||return 1
+            eval "type $REPLY $ZIQ[IQIO]"&&$REPLY $^fpath/$CMD(N.)
+        # … or run?
+        else
+            $CMD "$opts[@]" "$@"
+        fi
+        EC+=$?
+    else
+        iqmsgi $0:t\:$LINENO {err}Error:{txt} \
+            no such subcommand %B{quot}·{cmd}${(U)CMD}{%}%B{quot}·{%},\
+                exiting doing nothing…
+        EC+=3
+    fi
 
-return 0
+    return EC
 }
 
 # To support autoloading the script as a function

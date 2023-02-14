@@ -21,6 +21,9 @@ integer QIDX=${@[(ie)--]}
 # Set $0 with a new trik - use of %x prompt expansion
 0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
 
+# Unset helper function on exit
+builtin trap 'unset -f iqmsg_subst iqmsg_cmd_helper &>>$ZIQLOG' EXIT
+
 # Standard hash `Plugins` for plugins, to not pollute the namespace
 # ZIQ is a hash for iqmsg color theme and for the body of all aliases
 typeset -gA Plugins ZIQ
@@ -60,6 +63,14 @@ iq::setup-aliases||\
     {iqmsg couldn\'t set up aliases, some {nick}Zsh IQ{%} components \
         might not work…
     EC=1;}
+
+iq::clean() {
+    # Cleanup
+    REPLY= MATCH= MBEGIN= MEND= reply=() match=() mbegin=() mend=()
+}
+
+iq::clean
+
 # Restore fpath if it's ZINIT sourcing. it saves fpath internally
 (($+fpath_save))&&fpath=($fpath_save)
 
