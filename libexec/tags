@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 # Copyright (c) 2023 Sebastian Gniazdowski
 #
-# iqsn – zs…quote…braces
+# tags – Ctags generation subcommand
 #
 
 tags() {
@@ -10,43 +10,40 @@ tags() {
 SNIP_EMULATE_OPTIONS_ZERO
 source $0:h:h/share/preamble.inc.zsh --func
 
-local -A Opts
-builtin zparseopts \
-    ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} \
-    -D -E -A Opts -- z -zsh c -c V -vim v -verbose||return 7
+local -A Opts; local -a opts
+int/iq::parse-opts "z -zsh c -c V -vim v -verbose" Opts opts "$@"
+set -- "$reply[@]"
+
 # Cascade options to short ones
 int/iq::opt-cascade Opts --zsh -z --c -c --vim -V
+
 ((!$+Opts[-V]))&&local eopt=-e
 # Info texts
-local TXT
-(($+Opts[-z]||!$+Opts[-c]))&&TXT="{type}Zsh{%} and {type}Make{%}"
-(($+Opts[-c]))&&TXT+=${TXT:+, }"{type}C{%} and {type}Make{%}"
+local TXT="{note}Generating {tag}${${eopt:+TAGS}:-tags}{%} index for"
 command rm -f TAGS tags
+integer EC
+
 # C programming language
 if (($+Opts[-c]));then
     local -a qcmd=(command ctags -a -R $eopt --totals
                   --languages=C --langmap=C:.h.c
                   --c-kinds=+px --extras=+r
                   --extras=-{anonymous})
+    int/iq::run-command "$TXT {type}C{%}…" $PWD
+    EC+=$?
 fi
+
 # default – Zsh script
 if ((!$+Opts[-c]||$+Opts[-z]));then
     local -a qcmd=(command ctags -a -R $eopt -G --totals
                 --options=$ZIQDIR/share/zsh.ctags
                 --languages=zsh,zsh3,make)
+    int/iq::run-command "$TXT {type}Zsh{%} and {type}Make{%}…" $PWD
+    EC+=$?
 fi
 
-local TARGET_DIR=${1:-$PWD}
-(
-    builtin cd -q -- $TARGET_DIR||\
-        {
-            iqerr no such directory {path}$TARGET_DIR{%}, NO-OP exiting…
-            return 1
-        }
-    iqmsg {note}Generating {tag}${${eopt:+TAGS}:-tags}{%} index for $TXT…
-    (($+Opts[-v]))&&iqnotice -- Running: {cmd}$qcmd[*]{%}…
-    "$qcmd[@]"||{iqerr problems during {tag}TAGS{%} generation…;return 1;}
-)||return $?
+((EC))&&iqerr problems during {tag}TAGS{%} generation (code:{num}$EC{%})…
+return EC
 
 }
 

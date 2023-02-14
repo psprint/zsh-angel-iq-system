@@ -1,0 +1,1 @@
+-r:builtin emulate -L zsh -o extendedglob -o noshortloops -o warncreateglobal -o typesetsilent -o nopromptsubst;integer BESCRIPT=${${${(M)0:#$ZSH_ARGZERO:t}:+1}:-0}

@@ -17,15 +17,15 @@ dump(){
         return $?
     fi
 
-    qprf-d(){
+
+    (($+Opts[-d]))&&{
         local QN
         for QN ($@){
             iqmsg {nl}{note}Notice:{%} showing variable {var}$QN{%}:
             int/@iq::str4var $QN
         }
+        return $?
     }
-
-    (($+Opts[-d]))&&{qprf-d $@;return $?;}
     
     local e=${${opts[*]//((#s)|* )-q*}:+-r} \
         n=${(M)opts:#-n} \

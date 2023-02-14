@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 # Copyright (c) 2023 Sebastian Gniazdowski
 #
-# iqsn – zs…quote…braces
+# iqsn – IQ Swiss Knife
 #
 
 iqsn() {

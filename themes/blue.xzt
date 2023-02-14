@@ -16,6 +16,7 @@ path    %B33
 ext     33
 extx    33
 glob    %B76
+var     %B33
 cmd     %B27
 func    %B41
 opt     33
