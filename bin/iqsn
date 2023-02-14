@@ -5,7 +5,7 @@
 #
 
 iqsn() {
-    #
+    # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
     # The only place where code repetition occurs
     # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 
@@ -15,15 +15,15 @@ iqsn() {
                             -o nopromptsubst
 
     # Run as script?
-    integer BESCRIPT=${${${(M)0:#$ZSH_ARGZERO:t}:+1}:-0};
+    integer QBESCRIPT=${${${(M)0:#$ZSH_ARGZERO:t}:+1}:-0};
 
     # Set $0 with a new trik - use of %x prompt expansion
     0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
     source $0:h:h/share/preamble.inc.zsh --func
 
-    # ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+    # ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
     # End of code repetition
-    #
+    # ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 
     integer EC
     local -A Opts; local -a opts

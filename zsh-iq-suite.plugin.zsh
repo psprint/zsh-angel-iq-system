@@ -10,6 +10,7 @@
 # Read the common setup code, to create the $ZIQ*… vars and aliases, etc.
 source $0:h/share/preamble.inc.zsh
 
+# Ctags symbol browser
 zle -N iq::browse-symbol
 zle -N iq::browse-symbol-backwards iq::browse-symbol
 zle -N iq::browse-symbol-pbackwards iq::browse-symbol
@@ -17,8 +18,20 @@ zle -N iq::browse-symbol-pforwards iq::browse-symbol
 
 () {
     local IQTMP
-    zstyle -s ':iq:browse-symbol' key IQTMP || IQTMP='\eQ'
-    [[ -n $IQTMP ]] && bindkey $IQTMP iq::browse-symbol
+    zstyle -s ':iq:browse-symbol' key IQTMP||IQTMP='\ew'
+    [[ -n $IQTMP ]]&&bindkey $IQTMP iq::browse-symbol
 }
 
+# A custom completion of plugin ids (alt-a) and of ice names (alt-c)
+zle -N iq::action-complete
+zle -N iq::action-complete-ice iq::action-complete
+
+() {
+    local IQTMP
+    # Alt-a for plugin IDs and Alt-c for ices are default.
+    zstyle -s ":iq:action-complete:plugin-id" key IQTMP||IQTMP='\ea'
+    [[ -n $IQTMP ]]&&bindkey $IQTMP iq::action-complete
+    zstyle -s ":iq:action-complete:ice" key IQTMP||IQTMP='\ec'
+    [[ -n $IQTMP ]]&&bindkey $IQTMP iq::action-complete-ice
+}
 # vim:ft=zsh:tw=80:sw=4:sts=4:et:foldmarker=[[[,]]]

@@ -1,1 +1,1 @@
--r:builtin emulate -L zsh -o extendedglob -o noshortloops -o warncreateglobal -o typesetsilent -o nopromptsubst;0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0};integer BESCRIPT=${${${(M)0:#$ZSH_ARGZERO:t}:+1}:-0}
+-r:builtin emulate -L zsh -o extendedglob -o noshortloops -o warncreateglobal -o typesetsilent -o nopromptsubst;0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0};integer QBESCRIPT=${${${(M)0:#$ZSH_ARGZERO:t}:+1}:-0}

@@ -1,0 +1,24 @@
+#!/usr/bin/env zsh
+
+int/iq::get-editor() {
+    SNIP_EMULATE_OPTIONS_ZERO
+
+    # Input/options
+    local -A Opts
+    int/iq::parse-opts "e:" Opts "" "$@"
+    set -- "$reply[@]"
+    local qed1=${${${Opts[-e]:-$EDITOR}:-$VISUAL}:-mcedit}
+    local QED=$qed1
+    (($+commands[$QED]))||QED=mcedit
+    (($+commands[$QED]))||QED=emacs
+    (($+commands[$QED]))||QED=micro
+    (($+commands[$QED]))||QED=vim
+    (($+commands[$QED]))||QED=
+
+    [[ -z $QED ]]&&type -w $qed1 ZSIO&&QED=$qed1
+    [[ -z $QED ]]&&iqerr no editor found, please set \
+                %B{37}EDITOR{137} in environment, exiting…
+
+    REPLY=$QED
+    [[ -n $REPLY ]]
+}
