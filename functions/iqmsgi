@@ -34,7 +34,6 @@ source $ZIQDIR/inc/preamble.inc.zsh
 local -A Opts
 builtin zparseopts ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} -D -E -A Opts -- h p q e n || return 7
 
-set -- ${@/--}
 
 # Quiet mode? → no printing if so
 [[ ($+Opts[-q] == 1 || $2 == 1) && $+Opts[-p] != 1 ]]&&return

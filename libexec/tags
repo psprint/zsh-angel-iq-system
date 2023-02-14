@@ -41,16 +41,15 @@ else
 fi
 
 local TARGET_DIR=${1:-$PWD}
-
 (
     builtin cd -q -- $TARGET_DIR||\
         {
-            iqerr no such directory {path}$TARGET_DIR
+            iqerr no such directory {path}$TARGET_DIR{%}, NO-OP exiting…
             return 1
         }
     iqmsg {note}Generating {tag}TAGS{%} index for $TXT…
     (($+Opts[-v]))&&iqnotice -- Running: {cmd}$qcmd[*]{%}…
-    "$qcmd[@]"
+    "$qcmd[@]"||{iqerr problems during {tag}TAGS{%} generation…;return 1;}
 )||return $?
 
 }

@@ -4,7 +4,7 @@
 # iqsn – zs…quote…braces
 #
 
-iq::opt-cascade() {
+int/iq::opt-cascade() {
 
 # Run as script?
 [[ $0 != iqsn ]]&&integer bescript=1

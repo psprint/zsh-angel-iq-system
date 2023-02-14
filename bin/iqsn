@@ -18,12 +18,9 @@ builtin emulate -L zsh -o extendedglob -o noshortloops \
 0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
 source $0:h:h/share/preamble.inc.zsh --func
 
-local -A Opts
-local -a opts
-builtin zparseopts \
-    ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} \
-    -D -E -A Opts -a opts -- z -zsh c -c d -dump v -verbose||return 7
-
+local -A Opts; local -a opts
+int/iq::parse-opts "z -zsh c -c d -dump v -verbose" Opts opts "$@"
+set -- "$reply[@]"
 local CMD=$1
 (($#&&$#CMD))&&shift||CMD=help
 
@@ -31,7 +28,9 @@ if [[ -s $ZIQDIR/libexec/$CMD ]];then
     autoload -z $ZIQDIR/libexec/$CMD #zsweep:pass
     $CMD "$opts[@]" "$@"
 else
-    iqwarn no such subcommand {cmd}$CMD{%}, exiting doing nothing…
+    iqmsgi $0:t\:$LINENO {err}Error:{txt} \
+        no such subcommand %B{quot}·{cmd}${(U)CMD}{%}%B{quot}·{%},\
+            exiting doing nothing…
     return 1
 fi
 

@@ -1,0 +1,18 @@
+#!/usr/bin/env zsh
+# -*- mode: sh; sh-indentation: 4; indent-tabs-mode: nil; sh-basic-offset: 4;-*-
+
+# Copyright (c) 2023 Sebastian Gniazdowski
+
+int/iq::parse-opts() {
+    local OPTSPEC=$1 ASVAR=$2 ARVAR=$3
+    shift 3
+
+    builtin zparseopts ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} \
+        -D -E ${=ASVAR:+-A $ASVAR} ${=ARVAR:+-a $ARVAR} -- \
+            $=OPTSPEC --||return 1
+
+    # Remove any --/- end option mark
+    integer QIDX=${@[(ie)(--|-)]}
+    ((QIDX<$#))&&builtin set -- "$@[1,QIDX-1]" "$@[QIDX+1,-1]"
+    reply=($@)
+}
