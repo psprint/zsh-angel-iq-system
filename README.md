@@ -11,7 +11,6 @@ A bunch of intelligent extensions to Zsh. Features:
    - variable contents dumping.
 4. A set of global aliases in the form `NAME…STR` allowing clever
    tests of variable contents. The strings are:
-   CTRLSTR
    - `EMPTYSTR` – `[:space:][:INCOMPLETE:][:INVALID:]$'\e']#` – any
      number of spaces, incomplete chars or invalid chars –
      essentially an empty string,
@@ -25,7 +24,8 @@ A bunch of intelligent extensions to Zsh. Features:
    - `PRINTSTR` – a string with all characters being printable,
    - `WRONGSTR` – a string either empty, invalid, control-chars only,
      zeroes-only or non-printable only,
-   - `ZEROSTR` – a string with only `0` character.
+   - `ZEROSTR` – a string with only `0` character,
+   - `CTRLSTR` – a string consisting of only control characters.
 
 To use the global alias do:
 ```zsh
