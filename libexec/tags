@@ -6,38 +6,34 @@
 
 tags() {
 
-# Run as script?
-[[ $0 != tags ]]&&integer bescript=1
-
-# Set options
-builtin emulate -L zsh -o extendedglob -o noshortloops \
-                        -o warncreateglobal -o typesetsilent \
-                        -o nopromptsubst
-
-# Set $0 with a new trik - use of %x prompt expansion
-0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
+# Preamble – emulate & 0=…
+SNIP_EMULATE_OPTIONS_ZERO
 source $0:h:h/share/preamble.inc.zsh --func
 
 local -A Opts
 builtin zparseopts \
     ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} \
-    -D -E -A Opts -- z -zsh c -c v -verbose||return 7
+    -D -E -A Opts -- z -zsh c -c V -vim v -verbose||return 7
 # Cascade options to short ones
-int/iq::opt-cascade Opts --zsh -z --c -c
+int/iq::opt-cascade Opts --zsh -z --c -c --vim -V
+((!$+Opts[-V]))&&local eopt=-e
 # Info texts
 local TXT
-(($+Opts[-z]))&&TXT="{type}Zsh{%} and {type}Make{%}"
-(($+Opts[-c]))&&TXT="{type}C{%} and {type}Make{%}"
-# Commands
+(($+Opts[-z]||!$+Opts[-c]))&&TXT="{type}Zsh{%} and {type}Make{%}"
+(($+Opts[-c]))&&TXT+=${TXT:+, }"{type}C{%} and {type}Make{%}"
+command rm -f TAGS tags
+# C programming language
 if (($+Opts[-c]));then
-    local -a qcmd=(command ctags -R -e --totals
+    local -a qcmd=(command ctags -a -R $eopt --totals
                   --languages=C --langmap=C:.h.c
                   --c-kinds=+px --extras=+r
                   --extras=-{anonymous})
-else 
-    local -a qcmd=(command ctags -R -e -G --totals
-        --options=$ZIQDIR/share/zsh.ctags
-        --languages=zsh,zsh3,make)
+fi
+# default – Zsh script
+if ((!$+Opts[-c]||$+Opts[-z]));then
+    local -a qcmd=(command ctags -a -R $eopt -G --totals
+                --options=$ZIQDIR/share/zsh.ctags
+                --languages=zsh,zsh3,make)
 fi
 
 local TARGET_DIR=${1:-$PWD}
@@ -47,9 +43,11 @@ local TARGET_DIR=${1:-$PWD}
             iqerr no such directory {path}$TARGET_DIR{%}, NO-OP exiting…
             return 1
         }
-    iqmsg {note}Generating {tag}TAGS{%} index for $TXT…
+    iqmsg {note}Generating {tag}${${eopt:+TAGS}:-tags}{%} index for $TXT…
     (($+Opts[-v]))&&iqnotice -- Running: {cmd}$qcmd[*]{%}…
     "$qcmd[@]"||{iqerr problems during {tag}TAGS{%} generation…;return 1;}
 )||return $?
 
 }
+
+tags "$@"

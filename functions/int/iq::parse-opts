@@ -4,6 +4,9 @@
 # Copyright (c) 2023 Sebastian Gniazdowski
 
 int/iq::parse-opts() {
+    # Preamble – emulate & 0=…
+    SNIP_EMULATE_OPTIONS_ZERO
+
     local OPTSPEC=$1 ASVAR=$2 ARVAR=$3
     shift 3
 

@@ -16,6 +16,8 @@ builtin zparseopts \
                         -o warncreateglobal -o typesetsilent \
                         -o noshortloops -o nopromptsubst
 
+integer QIDX=${@[(ie)--]}
+((QIDX<$#))&&builtin set -- "$@[1,QIDX-1]" "$@[QIDX+1,-1]"
 # Set $0 with a new trik - use of %x prompt expansion
 0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
 
@@ -58,7 +60,6 @@ iq::setup-aliases||\
     {iqmsg couldn\'t set up aliases, some {nick}Zsh IQ{%} components \
         might not work…
     EC=1;}
-
 # Restore fpath if it's ZINIT sourcing. it saves fpath internally
 (($+fpath_save))&&fpath=($fpath_save)
 

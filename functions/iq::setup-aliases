@@ -24,7 +24,7 @@ if [[ ! -d $ZIQAES ]];then
     return 1
 fi
 
-local DIR dirs=($ZIQAES $ZIQAES/cmd $ZIQAES/str)
+local DIR dirs=($ZIQAES $ZIQAES/*(/N))
 
 for DIR ($dirs);do
     # Set up aliases (global, suffix and the proper ones)
