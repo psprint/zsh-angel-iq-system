@@ -18,14 +18,14 @@ A bunch of intelligent extensions to Zsh. Features:
    - `INVALIDSTR` – `*[[:INCOMPLETE:][:INVALID:]]*` – a string
      holding at least one invalid character,
    - `EMORINSTR` – empty or invalid string,
-   - FUNCSTR – a string of the form: `abc() {…` with all possible
+   - `FUNCSTR` – a string of the form: `abc() {…` with all possible
      variants (like e.g.: preceding `function` keyword),
-   - IDSTR – a string with all characters allowed in Zsh variable
+   - `IDSTR` – a string with all characters allowed in Zsh variable
      name,
-   - PRINTSTR – a string with all characters being printable,
-   - WRONGSTR – a string either empty, invalid, control-chars only,
+   - `PRINTSTR` – a string with all characters being printable,
+   - `WRONGSTR` – a string either empty, invalid, control-chars only,
      zeroes-only or non-printable only,
-   - ZEROSTR – a string with only `0` character.
+   - `ZEROSTR` – a string with only `0` character.
 
 To use the global alias do:
 ```zsh
