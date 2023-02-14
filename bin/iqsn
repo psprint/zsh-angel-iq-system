@@ -19,16 +19,17 @@ builtin emulate -L zsh -o extendedglob -o noshortloops \
 source $0:h:h/share/preamble.inc.zsh --func
 
 local -A Opts
+local -a opts
 builtin zparseopts \
     ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} \
-    -D -E -A Opts --||return 7
+    -D -E -A Opts -a opts -- z -zsh c -c v -verbose||return 7
 
 local CMD=$1
-shift
+(($#&&$#CMD))&&shift||CMD=help
 
 if [[ -s $ZIQDIR/libexec/$CMD ]];then
     autoload -z $ZIQDIR/libexec/$CMD #zsweep:pass
-    $CMD "$@"
+    $CMD "$opts[@]" "$@"
 else
     iqwarn no such subcommand {cmd}$CMD{%}, exiting doing nothing…
     return 1

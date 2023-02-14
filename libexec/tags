@@ -4,10 +4,10 @@
 # iqsn – zs…quote…braces
 #
 
-iqsn() {
+tags() {
 
 # Run as script?
-[[ $0 != iqsn ]]&&integer bescript=1
+[[ $0 != tags ]]&&integer bescript=1
 
 # Set options
 builtin emulate -L zsh -o extendedglob -o noshortloops \
@@ -21,7 +21,27 @@ source $0:h:h/share/preamble.inc.zsh --func
 local -A Opts
 builtin zparseopts \
     ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} \
-    -D -E -A Opts --||return 7
+    -D -E -A Opts -- z -zsh c -c v -verbose||return 7
+# Cascade options to short ones
+local Q P
+for Q P in --zsh -z --c -c;do
+    (($+Opts[$Q]))&&Opts[$P]=
+done
+# Info texts
+local TXT
+(($+Opts[-z]))&&TXT="{type}Zsh{%} and {type}Make{%}"
+(($+Opts[-c]))&&TXT="{type}C{%} and {type}Make{%}"
+# Commands
+if (($+Opts[-c]));then
+    local -a qcmd=(command ctags -R -e --totals
+                  --languages=C --langmap=C:.h.c
+                  --c-kinds=+px --extras=+r
+                  --extras=-{anonymous})
+else 
+    local -a qcmd=(command ctags -R -e -G --totals
+        --options=$ZIQDIR/share/zsh.ctags
+        --languages=zsh,zsh3,make)
+fi
 
 local TARGET_DIR=${1:-$PWD}
 
@@ -31,16 +51,9 @@ local TARGET_DIR=${1:-$PWD}
             iqerr no such directory {path}$TARGET_DIR
             return 1
         }
-    iqmsg {note}Generating {tag}TAGS{%} index for {type}Zsh{%} and \
-        {type}Make{%}…
-
-    command ctags -R -e -G --totals \
-        --options=$ZIQDIR/share/zsh.ctags \
-        --languages=zsh,zsh3,make
-
+    iqmsg {note}Generating {tag}TAGS{%} index for $TXT…
+    (($+Opts[-v]))&&iqnotice -- Running: {cmd}$qcmd[*]{%}…
+    "$qcmd[@]"
 )||return $?
 
 }
-
-# To support autoloading the script as a function
-iqsn "$@"
