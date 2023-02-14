@@ -1,0 +1,32 @@
+#!/usr/bin/env zsh
+# Copyright (c) 2023 Sebastian Gniazdowski
+#
+# iqsn – zs…quote…braces
+#
+
+iq::opt-cascade() {
+
+# Run as script?
+[[ $0 != iqsn ]]&&integer bescript=1
+
+# Set options
+builtin emulate -L zsh -o extendedglob -o noshortloops \
+                        -o warncreateglobal -o typesetsilent \
+                        -o nopromptsubst
+
+# Set $0 with a new trik - use of %x prompt expansion
+0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
+source $0:h:h:h/share/preamble.inc.zsh --func
+
+local VARNAME=$1 VARSTRQ VARSTRP
+shift
+(($#%2))&&iqerr incorrect \# of options passed to iq::opt-cascade
+
+# Cascade options to short ones
+local Q P
+for Q P in $@;do
+    VARSTRQ="${VARNAME}[$Q]" VARSTRP="${VARNAME}[$P]"
+    ((${(P)+VARSTRP}))&&: ${(P)VARSTRQ::=}
+done
+
+}

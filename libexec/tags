@@ -23,10 +23,7 @@ builtin zparseopts \
     ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} \
     -D -E -A Opts -- z -zsh c -c v -verbose||return 7
 # Cascade options to short ones
-local Q P
-for Q P in --zsh -z --c -c;do
-    (($+Opts[$Q]))&&Opts[$P]=
-done
+int/iq::opt-cascade Opts --zsh -z --c -c
 # Info texts
 local TXT
 (($+Opts[-z]))&&TXT="{type}Zsh{%} and {type}Make{%}"

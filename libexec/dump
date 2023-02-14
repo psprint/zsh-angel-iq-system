@@ -1,0 +1,44 @@
+#!/usr/bin/env zsh
+
+dump(){
+    local -a opts
+    local -A Opts
+    builtin zparseopts ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} \
+        -D -E -A Opts -a opts -- \
+            l e n q d -dump c v:||return 1
+
+    int/iq::opt-cascade Opts --dump -d
+    integer QIDX=${@[(ie)--]}
+    ((QIDX<$#))&&builtin set -- $@[1,QIDX-1] $@[QIDX+1,-1]
+    local QNL=/dev/null
+
+    if (($+Opts[-e]));then
+        local QED=${VISUAL:-${EDITOR:-${GIT_EDITOR:-mcedit}}}
+        type $QED &>$QNL &&$QED $0
+        return $?
+    fi
+
+    qprf-d(){
+        builtin autoload -Uz ~/functions/@str4var
+        local QN
+        for QN ($@){
+            iqmsg {nl}{note}Notice:{%} showing variable {var}$QN{%}:
+            @str4var $QN
+        }
+    }
+
+    (($+Opts[-d]))&&{qprf-d $@;return $?;}
+    
+    local e=${${opts[*]//((#s)|* )-q*}:+-r} \
+        n=${(M)opts:#-n} \
+        q=${${(M)opts:#-q}:+-r} \
+        v=${${(M)opts:#-v}:+-v $Opts[-v]} \
+        l=${(M)opts:#-l} \
+        c=${${(M)opts:#-c}:+-C1}
+    local -a args
+
+    (($+Opts[-l]&&!$+Opts[-c]))&&\
+      args=(printf $=v ·%${${q:+b}:-s}${${n:+" "}:-\\n})||\
+      args=(print $c $n ${e#$q} $=v)
+        builtin "$args[@]" "$@"
+}
