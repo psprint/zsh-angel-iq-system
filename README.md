@@ -34,3 +34,11 @@ if [[ $var == WRONGSTR ]]; then
 fi
 ```
 
+## Build console
+
+A TUI frontend to `configure` and `make`. Its main feature is
+opening `$EDITOR` on exact position of an error or warning in its
+source file.
+
+![iqcon](https://raw.githubusercontent.com/psprint/zsh-iq-system/master/share/img/iqcon.png)
+
