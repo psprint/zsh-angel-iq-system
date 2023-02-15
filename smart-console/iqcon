@@ -56,11 +56,19 @@ run_make_install()
     ( command $stdbuf1 make -j4 install; sleep 1 ) |& $stdbuf2 egrep --line-buffered -v '(resetting jobserver mode|Nothing to be done|Entering directory|jobserver)'
 }
 
+run_gen() {
+    local AUTOGEN=$ZIQDIR/smart-console/autoconf.zsh
+    [[ ! -f $AUTOGEN ]]&&{print Couldn\'t find autoconf.zsh…;return;}
+    [[ ! -s $AUTOGEN ]]&&{print autoconf.zsh is empty file…;return;}
+    [[ ! -x $AUTOGEN ]]&&{print autoconf.zsh – no +x chmod…;return;}
+    $AUTOGEN $PWD 2>&1
+}
+
 zmodload zsh/zselect
 
 if [[ $1 != --refresh ]]; then
-    -zui_std_cleanup deserialize:"konsola"
-    -zui_std_init app:"konsola" app_name:"NeoMCEdit Build Console with error browsing/jumping"
+    -zui_std_cleanup deserialize:"iqcon"
+    -zui_std_init app:"iqcon" app_name:"Build Console"
     emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal -o combining_chars
     -zui_std_init2 # after emulate -LR
 
@@ -90,14 +98,13 @@ generator_A() {
     local -a group1 group2 group3
     reply=()
 
-    local AUTOGEN=$ZIQDIR/smart-console/autoconf.zsh
     # First Group
-    -zui_std_rc_button "button1" "${ZUI[MAGENTA]}Run autogen${ZUI[FMT_END]}" 'internal=1; ZUI[redraw]=1; separ; coproc 2>&1 '$AUTOGEN\ $PWD'; astarted=1'
+    -zui_std_rc_button "button1" "${ZUI[MAGENTA]}Run autogen${ZUI[FMT_END]}" 'internal=1; ZUI[redraw]=1; separ; coproc run_gen; astarted=1'
     -zui_std_rc_button "button3" "${ZUI[MAGENTA]}Read CFLAGS${ZUI[FMT_END]}" 'internal=1; get_cflags'
     -zui_std_rc_button "button5" "${ZUI[MAGENTA]}Install${ZUI[FMT_END]}" 'internal=1; ZUI[redraw]=1; separ; coproc 2>&1 run_make_install; istarted=1'
     # -zui_std_rc_button "button5" "${ZUI[MAGENTA]}Copy syntax files${ZUI[FMT_END]}" 'internal=1; cpstax && -zui_std_stalog "Syntax files" " copied"'
     -zui_std_rc_button "button17" "${ZUI[YELLOW]}Refresh console${ZUI[FMT_END]}" \
-        'reply=( ",all," ); source $SCON_DIR/konsola --refresh && -zui_std_stalog "Console " "source " reloaded'
+        'reply=( ",all," ); source $SCON_DIR/iqcon --refresh && -zui_std_stalog "Console " "source " reloaded'
     group1=( $reply ) reply=()
 
     # Second Group
@@ -183,7 +190,7 @@ if [[ $1 == --refresh ]]; then
 fi
 
 ## Start application ##
--zui_std_stalog "" "@@@ " "Welcome to " "NeoMCEdit " "build console!" " @@@";
+-zui_std_stalog "" "@@@ " "Welcome to " "IQ System " "build console!" " @@@";
 while (( 1 )); do
     zui-event-loop 1:generator_A 1:generator_B
     if [[ -z $REPLY ]]; then
