@@ -60,8 +60,8 @@ autoload -z $ZIQDIR/functions/*~*~(.N:t) \
             regexp-replace #zsweep:pass
 
 iq::setup-aliases||\
-    {iqmsg couldn\'t set up aliases, some {nick}Zsh IQ{%} components \
-        might not work…
+    {print -P Couldn\'t set up aliases, some %F{27}Zsh IQ%f\
+        components might not work…
     EC=1;}
 
 iq::clean() {

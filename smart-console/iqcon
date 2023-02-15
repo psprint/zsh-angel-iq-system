@@ -90,8 +90,9 @@ generator_A() {
     local -a group1 group2 group3
     reply=()
 
+    local AUTOGEN=$ZIQDIR/smart-console/autoconf.zsh
     # First Group
-    -zui_std_rc_button "button1" "${ZUI[MAGENTA]}Run autogen${ZUI[FMT_END]}" 'internal=1; ZUI[redraw]=1; separ; coproc 2>&1 build-project --autogen --quick; astarted=1'
+    -zui_std_rc_button "button1" "${ZUI[MAGENTA]}Run autogen${ZUI[FMT_END]}" 'internal=1; ZUI[redraw]=1; separ; coproc 2>&1 '$AUTOGEN\ $PWD'; astarted=1'
     -zui_std_rc_button "button3" "${ZUI[MAGENTA]}Read CFLAGS${ZUI[FMT_END]}" 'internal=1; get_cflags'
     -zui_std_rc_button "button5" "${ZUI[MAGENTA]}Install${ZUI[FMT_END]}" 'internal=1; ZUI[redraw]=1; separ; coproc 2>&1 run_make_install; istarted=1'
     # -zui_std_rc_button "button5" "${ZUI[MAGENTA]}Copy syntax files${ZUI[FMT_END]}" 'internal=1; cpstax && -zui_std_stalog "Syntax files" " copied"'
@@ -105,7 +106,7 @@ generator_A() {
         "internal=1; togg_ascr; -zui_std_fly_mod_regen $mod $ice"
     group2=( $reply ) reply=()
 
-    -zui_std_rc_button "buttonT1" "${ZUI[GREEN]}Run configure${ZUI[FMT_END]}" 'internal=1; ZUI[redraw]=1; separ; coproc 2>&1 build-project --conf --quick; cstarted=1'
+    -zui_std_rc_button "buttonT1" "${ZUI[GREEN]}Run configure${ZUI[FMT_END]}" 'internal=1; ZUI[redraw]=1; separ; coproc 2>&1 ./configure ; cstarted=1'
     -zui_std_rc_button "buttonT3" "${ZUI[GREEN]}Run make${ZUI[FMT_END]}" 'internal=1; ZUI[redraw]=1; separ; coproc 2>&1 run_make; mstarted=1'
     group3=( $reply )
 
@@ -130,7 +131,7 @@ generator_B() {
 -zui-standard-timeout-callback() {
     (( mstarted + cstarted + astarted + istarted == 0 )) && return
 
-    local line had_read=0 IFS=$'\n' limit=31
+    local line had_read=0 IFS=$'\n' limit=80
     while zselect -t0 -r 0 && (( limit-- > 0 )); do
         read -r line 2>/dev/null && { 
             had_read=1
@@ -139,7 +140,7 @@ generator_B() {
                 GEN2_HOPS+=( $(( $#coproc_output + 1 + 1 )) )
             fi
             
-            coproc_output+=( "$line" ); 
+            coproc_output+=( "${line//$'\e'\[38;5;<->m}" ); 
         } || break
     done <&p
 
@@ -158,8 +159,8 @@ generator_B() {
 
     ZUI[had_read_prev]=$had_read
 
-    (( astarted != 0 && had_read == 0 )) && [[ "${jobtexts[*]}" != *build-project* ]] && { ZUI[redraw]=1; astarted=0; -zui_std_stalog "Message: " "°autogen° " "ended"; }
-    (( cstarted != 0 && had_read == 0 )) && [[ "${jobtexts[*]}" != *build-project* ]] && { ZUI[redraw]=1; cstarted=0; -zui_std_stalog "Message: " "°configure° " "ended"; }
+    (( astarted != 0 && had_read == 0 && $#jobtexts == 0 )) && { ZUI[redraw]=1; astarted=0; -zui_std_stalog "Message: " "°autogen° " "ended"; }
+    (( cstarted != 0 && had_read == 0 && $#jobtexts == 0 )) && { ZUI[redraw]=1; cstarted=0; -zui_std_stalog "Message: " "°configure° " "ended"; }
     (( mstarted != 0 && had_read == 0 )) && [[ "${jobtexts[*]}" != *run_make* ]] && { ZUI[redraw]=1; mstarted=0; -zui_std_stalog "Message: " "°make° " "ended"; }
     (( istarted != 0 && had_read == 0 )) && [[ "${jobtexts[*]}" != *run_make_install* ]] && { ZUI[redraw]=1; istarted=0; -zui_std_stalog "Message: " "°make install° " "ended"; }
     if [[ "${jobtexts[*]}" != *run_make(|_install)* && $mstarted != (0|2) ]]; then

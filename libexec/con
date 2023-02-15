@@ -1,0 +1,13 @@
+#!/usr/bin/env zsh
+
+con(){
+    # Preamble – emulate & 0=…
+    SNIP_EMULATE_OPTIONS_ZERO
+    source $0:h:h/share/preamble.inc.zsh --func
+
+    local -A Opts; local -a opts
+    int/iq::parse-opts "" Opts opts "$@"
+    set -- "$reply[@]"
+    int/iq::opt-cascade Opts
+    [[ -x $ZIQDIR/smart-console/iqcon ]]&&$ZIQDIR/smart-console/iqcon
+}
