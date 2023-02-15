@@ -9,6 +9,9 @@ A bunch of intelligent extensions to Zsh. Features:
 3. IQ Swiss Knife – a utility allowing:
    - quick Ctags generation,
    - variable contents dumping.
+3. An extension to Zinit plugin manager – *action complete* – press
+   `Alt-a` to complete a name of plugin and `Alt-c` to complete
+   a name of ice modifier.
 4. A set of global aliases in the form `NAME…STR` allowing clever
    tests of variable contents. The strings are:
    - `EMPTYSTR` – `[:space:][:INCOMPLETE:][:INVALID:]$'\e']#` – any
