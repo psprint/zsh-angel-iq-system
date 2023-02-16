@@ -45,3 +45,9 @@ source file.
 
 ![iqcon](https://raw.githubusercontent.com/psprint/zsh-iq-system/master/share/img/iqcon.png)
 
+## Ctags browser
+
+A in-shell Ctags symbol browser, under the prompt:
+
+![symbrowse](https://raw.githubusercontent.com/psprint/zsh-iq-system/master/share/img/symbolbrowse.png)
+
