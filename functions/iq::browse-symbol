@@ -195,7 +195,7 @@ _tfind_main() {
     disp_list=( "${(@)__tfind_spe_found[page_start_idx,page_start_idx+page_size-1]}" )
 
     # Remove meta-data from the entries
-    disp_list=( "${(@)disp_list//$'\177'*/}" )
+    disp_list=( "${(@)disp_list//(#b)([^$'\177']#)$'\177'([^$'\1']##)*/${(r:30:: :)match[2]}  $match[1]}" )
 
     # All entries should have multilines replaced
     disp_list=( "${(@)disp_list//$'\n'/\\n}" )
