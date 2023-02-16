@@ -24,8 +24,7 @@
 
 iq::browse-symbol() {
 
-emulate -L zsh
-setopt typesetsilent extendedglob noshortloops localtraps warncreateglobal
+SNIP_EMULATE_OPTIONS_ZERO
 
 # When an error, then no cursor keys bindings
 zmodload zsh/terminfo 2>/dev/null

@@ -7,10 +7,7 @@
 
 iq::action-complete()
 {
-    # Emulate zsh and useful options
-    emulate -L zsh -o extended_glob -o warn_create_global -o typeset_silent \
-        -o no_short_loops -o rc_quotes -o no_auto_pushd
-
+    SNIP_EMULATE_OPTIONS_ZERO
     # The index of the match that's inserted in cmd line
     integer -g ziac_midx
     typeset -ga ziac_matches ziac_wids

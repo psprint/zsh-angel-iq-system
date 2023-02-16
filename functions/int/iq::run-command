@@ -4,6 +4,8 @@
 #
 
 int/iq::run-command() {
+    SNIP_EMULATE_OPTIONS_ZERO
+
     local TARGET_DIR=${2:-$PWD} TXT=$1
     (
         builtin cd -q -- $TARGET_DIR||\
