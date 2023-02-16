@@ -25,7 +25,7 @@ iq::action-complete()
     # Invoke the helper/worker function that does all needed $BUFFER processing
     #
 
-    int/iq::process-buffer||return 1
+    int/@iq::process-buffer||return 1
 
     integer i j pos=$CURSOR size=${#IQ_PB_WORDS} newcursor
     local w PWIDGET buf

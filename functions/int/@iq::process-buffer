@@ -12,7 +12,7 @@
 # IQ_PB_RIGHT - right part of active word
 #
 
-int/iq::process-buffer() {
+int/@iq::process-buffer() {
     SNIP_EMULATE_OPTIONS_ZERO
 
     local MBEGIN MEND MATCH mbegin mend match
