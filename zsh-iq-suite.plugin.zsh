@@ -34,4 +34,10 @@ zle -N iq::action-complete-ice iq::action-complete
     zstyle -s ":iq:action-complete:ice" key IQTMP||IQTMP='\ec'
     [[ -n $IQTMP ]]&&bindkey $IQTMP iq::action-complete-ice
 }
+
+[[ ! -f $ZPFX/config.site ]]&&command cp -vf $ZIQDIR/share/config.site $ZPFX
+[[ $PKG_CONFIG_PATH != (|*:)$ZPFX(|*[:/]*) ]]&&PKG_CONFIG_PATH="$ZPFX/lib/pkgconfig:$PKG_CONFIG_PATH"
+[[ $CMAKE_PREFIX_PATH != (|*:)$ZPFX(|*[:/]*) ]]&&CMAKE_PREFIX_PATH="$ZPFX:$CMAKE_PREFIX_PATH"
+[[ $LD_LIBRARY_PATH != (|*:)$ZPFX(|*[:/]*) ]]&&LD_LIBRARY_PATH="$ZPFX/lib:$LD_LIBRARY_PATH"
+
 # vim:ft=zsh:tw=80:sw=4:sts=4:et:foldmarker=[[[,]]]
