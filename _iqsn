@@ -1,0 +1,24 @@
+#compdef iqsn
+0
+setopt localoptions extendedglob warncreateglobal typesetsilent
+
+local curcontext="$curcontext" state state_descr line ret=1
+local -a expl
+
+_arguments -C \
+    '1: :->command'\
+    '*: :->argument' && ret=0
+
+case $state in
+    command)
+        local -a q=(tags:"generate Ctags for current directory"
+                    con:"open smart console for current directory"
+                    dump:"dump contents of given variable")
+         _describe -t features "available commands" q && ret=0
+        ;;
+
+    argument)
+        ;;
+esac
+
+return $ret
