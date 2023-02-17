@@ -123,7 +123,7 @@ _tfind_main() {
     local match mbegin mend
     local MATCH
     integer MBEGIN MEND buflen=${#BUFFER}
-    TAG[fun-xt-chars]='+.:@\/→↓←↑\$,_\--'
+    TAG[fun-xt-chars]='+.:@\/→↓←↑\$,·«»°˙_\--'
     # First call or restart?
     if [[ $__tfind_spe_call_count -le 1 || $__tfind_spe_restart = 1 ]]; then
         if [[ $__tfind_spe_call_count -le 1 ]]; then
