@@ -1,4 +1,4 @@
-# Zsh IQ System
+# Zsh Angel System
 
 A bunch of intelligent extensions to Zsh. Features:
 
@@ -6,7 +6,7 @@ A bunch of intelligent extensions to Zsh. Features:
    and open editor on exact locations of reported errors.
 2. In-shell Ctags browser – list all symbols in `TAGS` index created
    with Universal Ctags and open editor on their source locations.
-3. IQ Swiss Knife – a utility allowing:
+3. Angel Swiss Knife – a utility allowing:
    - quick Ctags generation,
    - variable contents dumping.
 3. An extension to Zinit plugin manager – *action complete* – press
@@ -43,11 +43,11 @@ A TUI frontend to `configure` and `make`. Its main feature is
 opening `$EDITOR` on exact position of an error or warning in its
 source file.
 
-![iqcon](https://raw.githubusercontent.com/psprint/zsh-iq-system/master/share/img/iqcon.png)
+![Angelcon](https://raw.githubusercontent.com/psprint/zsh-angel-system/master/share/img/angelcon.png)
 
 ## Ctags browser
 
 A in-shell Ctags symbol browser, under the prompt:
 
-![symbrowse](https://raw.githubusercontent.com/psprint/zsh-iq-system/master/share/img/symbolbrowse.png)
+![symbrowse](https://raw.githubusercontent.com/psprint/zsh-angel-system/master/share/img/symbolbrowse.png)
 
