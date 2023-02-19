@@ -13,7 +13,6 @@ builtin emulate -L zsh -o extendedglob -o noshortloops \
 
 # Possibly fix $0 with a new trick – use of a %x prompt expansion
 0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
-: ${ZIQAES:=$0:h:h/aliases}
 
 # Input/options
 local -A Opts

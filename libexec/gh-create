@@ -9,7 +9,7 @@
 gh-create() {
     SNIP_EMULATE_OPTIONS_ZERO
 
-    local user=${1%%/*} plugin=${${(M)1%%/*}:+${1##*/}:-$2}
+    local user=${1%%/*} plugin=${${${(M)1%%/*}:+${1##*/}}:-$2}
 
     if (( ${+commands[curl]} == 0 || ${+commands[git]} == 0 )); then
         iqerr curl and git are needed
