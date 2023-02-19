@@ -4,6 +4,7 @@ nick    27
 err     %B205
 warn    %B135
 builtin %B39
+head    27
 code    %B205
 nick    %B140
 chk     %B39

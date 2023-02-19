@@ -19,9 +19,7 @@ builtin emulate -L zsh -o extendedglob -o noshortloops \
 
 # Set $0 with a new trik - use of %x prompt expansion
 0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
-source $0:h:h/share/preamble.inc.zsh
-
-SNIP_EMULATE_OPTIONS_ZERO
+source $0:h:h/share/preamble.inc.zsh --func
 
 # -h - origin tag
 # -p - overwrite quiet mode

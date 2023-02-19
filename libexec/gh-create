@@ -1,0 +1,121 @@
+#!/usr/bin/env zsh
+# FUNCTION: gh-create [[[
+# Creates a plugin, also on Github (if not "_local/name" plugin).
+#
+# User-action entry point.
+#
+# $1 - (optional) plugin spec (4 formats: user---plugin, user/plugin, user, plugin)
+# $2 - (optional) plugin (only when $1 - i.e. user - given)
+gh-create() {
+    SNIP_EMULATE_OPTIONS_ZERO
+
+    local user=${1%%/*} plugin=${${(M)1%%/*}:+${1##*/}:-$2}
+
+    if (( ${+commands[curl]} == 0 || ${+commands[git]} == 0 )); then
+        iqerr curl and git are needed
+        return 1
+    fi
+
+    # Read whether to create under organization
+    local isorg
+    builtin vared -cp 'Create under an organization? (y/n): ' isorg
+
+    if [[ $isorg = (y|yes) ]]; then
+        local org=$user
+        builtin vared -cp "Github organization name: " org
+    fi
+
+    # Read user
+    local compcontext="user:User Name:(\"$USER\" \"$user\")"
+    vared -cp "Github user name: " user
+
+    # Read plugin
+    unset compcontext
+    vared -cp 'Plugin name: ' plugin
+
+    plugin="${plugin//[^a-zA-Z0-9_]##/-}"
+    local uspl2=${org:-$user}/$plugin
+    iqmsg -h Plugin is {pid}$uspl2
+
+    if [[ $user != _local && -n $user ]]; then
+        iqwarn {head}Creating Github repository…
+        if [[ -n $org ]]; then
+             command curl --silent -u $user https://api.github.com/orgs/$org/repos -d '{"name":"'$plugin'"}' >/dev/null
+        else
+            curl --silent -u $user https://api.github.com/user/repos -d '{"name":"'$plugin'"}' >/dev/null
+        fi
+         command git clone https://github.com/${org:-$user}/$plugin.git ${org:-$user}---${plugin//\//---} || {
+            iqerr {err}Creation of remote repository {pid}$uspl2 \
+                {err}failed!{nl}Bad credentials?
+            return 1
+        }
+        builtin cd -q ${org:-$user}---${plugin//\//---}
+        command git config credential.https://github.com.username $user
+    else
+        iqmsg -h {head}Creating local repository {pid}$uspl2{head}…
+        command mkdir ${user:+${user}---}${plugin//\//---}
+        builtin cd -q ${user:+${user}---}${plugin//\//---}
+        command git init || {
+            iqwarn Git repository initialization failed, aborting
+            return 1
+        }
+    fi
+
+    local user_name=${$(command git config user.name 2>/dev/null):-\
+USER_NAME}
+    local year=${$(command date +%Y):-2023}
+
+    command cat >! ${plugin:t}.plugin.zsh <<EOF
+# -*- mode: sh; sh-indentation: 4; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+
+# Copyright (c) $year $user_name
+
+# According to the Zsh Plugin Standard:
+# https://zdharma-continuum.github.io/Zsh-100-Commits-Club/Zsh-Plugin-Standard.html
+0=\${\${(M)\${0::=\${(%):-%x}}:#/*}:-\$PWD/\$0} 
+
+# Then \${0:h} to get plugin's directory
+
+if [[ \${zsh_loaded_plugins[-1]} != */${plugin:t} && -z \${fpath[(r)\${0:h}]} ]]
+then
+    fpath+=( "\${0:h}" )
+fi
+
+# Standard hash for plugins, to not pollute the namespace
+typeset -gA Plugins
+Plugins[${${(U)plugin:t}//-/_}_DIR]="\${0:h}"
+
+autoload -Uz template-script
+
+# Use alternate vim marks [[[ and ]]] as the original ones can
+# confuse nested substitutions, e.g.: \${\${\${VAR}}}
+
+# vim:ft=zsh:tw=80:sw=4:sts=4:et:foldmarker=[[[,]]]
+EOF
+
+    builtin print -r -- "# $plugin" >! README.md
+    command cp -f $ZIQDIR/LICENSE LICENSE
+    command cp -f $ZIQDIR/share/template-plugin/.gitignore .gitignore
+    command cp -f $ZIQDIR/share/template-plugin/template-script .
+
+    command sed -i -e s/MY_PLUGIN_DIR/${${(U)plugin:t}//-/_}_DIR/g template-script
+    command sed -i -e s/USER_NAME/$user_name/g template-script
+    command sed -i -e s/YEAR/$year/g template-script
+
+    if [[ $user != _local && -n $user ]]; then
+        iqmsg {head}Your repository is ready\!{%}\
+            {nl}A LICENSE file has been placed - please review the \
+                license terms to see if they fit your new \
+            project:{nl}· https://choosealicense.com/\
+            {nl}Remote repository $uspl2col set up as origin.\
+                You\'re in plugin\'s local folder, the files\
+                aren\'t added to git.\
+            {nl}Your next step after commiting will be:\
+            {nl}· %B{note}git push -u origin master \
+                (or \`… -u origin main\')
+    else
+        iqmsg Created local {pid}$uspl2col{%} plugin.{nl}\
+         You\'re in plugin\'s repository folder, the files{nl}\
+            aren\'t added to git.
+    fi
+} # ]]]

@@ -5,8 +5,8 @@
 # Copyright (c) 2022 zdharma-continuum and contributors
 # Copyright (c) 2016-2022 Sebastian Gniazdowski and contributors.
 
-iq::action-complete()
-{
+iq::action-complete() {
+    # Preamble – emulate & 0=…
     SNIP_EMULATE_OPTIONS_ZERO
     # The index of the match that's inserted in cmd line
     integer -g ziac_midx
