@@ -28,13 +28,12 @@
 --_mtable-regex-zsh3=comment/[\n]///{tleave}
 --_mtable-regex-zsh3=comment/.//
 
---_mtable-regex-zsh3=equal/([\"][^\"]*[\"])///{exclusive}{tleave}
---_mtable-regex-zsh3=equal/([\'][^\']*[\'])///{exclusive}{tleave}
+--_mtable-regex-zsh3=equal/(\"(\\.|[^\\\"])*\"|[^\"[:space:]\']|[\'][^\']*[\'])+///{exclusive}{tleave}
 --_mtable-regex-zsh3=equal/([\$][\(][\(])([^\)][^\)])*([^\)]){0,1}([\)][\)])///{exclusive}{tleave}
---_mtable-regex-zsh3=equal/([\$][\(])([^\)]*)([\)])///{exclusive}{tleave}
+--_mtable-regex-zsh3=equal/([\$][\(])([^\)]*)[\)][^\s]*)+///{exclusive}{tleave}
 --_mtable-regex-zsh3=equal/([\(])([^\)]*)([\)])///{exclusive}{tleave}
 # Try to match sequences of ${…}\w${…}…
---_mtable-regex-zsh3=equal/([\$][\{])((([^\}]*[\}][^\s][\$][\{])*[^\}]*)|[^\}]*)([\}])///{exclusive}{tleave}
+--_mtable-regex-zsh3=equal/(([\$][\{])([^\}]*[\}][^\s]*))+///{exclusive}{tleave}
 --_mtable-regex-zsh3=equal/[^\s\n]+///{exclusive}{tleave}{_advanceTo=0start} 
 --_mtable-regex-zsh3=equal/[\n\s]///{exclusive}{tleave}{_advanceTo=0start}
 
