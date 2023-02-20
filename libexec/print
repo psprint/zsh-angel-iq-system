@@ -6,12 +6,11 @@ dump(){
     source $0:h:h/share/preamble.inc.zsh --func
 
     local -a opts; local -A Opts
-    int/iq::parse-opts "l e n q d -dump c o:" Opts opts "$@"
+    int/iq::parse-opts "o: l e n p q c " Opts opts "$@"
     set -- "$reply[@]"
-    int/iq::opt-cascade Opts --dump -d
     local QNL=/dev/null
 
-    if (($+Opts[-d]));then
+    if (($+Opts[-p]));then
         local QN
         for QN ($@){
             iqmsg {nl}{note}Notice:{%} showing variable {var}$QN{%}:

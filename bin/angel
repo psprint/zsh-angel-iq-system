@@ -28,7 +28,7 @@ iqsn() {
     integer EC
     local -A Opts; local -a opts
     int/iq::parse-opts "z -zsh c -c v -verbose V -vim \
-                            l e n q d -dump o:" Opts opts "$@"
+                         o: l e n p q" Opts opts "$@"
     set -- "$reply[@]"
     local CMD=$1
     (($#&&$#CMD))&&shift||CMD=help
