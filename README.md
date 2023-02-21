@@ -8,7 +8,20 @@ A bunch of intelligent extensions to Zsh. Features:
    with Universal Ctags and open editor on their source locations.
 3. Angel Swiss Knife – a utility allowing:
    - quick Ctags generation,
-   - variable contents dumping.
+   - variable contents dumping,
+   - swapping 2 files' locations,
+   - repository creating on GitHub,
+   - hopping – spawning blocks of code to call back in command line after
+     specified time,
+   - escape codes (for colors, etc.) filter – works either on stdin or
+     on commandline arguments,
+   - `try-ng` – takes string and a pattern and returns the result. NON-GREEDY mode"
+   - `tries-ng` – takes strings and a pattern and returns the strings each after pat applied. NON-GREEDY mode
+   - `try` – the same as `try-ng`, but greedy
+   - `tries` — the same as `tries-ng`, but greedy
+   - `x-tract` — extracts any archive, recognizes many types
+ 
+
 3. An extension to Zinit plugin manager – *action complete* – press
    `Alt-a` to complete a name of plugin and `Alt-c` to complete
    a name of ice modifier.
