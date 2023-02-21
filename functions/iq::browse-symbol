@@ -12,15 +12,15 @@
 # This will bind to Ctrl-T. The plugin binds to Ctrl-O Ctrl-K.
 #
 # Example zstyles:
-# zstyle ":iq:symbol-search" page-size 5
-# zstyle ":iq:symbol-search" highlight-color "fg=magenta,bold"
-# zstyle ":iq:symbol-search" heading-color "fg=18,bold"
-# zstyle ":iq:symbol-search" title-color "fg=180,bold"
-# zstyle ":iq:symbol-search" arrow-color "fg=180,bg=39,bold"
-# zstyle ":iq:symbol-search" func-color "fg=208,bold"
-# zstyle ":iq:symbol-search" var-color "fg=174,bg=39,bold"
-# zstyle ":iq:symbol-search" macro-color "fg=39,bold"
-# zstyle ":iq:symbol-search" eqdol-color "fg=183,bg=39,bold"
+# zstyle ":angel:tags" page-size 5
+# zstyle ":angel:tags" highlight-color "fg=magenta,bold"
+# zstyle ":angel:tags" heading-color "fg=18,bold"
+# zstyle ":angel:tags" title-color "fg=180,bold"
+# zstyle ":angel:tags" arrow-color "fg=180,bg=39,bold"
+# zstyle ":angel:tags" func-color "fg=208,bold"
+# zstyle ":angel:tags" var-color "fg=174,bg=39,bold"
+# zstyle ":angel:tags" macro-color "fg=39,bold"
+# zstyle ":angel:tags" eqdol-color "fg=183,bg=39,bold"
 
 iq::browse-symbol() {
 
@@ -79,8 +79,8 @@ _tfind_find_index() {
         # Cleanup functions and their preambles
         __tfind_tag_data=( ${__tfind_tag_data[@]/(#b)(\([^\)]#\))[[:space:]]#[\{]*($'\x7f')/$match[1]$match[2]} )
         __tfind_tag_data=( ${__tfind_tag_data[@]/(#b)[[:space:]]\#*($'\x7f')/$match[1]} )
-        __tfind_outside_git="${PWD%/${$(git rev-parse --quiet --show-prefix 2>/dev/null)%/}}"
-        if [[ -d $__tfind_outside_git && -n ${${(M)PWD##$__tfind_outside_git}##$HOME} ]]; then
+        __tfind_outside_git="${PWD%%/${$(git rev-parse --quiet --show-prefix 2>/dev/null)%/}}"
+        if [[ $? -eq 0 && -d $__tfind_outside_git && -n ${__tfind_outside_git##$HOME/#} ]];then
             TAG[git-or-project]=$__tfind_outside_git:t
             TAG[repo-dir]=$__tfind_outside_git
         else
@@ -127,18 +127,18 @@ _tfind_main() {
     if [[ $__tfind_spe_call_count -le 1 || $__tfind_spe_restart = 1 ]]; then
         if [[ $__tfind_spe_call_count -le 1 ]]; then
             # Read configuration data
-            zstyle -s ":iq:symbol-search" page-size __tfind_page_size || __tfind_page_size=$(( LINES / 3 ))
-            zstyle -s ":iq:symbol-search" highlight-color __tfind_high_color || __tfind_high_color="fg=39,bold"
-            zstyle -s ":iq:symbol-search" heading-color __tfind_heading_color || __tfind_heading_color="fg=69,bold"
-            zstyle -s ":iq:symbol-search" title-color __tfind_title_color || __tfind_title_color="fg=208,bold"
-            zstyle -s ":iq:symbol-search" arrow-color __tfind_arrow_color || __tfind_arrow_color="fg=227,bg=69,bold"
-            zstyle -s ":plugin:zini t:symbol-search" var-color __tfind_var_color || __tfind_var_color="fg=127,bold"
-            zstyle -s ":iq:symbol-search" func-color __tfind_func_color || __tfind_func_color="fg=70,bold"
-            zstyle -s ":iq:symbol-search" macro-color __tfind_macro_color || __tfind_macro_color="fg=208,bold"
-            zstyle -s ":iq:symbol-search" eqdol-color __tfind_eqdol_color || __tfind_eqdol_color="fg=69,bold"
+            zstyle -s ":angel:tags" page-size __tfind_page_size||__tfind_page_size=$(( LINES / 3 ))
+            zstyle -s ":angel:tags" highlight-color __tfind_high_color||__tfind_high_color="fg=39,bold"
+            zstyle -s ":angel:tags" heading-color __tfind_heading_color||__tfind_heading_color="fg=69,bold"
+            zstyle -s ":angel:tags" title-color __tfind_title_color||__tfind_title_color="fg=208,bold"
+            zstyle -s ":angel:tags" arrow-color __tfind_arrow_color||__tfind_arrow_color="fg=227,bg=69,bold"
+            zstyle -s ":angel:tags" var-color __tfind_var_color||__tfind_var_color="fg=127,bold"
+            zstyle -s ":angel:tags" func-color __tfind_func_color||__tfind_func_color="fg=70,bold"
+            zstyle -s ":angel:tags" macro-color __tfind_macro_color||__tfind_macro_color="fg=208,bold"
+            zstyle -s ":angel:tags" eqdol-color __tfind_eqdol_color||__tfind_eqdol_color="fg=69,bold"
 
         # Find the index to operate on, git dir, etc.
-        _tfind_find_index || { _tfind_error_msg && return;}
+        _tfind_find_index||{ _tfind_error_msg && return;}
        fi
 
         # '0' will get changed into $to_display limit
@@ -151,7 +151,7 @@ _tfind_main() {
         [[ $WIDGET = *-symbol ]] && (( __tfind_spe_index ++ ))
         [[ $WIDGET = *-backwards ]] && (( __tfind_spe_index -- ))
         [[ $WIDGET = *-pforwards ]] && (( __tfind_spe_index = __tfind_spe_index + __tfind_page_size ))
-        [[ $WIDGET = *-pbackwards ]] && (( __tfind_spe_index = __tfind_spe_index - __tfind_page_size ))
+        [[ $WIDGET = *-pbackwards ]]&&(( __tfind_spe_index = __tfind_spe_index - __tfind_page_size ))
     fi
 
     # Find history entries matching pattern *word1*~^*word2*~^*word3* etc.
@@ -166,8 +166,8 @@ _tfind_main() {
         repeat 1; do
             # Match only before ^? ($'\177')
             __tfind_spe_found=( "${(@M)__tfind_tag_data:#(#i)$~search_pattern*$'\177'*}" )
-            ((__tfind_spe_funct)) &&  __tfind_spe_found=(${(M)__tfind_spe_found:#[[:alnum:]$TAG[fun-xt-chars]]##[[:space:]]#\([^\)]#\)[[:space:]]#(\{|)*})
-            ((__tfind_spe_sort)) &&  __tfind_spe_found=(${(no)__tfind_spe_found})
+            ((__tfind_spe_funct))&& __tfind_spe_found=(${(M)__tfind_spe_found:#[[:alnum:]$TAG[fun-xt-chars]]##[[:space:]]#\([^\)]#\)[[:space:]]#(\{|)*})
+            ((__tfind_spe_sort))&& __tfind_spe_found=(${(no)__tfind_spe_found})
         done
     fi
 
@@ -181,9 +181,9 @@ _tfind_main() {
 
     integer page_size=$__tfind_page_size
     integer max_index=$#__tfind_spe_found
-    [[ $page_size -gt $max_index ]] && page_size=$max_index
-    [[ $__tfind_spe_index -le 0 ]] && __tfind_spe_index=$max_index
-    [[ $__tfind_spe_index -gt $max_index ]] && __tfind_spe_index=1
+    [[ $page_size -gt $max_index ]]&&page_size=$max_index
+    [[ $__tfind_spe_index -le 0 ]]&&__tfind_spe_index=$max_index
+    [[ $__tfind_spe_index -gt $max_index ]]&&__tfind_spe_index=1
     integer page_start_idx=$(( ((__tfind_spe_index-1)/page_size)*page_size+1 ))
     integer on_page_idx=$(( (__tfind_spe_index-1) % page_size + 1 ))
 
@@ -195,7 +195,7 @@ _tfind_main() {
     disp_list=( "${(@)__tfind_spe_found[page_start_idx,page_start_idx+page_size-1]}" )
 
     # Remove meta-data from the entries
-    disp_list=( "${(@)disp_list//$'\177'*/}" )
+    disp_list=("${(@)disp_list//(#b)([^$'\177']#)$'\177'([^$'\1']##)*/${(r:30:: :)match[2]} $match[1]}")
 
     # All entries should have multilines replaced
     disp_list=( "${(@)disp_list//$'\n'/\\n}" )
@@ -275,19 +275,19 @@ _tfind_simulate_widget() {
 }
 
 _tfind_self_insert() {
-    [[ $#KEYS ]] && __tfind_spe_restart=1
+    [[ $#KEYS ]]&&__tfind_spe_restart=1
     LBUFFER+="${KEYS[-1]}"
     _tfind_simulate_widget
 }
 
 _tfind_backward_delete_char() {
-    [[ $#LBUFFER ]] && __tfind_spe_restart=1
+    [[ $#LBUFFER ]]&&__tfind_spe_restart=1
     LBUFFER="${LBUFFER%?}"
     _tfind_simulate_widget
 }
 
 _tfind_delete_char() {
-    [[ $#RBUFFER ]] && __tfind_spe_restart=1
+    [[ $#RBUFFER ]]&&__tfind_spe_restart=1
     RBUFFER="${RBUFFER#?}"
     _tfind_simulate_widget
 }
@@ -314,21 +314,21 @@ if [[ $__tfind_spe_call_count -eq 1 ]]; then
     bindkey -M tfind '^[OB' $down_widget
     bindkey -M tfind '^[[A' $up_widget
     bindkey -M tfind '^[[B' $down_widget
-    [[ -n "$termcap[ku]" ]] && bindkey -M tfind "$termcap[ku]" $up_widget
-    [[ -n "$termcap[kd]" ]] && bindkey -M tfind "$termcap[kd]" $down_widget
-    [[ -n "$termcap[kD]" ]] && bindkey -M tfind "$termcap[kD]" delete-char
-    [[ -n "$terminfo[kcuu1]" ]] && bindkey -M tfind "$terminfo[kcuu1]" $up_widget
-    [[ -n "$terminfo[kcud1]" ]] && bindkey -M tfind "$terminfo[kcud1]" $down_widget
-    [[ -n "$terminfo[kdch1]" ]] && bindkey -M tfind "$terminfo[kdch1]" delete-char
+    [[ -n "$termcap[ku]" ]]&&bindkey -M tfind "$termcap[ku]" $up_widget
+    [[ -n "$termcap[kd]" ]]&&bindkey -M tfind "$termcap[kd]" $down_widget
+    [[ -n "$termcap[kD]" ]]&&bindkey -M tfind "$termcap[kD]" delete-char
+    [[ -n "$terminfo[kcuu1]" ]]&&bindkey -M tfind "$terminfo[kcuu1]" $up_widget
+    [[ -n "$terminfo[kcud1]" ]]&&bindkey -M tfind "$terminfo[kcud1]" $down_widget
+    [[ -n "$terminfo[kdch1]" ]]&&bindkey -M tfind "$terminfo[kdch1]" delete-char
 
     # More bindkeys, to remove influence of overloading plugins (sy-h, suggestions)
     # Left/Right cursor keys
     bindkey -M tfind '^[[D' .backward-char
     bindkey -M tfind '^[[C' .forward-char
-    [[ -n "$termcap[kl]" ]] && bindkey -M tfind "$termcap[kl]" .backward-char
-    [[ -n "$termcap[kr]" ]] && bindkey -M tfind "$termcap[kr]" .forward-char
-    [[ -n "$terminfo[kcub1]" ]] && bindkey -M tfind "$terminfo[kcub1]" .backward-char
-    [[ -n "$terminfo[kcuf1]" ]] && bindkey -M tfind "$terminfo[kcuf1]" .forward-char
+    [[ -n "$termcap[kl]" ]]&&bindkey -M tfind "$termcap[kl]" .backward-char
+    [[ -n "$termcap[kr]" ]]&&bindkey -M tfind "$termcap[kr]" .forward-char
+    [[ -n "$terminfo[kcub1]" ]]&&bindkey -M tfind "$terminfo[kcub1]" .backward-char
+    [[ -n "$terminfo[kcuf1]" ]]&&bindkey -M tfind "$terminfo[kcuf1]" .forward-char
     # Now Home/End keys, first few recorded in my .zshrc during the years sequences
     bindkey -M tfind "\e[1~" .beginning-of-line
     bindkey -M tfind "\e[7~" .beginning-of-line
@@ -336,10 +336,10 @@ if [[ $__tfind_spe_call_count -eq 1 ]]; then
     bindkey -M tfind "\e[4~" .end-of-line
     bindkey -M tfind "\e[F"  .end-of-line
     bindkey -M tfind "\e[8~" .end-of-line
-    [[ -n "$termcap[kh]" ]] && bindkey -M tfind "$termcap[kh]" .beginning-of-line
-    [[ -n "$termcap[@7]" ]] && bindkey -M tfind "$termcap[@7]" .end-of-line
-    [[ -n "$terminfo[khome]" ]] && bindkey -M tfind "$terminfo[khome]" .beginning-of-line
-    [[ -n "$terminfo[kend]" ]] && bindkey -M tfind "$terminfo[kend]" .end-of-line
+    [[ -n "$termcap[kh]" ]]&&bindkey -M tfind "$termcap[kh]" .beginning-of-line
+    [[ -n "$termcap[@7]" ]]&&bindkey -M tfind "$termcap[@7]" .end-of-line
+    [[ -n "$terminfo[khome]" ]]&&bindkey -M tfind "$terminfo[khome]" .beginning-of-line
+    [[ -n "$terminfo[kend]" ]]&&bindkey -M tfind "$terminfo[kend]" .end-of-line
     # The same for Ctrl-E, Ctrl-F
     bindkey -M tfind '^A' .beginning-of-line
     bindkey -M tfind '^E' .end-of-line
@@ -356,10 +356,10 @@ if [[ $__tfind_spe_call_count -eq 1 ]]; then
     bindkey -M tfind '^N' $down_widget
 
     # Page Up, Page Down keys
-    [[ -n "$termcap[kP]" ]] && bindkey -M tfind "$termcap[kP]" $pup_widget
-    [[ -n "$termcap[kN]" ]] && bindkey -M tfind "$termcap[kN]" $pdown_widget
-    [[ -n "$terminfo[kpp]" ]] && bindkey -M tfind "$terminfo[kpp]" $pup_widget
-    [[ -n "$terminfo[knp]" ]] && bindkey -M tfind "$terminfo[knp]" $pdown_widget
+    [[ -n "$termcap[kP]" ]]&&bindkey -M tfind "$termcap[kP]" $pup_widget
+    [[ -n "$termcap[kN]" ]]&&bindkey -M tfind "$termcap[kN]" $pdown_widget
+    [[ -n "$terminfo[kpp]" ]]&&bindkey -M tfind "$terminfo[kpp]" $pup_widget
+    [[ -n "$terminfo[knp]" ]]&&bindkey -M tfind "$terminfo[knp]" $pdown_widget
 
     # Needed for Fedora 23, zsh-5.1.1
     bindkey -M tfind ' ' self-insert
@@ -404,21 +404,22 @@ if [[ $__tfind_spe_call_count -eq 1 ]]; then
     bindkey -M tfind "^f" tfind-functions
     bindkey -M tfind "\es" tfind-sort
 
-    local redrawbkp=0
+    local editor redrawbkp=0
     # Trap INT to manually interrupt Zle to work around a bug
-    trap 'zle && zle .send-break' INT
+    trap 'zle&&zle .send-break' INT
     if zle .recursive-edit -K tfind; then
         if ((__tfind_spe_index<=0)); then
             :
         else
-            zstyle -s ":iq:symbol-search" editor selected_editor || selected_editor=${VISUAL:-${EDITOR:-mcedit}}
-            zstyle -T ":iq:symbol-search" cd_at_edit && cd_at_edit=yes|| cd_at_edit=no
-            ((!$+commands[$selected_editor]))&&selected_editor=nano
-            ((!$+commands[$selected_editor]))&&selected_editor=vim
-            ((!$+commands[$selected_editor]))&&selected_editor=emacs
+            zstyle -s ":angel:tags" editor editor|| \
+                editor=${VISUAL:-${EDITOR:-mcedit}}
+            ((!$+commands[$editor]))&&editor=nano
+            ((!$+commands[$editor]))&&editor=vim
+            ((!$+commands[$editor]))&&editor=emacs
+            ((!$+commands[$editor]))&&editor=micro
 
             tagtext=$__tfind_spe_found[__tfind_spe_index]
-            if [[ $tagtext = (#b)[^$'\177']#$'\177'[^$'\1']#$'\1'([^$'\2']#)$'\2'(*) ]]; then
+            if [[ $tagtext = (#b)[^$'\177']#$'\177'[^$'\1']#$'\1'([^$'\2']#)$'\2'(*) ]];then
                 taglinebyte=${match[1]}
                 tagline=${taglinebyte%%,*}
 
@@ -430,12 +431,12 @@ if [[ $__tfind_spe_call_count -eq 1 ]]; then
                 fi
                 [[ ! -f $tagfile && -f $match[2] ]] && tagfile=$match[2]
                 # Editor command
-                case "$selected_editor" in
+                case "$editor" in
                     (mcedit|nano|micro|gedit|emacs|emacsclient|vim|vi|gvim|mvim|nvim)
-                        comm+=( $selected_editor "+$tagline" -- "${(q)tagfile}" )
+                        comm+=($editor "+$tagline" -- "$tagfile")
                         ;;
                     (*)
-                        comm+=( $selected_editor "+$tagline" -- "${(q)tagfile}" )
+                        comm+=($editor "+$tagline" -- "$tagfile")
                         ;;
                 esac
             fi
@@ -474,12 +475,20 @@ if [[ $__tfind_spe_call_count -eq 1 ]]; then
 
     # Is there a command to run?
     if [[ $#comm != 0 ]]; then
-        local auto_run
-        zstyle -T ":iq" auto_run && auto_run=yes || auto_run=no
-        BUFFER=$comm[*]
-        CURSOR=$buflen
-        [[ $auto_run = yes ]] && zle .accept-line
+        if zstyle -T ":angel:tags" auto_run;then
+            (
+                if zstyle -T ":angel:tags" cd_at_edit; then
+                    builtin cd -q -- $TAG[repo-dir]
+                fi
+                "$comm[@]"
+            )
+        else
+            BUFFER=$comm[*]
+            CURSOR=$buflen
+        fi 
     fi
 elif (( __tfind_spe_call_count > 0 )); then
     (( __tfind_spe_call_count -- ))
-fi
+
+ fi
+}

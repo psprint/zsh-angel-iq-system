@@ -4,7 +4,7 @@
 # iqsn – IQ Swiss Knife
 #
 
-iqsn() {
+angel() {
     # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
     # The only place where code repetition occurs
     # ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
@@ -56,4 +56,4 @@ iqsn() {
 }
 
 # To support autoloading the script as a function
-iqsn "$@"
+angel "$@"
