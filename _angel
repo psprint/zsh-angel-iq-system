@@ -1,0 +1,30 @@
+#compdef angel
+
+setopt localoptions extendedglob warncreateglobal typesetsilent
+
+local curcontext="$curcontext" state ret=1
+
+_arguments -C \
+    '1: :->command'\
+    '*: :->argument' && ret=0
+
+case $state in
+    command)
+        local -a q=(tags:"generate Ctags for current directory"
+                    con:"open smart console for current directory"
+                    qprint:"print contents of given variable (by name, not by value)"
+                    swap:"swap two files in their locations"
+                    gh-create:"create a repository at GitHub"
+                    hop:"deploy a block of code for execution in ZLE\
+ scope"
+                    fresh-in:"finds files changed in ARGUMENT-\
+minutes"
+        )
+         _describe -t features "available commands" q && ret=0
+        ;;
+
+    argument)
+        ;;
+esac
+
+return $ret
