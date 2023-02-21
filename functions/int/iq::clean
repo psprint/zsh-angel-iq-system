@@ -1,0 +1,8 @@
+#!/usr/bin/env zsh
+
+# Copyright (c) 2023 Sebastian Gniazdowski
+
+int/iq::clean() {
+    # Cleanup
+    REPLY= MATCH= MBEGIN= MEND= reply=() match=() mbegin=() mend=()
+}

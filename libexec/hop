@@ -1,0 +1,38 @@
+#!/usr/bin/env zsh
+# Copyright (c) 2023 Sebastian Gniazdowski
+#
+# Hop – a returning code snippet after specified delay,
+# executed in Zle.
+#
+
+hop() {
+    # Preamble – emulate & 0=…
+    SNIP_EMULATE_OPTIONS_ZERO
+    source $0:h:h/share/preamble.inc.zsh --func
+
+    local -A Opts; local -a opts
+    int/iq::parse-opts "t: -timeout:" Opts opts "$@"
+    EC+=$?
+    set -- "$reply[@]"
+
+    # Cascade options to short ones
+    int/iq::opt-cascade Opts --timeout -t
+    EC+=$?
+
+    # Text comes from stdin? If no args…
+    if ((!$#));then
+        if ! int/iq::read-all -u0;then
+            iqwarn No script instructions given, checked stdin and \
+                    arguments, nothing run…
+            return 7
+        fi
+        set -- "$reply[@]"
+    fi
+
+    (($+Opts[-t]))&&local t="@sleep:$Opts[-t]"
+    iq::exec-hop-back $t "$@"
+    EC+=$?
+    return EC
+}
+
+hop "$@"
