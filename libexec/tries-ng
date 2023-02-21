@@ -1,0 +1,56 @@
+# -*- mode: sh; sh-indentation: 4; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# Copyright (c) 2018 Sebastian Gniazdowski
+#
+# Returns all non-greedy matches of the given pattern ($2)
+# in the given string ($1).
+#
+# $1 … n-1 - the strings to match in
+# $n       - the pattern to match in the strings
+#
+# Return value: $reply – contains all the matches
+#               $REPLY - holds the first match
+#               $?: 0 if there was any match found, otherwise 1
+#
+# Example:
+# arr=( a1xx ayy a2xx )
+# if tries-ng ${arr[@]} "a*x"; then
+#    print -rl $reply
+# fi
+#
+# Output:
+# a1x
+# a2x
+
+tries-ng() {
+    # Preamble – emulate & 0=…
+    SNIP_EMULATE_OPTIONS_ZERO
+    source $0:h:h/share/preamble.inc.zsh --func
+
+    local pat=${@[$#]} retval=1
+    local -a input
+
+    local -a opts; local -A Opts
+    int/iq::parse-opts "h s e" Opts opts "$@"||return 7
+    set -- "$reply[@]"
+ 
+    if (($+Opts[-h]||$+Opts[-s]&&$+Opts[-e]));then
+        pat="(#s)($pat)(#e)"
+    elif (($+Opts[-s]));then
+        pat="(#s)($pat)"
+    elif (($+Opts[-e]));then
+        pat="($pat)(#e)"
+    else
+        pat="($pat)"
+    fi
+
+    int/iq::reset
+
+    input=("${@[1,${#}-1]}")
+    : ${(S)input[@]//(#b)(${~pat})/${reply[${#reply}+1]::=$match[1]}\
+${retval::=0}}
+    REPLY=$reply[1]
+    return retval
+}
+
+tries-ng "$@"
+# vim:ft=zsh:sw=4:sts=4:et

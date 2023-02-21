@@ -2,7 +2,7 @@
 
 # Copyright (c) 2023 Sebastian Gniazdowski
 
-int/iq::clean() {
+int/iq::reset() {
     # Cleanup
     REPLY= MATCH= MBEGIN= MEND= reply=() match=() mbegin=() mend=()
 }

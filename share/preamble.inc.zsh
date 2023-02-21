@@ -64,7 +64,7 @@ iq::setup-aliases||\
         components might not work…
     EC=1;}
 
-int/iq::clean
+int/iq::reset
 
 # Restore fpath if it's ZINIT sourcing, it saves fpath internally
 (($+fpath_save))&&fpath=($fpath_save)

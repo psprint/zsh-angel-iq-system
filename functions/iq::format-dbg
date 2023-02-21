@@ -28,7 +28,7 @@ iq::format-dbg() {
     local INPUT=$*
 
     # Should output anything?
-    iq::clean
+    int/iq::reset
     ((IQDBG))&&REPLY=$INPUT||REPLY=
 
     # Stdout requested?

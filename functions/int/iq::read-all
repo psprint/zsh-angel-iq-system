@@ -24,7 +24,7 @@ int/iq::read-all() {
         I=0
     fi
 
-    int/iq::clean
+    int/iq::reset
     local IFS=$'\n' txt
 
     while read -t1 -r txt <&$I;do
