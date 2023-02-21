@@ -8,8 +8,8 @@ integer EC
 # Parse any options given to this preamble.inc.zsh file
 local -A Opts
 builtin zparseopts \
-    ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} -D -E -A Opts -- \
-        -func||return 7
+    ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} \
+        -D -E -A Opts -- -func||return 7
 
 # Set options
 ((!$+Opts[--func]))&&builtin emulate -L zsh -o extendedglob \

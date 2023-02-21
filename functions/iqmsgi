@@ -44,7 +44,7 @@ local -A ZIQ=("$reply[@]")
 local funloc=$1 nick=$ZIQNICK tmp
 [[ $funloc == ?*:<-> ]]&&shift||funloc=
 [[ -n $nick ]]&&tmp+="%U%B[%b$nick%B]{%}"
-[[ -n $funloc ]]&&tmp+="%B[%b${funloc:t}%B]%b:{%}"
+[[ -n $funloc ]]&&tmp+="%B{note}[%b{pre}${funloc:t}%B{note}]%b:{%}"
 
 # Output origin tag?
 (($+Opts[-h]))&&builtin set -- $tmp "$@"

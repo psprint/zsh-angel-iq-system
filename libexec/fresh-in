@@ -9,6 +9,6 @@ fresh-in() {
     set -- "$reply[@]"
     int/iq::opt-cascade Opts -q --quiet
     local t=$1
-    (($+Opts[-q]))||iqmsg {pre}Files changed in last {num}$t{pre} minutes:
+    (($+Opts[-q]))||iqmsg {pre}Files changed in last {int}$t{pre} minutes:
     command find . -newerct "$t minute ago" -print
 }

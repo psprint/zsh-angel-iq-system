@@ -14,7 +14,7 @@ command mv -v "$1" "$1"_"$suffix"; EC+=$?
 command mv -v "$2" "$1"; EC+=$?
 command mv -v "$1"_"$suffix" "$2"; EC+=$?
 
-((EC))&&iqwarn Something wrong happened, summed exit values: {num}$EC||\
+((EC))&&iqwarn Something wrong happened, summed exit values: {int}$EC||\
         iqmsg {head}Files have been correctly moved
 }
 swap "$@"

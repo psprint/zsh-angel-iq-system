@@ -10,12 +10,12 @@ int/iq::parse-opts() {
     local OPTSPEC=$1 ASVAR=$2 ARVAR=$3
     shift 3
 
-    builtin zparseopts ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} \
+    builtin zparseopts SNIP_-F_OPT_FOR_ZP_OPTS_VERSION \
         -D -E ${=ASVAR:+-A $ASVAR} ${=ARVAR:+-a $ARVAR} -- \
-            $=OPTSPEC ||return 1
+            $=OPTSPEC ||return 7 #zsweep:pass
 
     # Remove any --/- end option mark
     integer QIDX=${@[(ie)(--|-)]}
-    ((QIDX<$#))&&builtin set -- "$@[1,QIDX-1]" "$@[QIDX+1,-1]"
+    ((QIDX<=$#))&&builtin set -- "$@[1,QIDX-1]" "$@[QIDX+1,-1]"
     reply=($@)
 }

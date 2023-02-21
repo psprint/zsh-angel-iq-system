@@ -16,14 +16,16 @@ builtin emulate -L zsh -o extendedglob -o noshortloops \
 
 # Input/options
 local -A Opts
-builtin zparseopts ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} -D -E -A Opts -- -c || return 1
+builtin zparseopts ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} \
+            -D -E -A Opts -- p: -path: || return 1
+(($+Opts[-p]))&&Opts[--path]=$Opts[-p]
 
-if [[ ! -d $ZIQAES ]];then
+if [[ ! -d $ZIQAES && ! -d $Opts[--path] ]];then
     print 'ZshSweep:' error: alias dir not set \(\$ZIQAES\)
     return 1
 fi
 
-local DIR dirs=($ZIQAES $ZIQAES/*(/N))
+local DIR dirs=($Opts[--path](/N) $ZIQAES $ZIQAES/*(/N))
 
 for DIR ($dirs);do
     # Set up aliases (global, suffix and the proper ones)
@@ -33,6 +35,6 @@ for DIR ($dirs);do
         ZIQ[${(M)REPLY##[^=]##}]=${REPLY#*:}
     done
 done
-REPLY=
+int/iq::reset
 
 }

@@ -10,9 +10,9 @@
 # extended by changing the "repeat 25" line
 #
 # Usage:
-# deploy-code "echo Hello world"
-# deploy-code "BUFFER[-1]=''"
-# deploy-code  @sleep:5.5 "BUFFER='The time has passed, sorry for replacing your command line ;)'"
+# iq::exec-hop-back "echo Hello world"
+# iq::exec-hop-back "BUFFER[-1]=''"
+# iq::exec-hop-back  @sleep:5.5 "BUFFER='The time has passed, sorry for replacing your command line ;)'"
 
 [[ "$1" = <-> && $# -eq 1 ]] && {
     local alltext text IFS=$'\n' nl=$'\n'
@@ -35,6 +35,7 @@ exec {THEFD} < <(
 
 zle -N exec-widget iq::exec-hop-back && \
     zle -w -F "$THEFD" exec-widget || \
-        iqwarn couldn\'t set up recurring code (zle error: $?)
+        iqwarn couldn\'t set up the recurring code snippet to run \
+            (zle error: {int}$?{txt})
 
 # vim;ft=zsh:sts=4:sw=4:et
