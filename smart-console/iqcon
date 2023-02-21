@@ -155,13 +155,12 @@ generator_B() {
         -zui_std_fly_mod_regen 2 1
     elif (( ZUI[had_read_prev] )); then
         -zui_std_fly_mod_regen 2 1
-        (( ZUI[update_cnt] += 8 - ZUI[update_cnt] % 8 ))
     fi
 
-    if (( (ZUI[update_cnt]+=had_read) % 8 == 0 || !had_read && ZUI[had_read_prev] )); then
+    ZUI[update_cnt]+=had_read
+    if ((ZUI[autscr]&&(had_read||!had_read&&ZUI[had_read_prev])));then
         local loc=$mod2_ice1_global_index sz=$mod2_ice1_size
         ZUI[CURRENT_IDX]=$(( loc + sz ))
-
     fi
 
     ZUI[had_read_prev]=$had_read
