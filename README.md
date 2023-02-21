@@ -1,4 +1,4 @@
-# Zsh Angel System
+# Zsh Angel IQ System
 
 A bunch of intelligent extensions to Zsh. Features:
 
