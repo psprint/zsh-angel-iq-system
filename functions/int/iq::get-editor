@@ -7,8 +7,9 @@ int/iq::get-editor() {
     local -A Opts
     int/iq::parse-opts "e:" Opts "" "$@"
     set -- "$reply[@]"
-    local qed1=${${${Opts[-e]:-$EDITOR}:-$VISUAL}:-mcedit}
+    local qed1=${Opts[-e]:-${EDITOR:-${VISUAL:-mcedit}}}
     local QED=$qed1
+    (($+commands[$QED]))||QED=gedit
     (($+commands[$QED]))||QED=mcedit
     (($+commands[$QED]))||QED=emacs
     (($+commands[$QED]))||QED=micro
