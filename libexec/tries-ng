@@ -30,7 +30,7 @@ tries-ng() {
     local -a input
 
     local -a opts; local -A Opts
-    int/iq::parse-opts "h s e" Opts opts "$@"||return 7
+    int/iq::parse-opts "q h s e" Opts opts "$@"||return 7
     set -- "$reply[@]"
  
     if (($+Opts[-h]||$+Opts[-s]&&$+Opts[-e]));then
@@ -46,9 +46,14 @@ tries-ng() {
     int/iq::reset
 
     input=("${@[1,${#}-1]}")
-    : ${(S)input[@]//(#b)(${~pat})/${reply[${#reply}+1]::=$match[1]}\
+    if (($+Opts[-q]));then
+        : ${input[@]//(#b)(${~pat})/${reply[${#reply}+1]::=$match[1]}\
 ${retval::=0}}
-    REPLY=$reply[1]
+    else
+         : ${(S)input[@]//(#b)(${~pat})/${reply[${#reply}+1]::=$match[1]}\
+${retval::=0}}
+    fi
+     REPLY=$reply[1]
     return retval
 }
 

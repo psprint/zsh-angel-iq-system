@@ -1,0 +1,19 @@
+# -*- mode: sh; sh-indentation: 4; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+# Copyright (c) 2018 Sebastian Gniazdowski
+#
+# Returns a greedy match of the given pattern ($2)
+# in the given string ($1).
+#
+# $1 - the string to match in
+# $2 - the pattern to match in the string
+
+try(){
+    SNIP_EMULATE_OPTIONS_ZERO
+
+    [[ ! -s $ZIQDIR/libexec/try-ng ]]&&\
+        {iqerr couldn\'t locate {cmd}try-ng{%}, cannot continue
+         return 1;}
+    autoload -z $ZIQDIR/libexec/try-ng #zsweep:pass
+    try-ng -q "$@"
+    return
+}

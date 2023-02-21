@@ -19,7 +19,7 @@ try-ng() {
     source $0:h:h/share/preamble.inc.zsh --func
 
     local -a opts; local -A Opts
-    int/iq::parse-opts "h s e" Opts opts "$@"||return 7
+    int/iq::parse-opts "q h s e" Opts opts "$@"||return 7
     set -- "$reply[@]"
     int/iq::reset
  
@@ -33,8 +33,12 @@ try-ng() {
     else
         pat="($pat)"
     fi
-    : ${(S)str/(#b)(${~pat})/${retval::=0}}
 
+    if (($+Opts[-q]));then
+        : ${str/(#b)(${~pat})/${retval::=0}}
+    else
+        : ${(S)str/(#b)(${~pat})/${retval::=0}}
+    fi
     REPLY=$match[1]
     return retval
 }
