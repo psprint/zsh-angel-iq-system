@@ -12,7 +12,7 @@ int/iq::parse-opts() {
 
     builtin zparseopts ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} \
         -D -E ${=ASVAR:+-A $ASVAR} ${=ARVAR:+-a $ARVAR} -- \
-            $=OPTSPEC --||return 1
+            $=OPTSPEC ||return 1
 
     # Remove any --/- end option mark
     integer QIDX=${@[(ie)(--|-)]}

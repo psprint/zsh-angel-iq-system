@@ -88,9 +88,9 @@ ${${match[1]//(#s)([\\][\\])#(#e)/$tmp}//(#s)(#m)[\\]##(#e)/$tmpb}$match[3]}"
     return 0
 }
 
-# Isolate any quoted parts (with {code}…{/code})
-REPLY=${@[*]//(#b)(\{code\}*\{\/code\})/%%CODE%%}
-TMP=$'\x1b[3m'${match[1]//((#s)\{code\}|\{\/code\}(#e))}\
+# Isolate any quoted parts
+REPLY=${@[*]//(\{PRE\}(#b)(*)\{\/PRE\})/%%PRE%%}
+TMP=$'\x1b[3m'${match[1]}\
 $ZIQ[%]
 # Substitute foreground {color}
 iqmsg_subst '{' '}' "$REPLY"
@@ -100,7 +100,7 @@ iqmsg_subst '«' '»' "$REPLY"
 # Substitute $HOME
 REPLY=${REPLY//$HOME/~}
 # Restore quoted code
-REPLY=${REPLY//\%\%CODE\%\%/$TMP}
+REPLY=${REPLY//\%\%PRE\%\%/$TMP}
 
 # Output
 #printf %s\\n
