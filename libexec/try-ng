@@ -42,5 +42,5 @@ try-ng() {
     REPLY=$match[1]
     return retval
 }
-
+try-ng "$@"
 # vim:ft=zsh:sw=4:sts=4:et

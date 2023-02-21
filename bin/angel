@@ -27,9 +27,10 @@ angel() {
 
     integer EC
     local -A Opts; local -a opts
-    int/iq::parse-opts "t -timeout z -zsh c -c v -verbose V -vim \
+    int/iq::parse-opts "t: -timeout: z -zsh c -c v -verbose V -vim \
                          o: 1 e n p q -quiet E O -ed s h \
-                         -auto -move -move2 -prune -bkp" \
+                         -auto -move -move2 -prune -bkp \
+                            -cat" \
                             Opts opts "$@"
     set -- "$reply[@]"
     local CMD=$1

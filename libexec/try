@@ -17,3 +17,6 @@ try(){
     try-ng -q "$@"
     return
 }
+
+try "$@"
+# vim:ft=zsh:sw=4:sts=4:et

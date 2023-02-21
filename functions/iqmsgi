@@ -6,19 +6,7 @@
 
 iqmsgi() {
 
-#
-# This function is special, because it doesn't source global-init
-# script because there are calls to this function, leading to
-# infinite recursion. It sets up it's autoload functions by itself.
-#
-
-# Set options
-builtin emulate -L zsh -o extendedglob -o noshortloops \
-                        -o warncreateglobal -o typesetsilent \
-                        -o nopromptsubst
-
-# Set $0 with a new trik - use of %x prompt expansion
-0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
+SNIP_EMULATE_OPTIONS_ZERO
 source $0:h:h/share/preamble.inc.zsh --func
 
 # -h - origin tag
@@ -27,18 +15,17 @@ source $0:h:h/share/preamble.inc.zsh --func
 # -e - print to stderr
 # -n - no new line
 local -A Opts; local -a opts
-int/iq::parse-opts "h p q e n" Opts opts "$@"
+int/iq::parse-opts "h p q -quiet e n" Opts opts "$@"
 set -- "$reply[@]"
 
 # Quiet mode? → no printing if so
-[[ ($+Opts[-q] == 1 || $2 == 1) && $+Opts[-p] != 1 ]]&&return
-[[ $2 == <-> ]]&&{set -- $1 "$@[3,-1]";}
+(($+Opts[-q]==1&&$+Opts[-p]!=1))&&return
 
 local -a reply
 local TMP
 
 iq::read-theme||return 17
-local -A ZIQ=("$reply[@]")
+typeset -gA ZIQ=("$reply[@]")
 
 # Blue message origin tag?
 local funloc=$1 nick=$ZIQNICK tmp
@@ -113,3 +100,5 @@ REPLY=1
 # vim:ft=zsh:sw=4:sts=4:et
 
 }
+
+iqmsgi "$@"

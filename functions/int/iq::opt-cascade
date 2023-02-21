@@ -12,11 +12,14 @@ int/iq::opt-cascade() {
     (($#%2))&&iqerr incorrect \# of options passed to {func}iq::opt-cascade
 
     # Cascade options to short ones
-    local Q P
+    local Q P VALQ VALP
 
     for Q P in $@;do
         VARSTRQ="${VARNAME}[$Q]" VARSTRP="${VARNAME}[$P]"
-        ((${(P)+VARSTRP}))&&: ${(P)VARSTRQ::=}
+        VALQ=${(P)VARSTRQ} VALP=${(P)VARSTRP}
+        VALQ=${VALQ:-$VALP}
+        ((${(P)+VARSTRP}))&&: ${(P)VARSTRQ::=$VALQ}
+        ((${(P)+VARSTRQ}))&&: ${(P)VARSTRP::=$VALQ}
     done
 
 }

@@ -1,21 +1,24 @@
 #!/usr/bin/env zsh
 
 swap() {
+    SNIP_EMULATE_OPTIONS_ZERO
+    source $0:h:h/share/preamble.inc.zsh --func||return 3
+
     local Q
-if [[ -n ${Q::=first one:$1} && ! -e "$1" || -n ${Q::=second one:$2} && ! -e "$2" ]]
-then
-    iqwarn The arg(s) ({file}$Q{%}) do not exist
-    return 1
-fi
+    if [[ -n ${Q::=first one:$1} && ! -e "$1" || -n ${Q::=second one:$2} && ! -e "$2" ]]
+    then
+        iqwarn The arg(s) ({file}$Q{%}) do not exist
+        return 1
+    fi
 
-integer EC
-local suffix=$(( RANDOM % 1000 ))
-command mv -v "$1" "$1"_"$suffix"; EC+=$?
-command mv -v "$2" "$1"; EC+=$?
-command mv -v "$1"_"$suffix" "$2"; EC+=$?
+    integer EC
+    local suffix=$(( RANDOM % 1000 ))
+    command mv -v "$1" "$1"_"$suffix"; EC+=$?
+    command mv -v "$2" "$1"; EC+=$?
+    command mv -v "$1"_"$suffix" "$2"; EC+=$?
 
-((EC))&&iqwarn Something wrong happened, summed exit values: {int}$EC||\
-        iqmsg {head}Files have been correctly moved
+    ((EC))&&iqwarn Something wrong happened, summed exit values: {int}$EC||\
+            iqmsg {head}Files have been correctly moved
 }
 swap "$@"
 # vim:ft=zsh:et:sts=4:sw=4:wrap

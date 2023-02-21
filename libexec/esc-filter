@@ -1,0 +1,49 @@
+# -*- mode: sh; sh-indentation: 4; indent-tabs-mode: nil; sh-basic-offset: 4;-*-
+# Copyright (c) 2018 Sebastian Gniazdowski
+#
+# Returns a greedy match of the given pattern ($2)
+# in the given string ($1).
+#
+# $1 - the string to match in
+# $2 - the pattern to match in the string
+
+esc-filter() {
+    SNIP_EMULATE_OPTIONS_ZERO
+    source $0:h:h/share/preamble.inc.zsh --func
+
+    integer EC
+    local txt Q
+    local -A Opts;local -a opts;local -a out
+    int/iq::parse-opts "-cat p -print t: -timeout:" Opts opts "$@"||return 7
+    set -- "$reply[@]"
+
+    # Cascade options to short ones
+    int/iq::opt-cascade Opts --timeout -t -p --print
+    iqmsg $Opts[--timeout] t:$Opts[-t]
+     (($+Opts[-t]))||Opts[-t]=1
+
+    # Text comes from stdin? If no args…
+    int/iq::reset
+    if ((!$#));then
+         while IFS=$'\n' read -r -t $Opts[-t] txt <&0;do
+            (($+Opts[--cat]))&&REPLY=$txt||int/iq::prune-esc $txt;EC=$?
+            out+=("$REPLY")
+            (($+Opts[-p]))&&print -r -- $REPLY
+            ((EC))&&iqwarn -e couldn\'t filter string: {q}$txt{/q}…
+        done
+    else
+        for Q;do
+            (($+Opts[--cat]))&&REPLY=$txt||int/iq::prune-esc $Q;EC=$?
+            out+=("$REPLY")
+            (($+Opts[-p]))&&print -r -- $REPLY
+            ((EC))&&iqwarn -e couldn\'t filter string: {q}$Q{/q}…
+        done
+    fi
+
+    reply=("$out[@]")
+    REPLY=${(pj:\n:)reply}
+    (($#reply))
+
+    return
+}
+esc-filter "$@"

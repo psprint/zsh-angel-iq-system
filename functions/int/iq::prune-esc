@@ -1,0 +1,17 @@
+#!/usr/bin/env zsh
+
+int/iq::prune-esc() {
+    SNIP_EMULATE_OPTIONS_ZERO
+
+    # Input/options
+    local -A Opts;local -a opts
+    int/iq::parse-opts "t -trim" Opts opts "$@"||return 7
+    set -- "$reply[@]"
+    int/iq::opt-cascade Opts --trim -t
+    int/iq::reset
+    REPLY=$*
+    REPLY=${REPLY//$'\x1b'\[[0-9\;]#m}
+    (($+Opts[-t]))&&REPLY=${REPLY//((#s)[[:space:]]##|[[:space:]]##(#e))}
+    [[ $REPLY != INVALIDSTR ]]
+}
+int/iq::prune-esc "$@"
