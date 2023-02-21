@@ -19,6 +19,14 @@ case $state in
  scope"
                     fresh-in:"finds files changed in ARGUMENT-\
 minutes"
+                    esc-filter:"filters out any color escape codes, reads stdin\
+ if no arguments"
+                    try-ng:"takes string and a pattern and returns the string. NON-GREEDY mode"
+                    tries-ng:"takes strings and a pattern and returns the strings each after pat applied. NON-GREEDY mode"
+                    try:"the same as try-ng, but greedy"
+                    tries:"the same as tries-ng, but greedy"
+                    x-tract:"extracts any archive, recognizes many types"
+ 
         )
          _describe -t features "available commands" q && ret=0
         ;;
