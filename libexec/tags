@@ -34,7 +34,7 @@ tags() {
 
     # default – Zsh script
     if ((!$+Opts[-c]||$+Opts[-z]));then
-        local -a qcmd=(command ctags -a -R $eopt -G --totals
+        local -a qcmd=(command ctags -a -R --exclude='*.orig' --exclude='*.rej' $eopt -G --totals
                     --options=$ZIQDIR/share/zsh.ctags
                     --languages=zsh,zsh3,make)
         int/iq::run-command "$TXT {type}Zsh{%} and {type}Make{%}…" $PWD
