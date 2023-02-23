@@ -10,7 +10,7 @@ int/iq::run-command() {
                         v -verbose p -pattern E -save-err \
                         0 -stdin: 1 -stdout: 2 -stderr:" \
         Opts opts "$@"||return 7
-    set -- -- "$reply[@]"
+    set -- "$reply[@]"
     int/iq::opt-cascade Opts --in-c -i --get-out -o \
                                 -C --dir -v --verbose \
                                 -p --pattern -E --save-err \
@@ -21,12 +21,10 @@ int/iq::run-command() {
 
     local TARGET_DIR=${Opts[-C]:-$PWD} qcmd=("$@")
     integer EC
-    (($+Opts[-i]))&&qcmd=(zsh -c "$qcmd[*]")
-    (($+Opts[-e]))&&qcmd=(eval "$qcmd[@]")
+    (($+Opts[-i]))&&qcmd=(command zsh -c "${${(qqq)qcmd[@]}[*]}")
+    (($+Opts[-e]))&&qcmd=(builtin eval "$qcmd[@]")
 
-    #
     # Current directory
-    #
     trap "builtin cd -q -- ${(qq)PWD}" EXIT
     trap "return 3" INT TERM QUIT
     if ! builtin cd -q -- $TARGET_DIR;then
@@ -43,7 +41,7 @@ int/iq::run-command() {
                 ${=Opts[-1]:+-\1 $Opts[-1]} \
                 ${=Opts[-2]:+-2 $Opts[-2]} \
                 ${=Opts[-0]:+-0 $Opts[-0]} \
-                ${Opts[-s]:+-s} ${Opts[-o]:+-o} \
+                ${Opts[-s]:+-s} ${Opts[-o]:+-o} -- \
                     "$qcmd[@]"
     local QREPLY=$REPLY qout=("$reply[@]")
     EC=$?
