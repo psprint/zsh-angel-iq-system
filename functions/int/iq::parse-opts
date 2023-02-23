@@ -15,7 +15,7 @@ int/iq::parse-opts() {
             $=OPTSPEC ||return 7 #zsweep:pass
 
     # Remove any --/- end option mark
-    integer QIDX=${@[(ie)(--|-)]}
+    integer QIDX=${@[(i)(--|-)]}
     ((QIDX<=$#))&&builtin set -- "$@[1,QIDX-1]" "$@[QIDX+1,-1]"
     reply=($@)
 }
