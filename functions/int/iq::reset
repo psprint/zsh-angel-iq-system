@@ -4,5 +4,7 @@
 
 int/iq::reset() {
     # Cleanup
-    REPLY= MATCH= MBEGIN= MEND= reply=() match=() mbegin=() mend=()
+    typeset -g REPLY= MATCH=
+    typeset -gi MBEGIN= MEND=
+    typeset -g -a reply=() match=() mbegin=() mend=()
 }

@@ -18,7 +18,7 @@ int/iq::get-editor() {
 
     [[ -z $QED ]]&&type -w $qed1 ZSIO&&QED=$qed1
     [[ -z $QED ]]&&iqerr no editor found, please set \
-                %B{37}EDITOR{137} in environment, exiting…
+                %B{var}EDITOR{%}/{var}VISUAL{%} in environment, exiting…
 
     REPLY=$QED
     [[ -n $REPLY ]]
