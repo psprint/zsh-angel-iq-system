@@ -1,7 +1,6 @@
 #!/usr/bin/env zsh
 
 # Copyright (c) 2023 Sebastian Gniazdowski
-
 int/iq::reset() {
     # Cleanup
     typeset -g REPLY= MATCH=

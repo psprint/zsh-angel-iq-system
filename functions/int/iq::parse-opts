@@ -17,5 +17,5 @@ int/iq::parse-opts() {
     # Remove any --/- end option mark
     integer QIDX=${@[(i)(--|-)]}
     ((QIDX<=$#))&&builtin set -- "$@[1,QIDX-1]" "$@[QIDX+1,-1]"
-    reply=($@)
+    reply=("$@")
 }

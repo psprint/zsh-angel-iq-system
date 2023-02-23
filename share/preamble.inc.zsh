@@ -31,7 +31,8 @@ Plugins[ANGEL_SYSTEM_DIR]="${0:h:h}"
 export ZIQDIR="${0:h:h}" \
        ZIQAES="${0:h:h}"/aliases \
        ZIQLOG="${0:h:h}"/io.log \
-       IQNICK=${IQNICK:-Zsh-IQ-Sys}
+       IQNICK=${IQNICK:-Angel-IQ} \
+       ZIQNUL=/dev/null
 
 # Standard work variables
 typeset -g -a reply match mbegin mend
