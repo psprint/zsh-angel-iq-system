@@ -21,25 +21,26 @@ tags() {
     local TXT="{note}Generating {tag}${${eopt:+TAGS}:-tags}{%} index for"
     command rm -f TAGS tags
     integer EC
-
+    local -a exc=(--exclude='*.orig' --exclude='*.rej')
     # C programming language
     if (($+Opts[-c]));then
-        local -a qcmd=(command ctags -a -R $eopt --totals
+        local -a qcmd=(command ctags -a -R $eopt $exc --totals
                       --languages=C --langmap=C:.h.c
                       --c-kinds=+px --extras=+r
                       --extras=-{anonymous})
-        int/iq::run-command "$TXT {type}C{%}…" $PWD
-        EC+=$?
+        iqmsg -h "$TXT {type}C{%}…"
     fi
 
     # default – Zsh script
     if ((!$+Opts[-c]||$+Opts[-z]));then
-        local -a qcmd=(command ctags -a -R --exclude='*.orig' --exclude='*.rej' $eopt -G --totals
+        local -a qcmd=(command ctags -a -R  $eopt -G $exc --totals
                     --options=$ZIQDIR/share/zsh.ctags
                     --languages=zsh,zsh3,make)
-        int/iq::run-command "$TXT {type}Zsh{%} and {type}Make{%}…" $PWD
-        EC+=$?
+        iqmsg -h "$TXT {type}Zsh{%} and {type}Make{%}…"
     fi
+
+    int/iq::run-command -C $PWD -- "$qcmd[@]"
+    EC+=$?
 
     ((EC))&&iqerr problems during {tag}TAGS{%} generation (code:{num}$EC{%})…
     return EC
