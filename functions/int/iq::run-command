@@ -4,15 +4,50 @@
 int/iq::run-command() {
     SNIP_EMULATE_OPTIONS_ZERO
 
-    local TARGET_DIR=${2:-$PWD} TXT=$1
-    (
-        builtin cd -q -- $TARGET_DIR||\
-            {
-                iqerr no such directory {path}$TARGET_DIR{%}, NO-OP exiting…
-                return 1
-            }
-        iqmsg $TXT
-        (($+Opts[-v]))&&iqnotice -- Running: {cmd}$qcmd[*]{%}…
-        "$qcmd[@]"; return $?
-    )||return $?
+    # Input/options
+    local -A Opts;local -a opts
+    int/iq::parse-opts "s -sub i -in-c o -get-out e -eval C: -dir: \
+                        v -verbose p -pattern E -save-err \
+                        0 -stdin: 1 -stdout: 2 -stderr:" \
+        Opts opts "$@"||return 7
+    set -- -- "$reply[@]"
+    int/iq::opt-cascade Opts --in-c -i --get-out -o \
+                                -C --dir -v --verbose \
+                                -p --pattern -E --save-err \
+                                -0 --stdin \
+                                -1 --stdout -2 --stderr \
+                                -s --sub
+    int/iq::reset
+
+    local TARGET_DIR=${Opts[-C]:-$PWD} qcmd=("$@")
+    integer EC
+    (($+Opts[-i]))&&qcmd=(zsh -c "$qcmd[*]")
+    (($+Opts[-e]))&&qcmd=(eval "$qcmd[@]")
+
+    #
+    # Current directory
+    #
+    trap "builtin cd -q -- ${(qq)PWD}" EXIT
+    trap "return 3" INT TERM QUIT
+    if ! builtin cd -q -- $TARGET_DIR;then
+        iqerr no such directory {path}$TARGET_DIR{%}, exiting NO-OP…
+        return 1
+    fi
+
+    [[ $Opts[-0] == 1 ]]&&Opts[-0]=$ZIQNUL
+    [[ $Opts[-1] == 1 ]]&&Opts[-1]=$ZIQNUL
+    [[ $Opts[-2] == 1 ]]&&Opts[-2]=$ZIQNUL
+    (($+Opts[-v]))&&iqnotice -- Running: {cmd}${(qq)qcmd[@]}{%}…
+    int/iq::run-cmd-compact ${Opts[-p]:+-p} ${Opts[-s]:+-s} \
+                ${Opts[-E]:+-E} \
+                ${=Opts[-1]:+-\1 $Opts[-1]} \
+                ${=Opts[-2]:+-2 $Opts[-2]} \
+                ${=Opts[-0]:+-0 $Opts[-0]} \
+                ${Opts[-s]:+-s} ${Opts[-o]:+-o} \
+                    "$qcmd[@]"
+    local QREPLY=$REPLY qout=("$reply[@]")
+    EC=$?
+    ((EC))&&{iqwarn command didn\'t run cleanly (returned: {num}$EC{%});}
+    REPLY=$QREPLY reply=("$qout[@]")
+    return EC
 }

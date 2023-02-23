@@ -22,7 +22,8 @@ integer QIDX=${@[(i)(--|-)]}
 0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
 
 # Unset helper function on exit
-builtin trap 'unset -f iqmsg_subst iqmsg_cmd_helper&>>$ZIQLOG' EXIT
+builtin trap 'unset -f iqmsg_subst iqmsg_cmd_helper \
+        tmp/iqrun tmp/iqrun-cmd&>>$ZIQLOG' EXIT
 
 # Standard hash `Plugins` for plugins, to not pollute the namespace
 # ZIQ is a hash for iqmsg color theme and for the body of all aliases
