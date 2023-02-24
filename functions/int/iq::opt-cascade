@@ -19,8 +19,8 @@ int/iq::opt-cascade() {
         VALQ=${(P)VARSTRQ} VALP=${(P)VARSTRP}
         VALQ=${VALQ:-$VALP}
         [[ -z $VALP$VALQ ]]&&VALQ=1 VALP=1
-        ((${(P)+VARSTRP}))&&: ${(P)VARSTRQ::=$VALQ} ${(P)VARSTRP::=$VALQ}
         ((${(P)+VARSTRQ}))&&: ${(P)VARSTRP::=$VALQ} ${(P)VARSTRQ::=$VALQ}
+        ((${(P)+VARSTRP}))&&: ${(P)VARSTRQ::=$VALQ} ${(P)VARSTRP::=$VALQ}
     done
 
 }

@@ -10,13 +10,14 @@ hop() {
     SNIP_EMULATE_OPTIONS_ZERO
     source $0:h:h/share/preamble.inc.zsh --func
 
-    local -A Opts; local -a opts
-    int/iq::parse-opts "t: -timeout:" Opts opts "$@"
+    local -A Opts; local -a opts qopts
+    int/iq::parse-opts "t: -timeout: i=qopts -zle-nt=qopts \
+                        m=qopts -msg=qopts" Opts opts "$@"
     EC+=$?
-    set -- "$reply[@]"
-
+    builtin set -- "$reply[@]"
+    ((Opts[-t]+Opts[--timeout]<=0))&&Opts[-t]=0.1
     # Cascade options to short ones
-    int/iq::opt-cascade Opts --timeout -t
+    int/iq::opt-cascade Opts -t --timeout -i --zle-nt
     EC+=$?
 
     # Text comes from stdin? If no args…
@@ -26,11 +27,13 @@ hop() {
                     arguments, nothing run…
             return 7
         fi
-        set -- "$reply[@]"
+        builtin set -- "$reply[@]"
+    else
+        builtin set -- "$*"
     fi
 
-    (($+Opts[-t]))&&local t="@sleep:$Opts[-t]"
-    iq::exec-hop-back $t "$@"
+    local t="@sleep:$Opts[-t]"
+    int/iq::exec-hop-back $t $qopts -- "$@"
     EC+=$?
     return EC
 }

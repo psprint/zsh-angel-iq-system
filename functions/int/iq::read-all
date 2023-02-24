@@ -9,8 +9,9 @@ int/iq::read-all() {
     SNIP_EMULATE_OPTIONS_ZERO
 
     local -A Opts; local -a opts
-    int/iq::parse-opts "d: u:" Opts opts "$@"||return 1
+    int/iq::parse-opts "d: u: f -fix" Opts opts "$@"||return 1
     set -- "$reply[@]"
+    int/iq::opt-cascade Opts -f --fix
     integer I
 
     (($+Opts[-d]))&&[[ ! -f $Opts[-d] ]]&&
@@ -25,10 +26,12 @@ int/iq::read-all() {
     fi
 
     int/iq::reset
-    local IFS=$'\n' txt
+    local txt
 
-    while read -t1 -r txt <&$I;do
+    while IFS= read -t1 -r txt <&$I;do
         reply+=("$txt")
     done
-    [[ -n $reply ]]
+    REPLY=${(F)reply}
+    (($+Opts[-f]))&&REPLY=${REPLY/[[:INVALID:][:INCOMPLETE:]]/\?}
+    [[ -n $REPLY ]]&&[[ $REPLY != INVALIDSTR ]]
 }

@@ -7,6 +7,7 @@
 iqmsgi() {
 
 SNIP_EMULATE_OPTIONS_ZERO
+local OBKP=$REPLY
 source $0:h:h/share/preamble.inc.zsh --func
 
 # -h - origin tag
@@ -15,7 +16,7 @@ source $0:h:h/share/preamble.inc.zsh --func
 # -e - print to stderr
 # -n - no new line
 local -A Opts; local -a opts
-int/iq::parse-opts "h p q -quiet e n" Opts opts "$@"
+int/iq::parse-opts "h p q -quiet e n Q" Opts opts "$@"
 set -- "$reply[@]"
 
 # Quiet mode? → no printing if so
@@ -95,7 +96,7 @@ local q='\{' qn='{'
 builtin print -r $n $err -P -- "${REPLY//$q/$qn}" "%k%f%b%u"
 
 # Mark that iqmsg has run, to use in [[…]]&&iqmsg … cascades
-REPLY=1
+(($+Opts[-Q]))&&REPLY=$OBKP||REPLY=1
 
 # vim:ft=zsh:sw=4:sts=4:et
 
