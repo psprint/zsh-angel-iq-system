@@ -1,0 +1,43 @@
+#!/usr/bin/env zsh
+
+# $1 - file-descriptor to be read from, or a file name if contains any non-digit
+# $2 - name of output variable (default: REPLY)
+
+int/iq::read-all-sys() {
+    # Preamble – emulate & 0=…
+    SNIP_EMULATE_OPTIONS_ZERO
+
+    local -A Opts; local -a opts
+    int/iq::parse-opts "f -fix" Opts opts "$@"||return 1
+    set -- "$reply[@]"
+    int/iq::opt-cascade Opts -f --fix
+
+    integer __in_fd
+    if [[ $1 != <-> && -f $1 ]];then
+        exec {__in_fd}<$1
+    elif [[ $1 != <-> && -n $1 ]];then
+        iqerr cannot open file: {file}$1
+        return 17
+    else
+        __in_fd=${1:-0}; local __out_var=${2:-REPLY}
+    fi
+
+    local -a __tmp
+    local QREPLY
+    integer __ret=1 __repeat=10 __tmp_size=0
+
+    while sysread -s 65535 -i "$__in_fd" '__tmp[__tmp_size + 1]'; do
+        (( ( __ret=$? ) == 0 )) && (( ++ __tmp_size ))
+        (( __ret == 5 )) && { __ret=0; (( --__repeat == 0 )) && break; }
+    done
+
+    QREPLY="${(j::)__tmp}"
+    (($+Opts[-f]))&&QREPLY=${QREPLY/[[:INVALID:][:INCOMPLETE:]]/\?}
+    [[ -n $QREPLY ]]&&[[ $QREPLY != INVALIDSTR ]]
+    __ret+=$(($?))
+    [[ $1 != <-> ]]&&exec {__in_fd}<&-
+    : ${(P)__out_var::=$QREPLY}
+    return __ret
+}
+int/iq::read-all-sys "$@"
+# vim: ft=zsh:et:sw=4:sts=4
