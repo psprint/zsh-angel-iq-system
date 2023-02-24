@@ -17,9 +17,10 @@
 int/iq::exec-hop-back() {
     SNIP_EMULATE_OPTIONS_ZERO
 
-    local QMESSAGE_SCRIPT="POSTDISPLAY=$'\n'%TXT%;zle -R;read -k1;\
-[[ \$REPLY[1] == [\$'\n\r'] ]]&&zle .accept-line||\
-BUFFER[CURSOR-1,CURSOR]+=\$REPLY[1];CURSOR+=1"
+    local QMESSAGE_SCRIPT="POSTDISPLAY=$'\n'%TXT%;zle -R;\
+IFS= read -s -r -k1 </dev/tty;\
+[[ \$REPLY[1] == [\$'\n\r'] ]]&&{zle .send-break;((1));}||\
+{BUFFER[CURSOR-1,CURSOR]+=\$REPLY[1];CURSOR+=1;}"
 
     tmp/iq::send-hop() {
         integer EC THEFD
