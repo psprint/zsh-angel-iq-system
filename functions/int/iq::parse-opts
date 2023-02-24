@@ -6,16 +6,25 @@
 int/iq::parse-opts() {
     # Preamble – emulate & 0=…
     SNIP_EMULATE_OPTIONS_ZERO
+    tmp/iq::prune-dashes() {
+        # Remove any --/- end option mark
+        integer QIDX=${@[(i)(--|-)]}
+        ((QIDX<=$#))&&reply=("$@[1,QIDX-1]" "$@[QIDX+1,-1]")||reply=("$@")
+    }
 
     local OPTSPEC=$1 ASVAR=$2 ARVAR=$3
     shift 3
+    tmp/iq::prune-dashes "$@"
+    local -a qe=("$reply[@]")
 
     builtin zparseopts SNIP_-F_OPT_FOR_ZP_OPTS_VERSION \
         -D -E ${=ASVAR:+-A $ASVAR} ${=ARVAR:+-a $ARVAR} -- \
             ${(s: :)OPTSPEC} ||return 7 #zsweep:pass
 
-    # Remove any --/- end option mark
-    integer QIDX=${@[(i)(--|-)]}
-    ((QIDX<=$#))&&builtin set -- "$@[1,QIDX-1]" "$@[QIDX+1,-1]"
-    reply=("$@")
-}
+    # Save remains without options in reply (pruning --/-)
+    tmp/iq::prune-dashes "$@"
+
+    # Get the recognized options
+    REPLY="${(j| |)${(@)qe:|reply}}"
+    return 0
+ }
