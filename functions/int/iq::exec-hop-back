@@ -17,7 +17,7 @@
 int/iq::exec-hop-back() {
     SNIP_EMULATE_OPTIONS_ZERO
 
-    local QMESSAGE_SCRIPT="(){setopt localoptions promptsubst;\
+    local QMESSAGE_SCRIPT="(){emulate -L zsh -o promptsubst;\
 POSTDISPLAY=$'\n'%TXT%;zle -R;\
 IFS= read -s -r -k1 </dev/tty;\
 [[ \$REPLY[1] == [\$'\n\r'] ]]&&{zle .send-break;((1));}||\
@@ -37,12 +37,13 @@ IFS= read -s -r -k1 </dev/tty;\
         EC=$?
         REPLY=$THEFD
         builtin zle -w -F "$THEFD" iq::exec-widget
+        EC+=$?
         return EC
     }
 
     [[ "$1" = <-> && $# -eq 1 ]] && {
         local FD=$1 READ_SOURCE_TEXT
-        int/iq::read-all-sys -f $FD
+        int/iq::read-all -f -u$FD
         READ_SOURCE_TEXT=$REPLY
         ((ZIQ[notify-zle]))&&builtin zle -I
         builtin zle -F $FD; exec {FD}<&-

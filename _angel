@@ -19,7 +19,7 @@ case $state in
  scope"
                     fresh-in:"finds files changed in ARGUMENT-\
 minutes"
-                    esc-filter:"filters out any color escape codes, reads stdin\
+                    filter:"filters out any color escape codes, reads stdin\
  if no arguments"
                     try-ng:"takes string and a pattern and returns the string. NON-GREEDY mode"
                     tries-ng:"takes strings and a pattern and returns the strings each after pat applied. NON-GREEDY mode"

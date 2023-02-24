@@ -9,7 +9,9 @@ int/iq::opt-cascade() {
     SNIP_EMULATE_OPTIONS_ZERO
     local VARNAME=$1 VARSTRQ VARSTRP
     shift
-    (($#%2))&&iqerr incorrect \# of options passed to {func}iq::opt-cascade
+    integer EC
+    (($#%2))&&\
+        {iqerr incorrect \# of options passed to {func}iq::opt-cascade;EC=1;}
 
     # Cascade options to short ones
     local Q P VALQ VALP
@@ -22,5 +24,5 @@ int/iq::opt-cascade() {
         ((${(P)+VARSTRQ}))&&: ${(P)VARSTRP::=$VALQ} ${(P)VARSTRQ::=$VALQ}
         ((${(P)+VARSTRP}))&&: ${(P)VARSTRQ::=$VALQ} ${(P)VARSTRP::=$VALQ}
     done
-
+    return EC
 }

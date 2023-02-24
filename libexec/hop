@@ -12,14 +12,12 @@ hop() {
 
     local -A Opts; local -a opts qopts
     int/iq::parse-opts "t: -timeout: i=qopts -zle-nt=qopts \
-                        m=qopts -msg=qopts" Opts opts "$@"
-    EC+=$?
+                        m=qopts -msg=qopts" Opts opts "$@"||return 7
     builtin set -- "$reply[@]"
     ((Opts[-t]+Opts[--timeout]<=0))&&Opts[-t]=0.1
     # Cascade options to short ones
     int/iq::opt-cascade Opts -t --timeout -i --zle-nt
     EC+=$?
-
     # Text comes from stdin? If no args…
     if ((!$#));then
         if ! int/iq::read-all -u0;then
