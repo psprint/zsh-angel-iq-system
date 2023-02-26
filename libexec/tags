@@ -22,29 +22,33 @@ tags() {
     command rm -f TAGS tags
     integer EC
     local -a exc=(--exclude='*.orig' --exclude='*.rej')
-    # C programming language
-    if (($+Opts[-c]));then
-        local -a qcmd=(command ctags -a -R $eopt $exc --totals
-                      --languages=C --langmap=C:.h.c
-                      --c-kinds=+px --extras=+r
-                      --extras=-{anonymous})
-        iqmsg -h "$TXT {type}C{%}…"
-    fi
+    (
+        int/iq::get-prj-dir && builtin cd -q -- $REPLY
 
-    # default – Zsh script
-    if ((!$+Opts[-c]||$+Opts[-z]));then
-        local -a qcmd=(command ctags -a -R  $eopt -G $exc --totals
-                    --options=$ZIQDIR/share/zsh.ctags
-                    --languages=zsh,zsh3,make)
-        iqmsg -h "$TXT {type}Zsh{%} and {type}Make{%}…"
-    fi
+        # C programming language
+        if (($+Opts[-c]));then
+            local -a qcmd=(command ctags -a -R $eopt $exc --totals
+                          --languages=C --langmap=C:.h.c
+                          --c-kinds=+px --extras=+r
+                          --extras=-{anonymous})
+            iqmsg -h "$TXT {type}C{%}…"
+        fi
 
-    int/iq::run-command -C $PWD -- "$qcmd[@]"
+        # default – Zsh script
+        if ((!$+Opts[-c]||$+Opts[-z]));then
+            local -a qcmd=(command ctags -a -R  $eopt -G $exc --totals
+                        --options=$ZIQDIR/share/zsh.ctags
+                        --languages=zsh,zsh3,make)
+            iqmsg -h "$TXT {type}Zsh{%} and {type}Make{%}…"
+        fi
+
+        int/iq::run-command -C $PWD -- "$qcmd[@]"
+        EC+=$?
+        return EC
+    )
     EC+=$?
-
     ((EC))&&iqerr problems during {tag}TAGS{%} generation (code:{num}$EC{%})…
     return EC
-
 }
 
 tags "$@"
