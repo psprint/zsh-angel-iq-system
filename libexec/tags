@@ -39,7 +39,8 @@ tags() {
         iqmsg -h "$TXT {type}Zsh{%} and {type}Make{%}…"
     fi
 
-    int/iq::run-command -C $PWD -- "$qcmd[@]"
+    int/iq::get-prj-dir||REPLY=$PWD
+    int/iq::run-command -C $REPLY -- "$qcmd[@]"
     EC+=$?
 
     ((EC))&&iqerr problems during {tag}TAGS{%} generation (code:{num}$EC{%})…
