@@ -7,7 +7,7 @@
 iqmsgi() {
 
 SNIP_EMULATE_OPTIONS_ZERO
-local OBKP=$REPLY
+local OBKP=$REPLY obkp=("$reply[@]")
 source $0:h:h/share/preamble.inc.zsh --func
 
 # -h - origin tag
@@ -22,11 +22,11 @@ set -- "$reply[@]"
 # Quiet mode? → no printing if so
 (($+Opts[-q]==1&&$+Opts[-p]!=1))&&return
 
-local -a reply
 local TMP
-
 iq::read-theme||return 17
 typeset -gA ZIQ=("$reply[@]")
+
+int/iq::reset
 
 # Blue message origin tag?
 local funloc=$1 nick=$IQNICK tmp
@@ -91,15 +91,12 @@ REPLY=${REPLY//$HOME/~}
 REPLY=${REPLY//\%\%PRE\%\%/$TMP}
 
 # Output
-#printf %s\\n
 local q='\{' qn='{'
 builtin print -r $n $err -P -- "${REPLY//$q/$qn}" "%k%f%b%u"
 
 # Mark that iqmsg has run, to use in [[…]]&&iqmsg … cascades
-(($+Opts[-Q]))&&REPLY=$OBKP||REPLY=1
-
-# vim:ft=zsh:sw=4:sts=4:et
-
+int/iq::reset
+(($+Opts[-Q]))&&{REPLY=$OBKP;reply=("$obkp[@]");}||REPLY=1
 }
-
 iqmsgi "$@"
+# vim:ft=zsh:sw=4:sts=4:et

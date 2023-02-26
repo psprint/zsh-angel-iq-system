@@ -29,7 +29,7 @@ int/iq::get-prj-dir() {
 
     REPLY=$REPLY:h
     if [[ $PRJ == WRONGSTR ]]; then
-        zswarn -h didn\'t find any main poject dir \
+        zswarn -Q -h didn\'t find any main poject dir \
                     uptree, was looking for: %B{39}·${(j.%f%b, %B{39}·.)qt}
         return 1
     fi
