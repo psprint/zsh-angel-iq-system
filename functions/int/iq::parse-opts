@@ -27,4 +27,4 @@ int/iq::parse-opts() {
     # Get the recognized options
     REPLY="${(j| |)${(@)qe:|reply}}"
     return 0
- }
+}

@@ -1,0 +1,37 @@
+#!/usr/bin/env zsh
+
+int/iq::get-prj-dir() {
+    # Preamble – emulate & 0=…
+    SNIP_EMULATE_OPTIONS_ZERO
+
+    local -a opts; local -A Opts
+    int/iq::parse-opts "" Opts opts "$@"||return 7
+    set -- "$reply[@]"
+    int/iq::reset
+    integer retval
+
+    tmp/iq::up-find-dir() {
+        local w=$1
+        reply=($PWD/(../)#$~w(N.,@,/))
+        reply=(${(@On)reply})
+        # Fix path's ../,etc.
+        REPLY=$reply[1]:a
+        [[ -n $REPLY ]]
+    }
+
+    # Input/options
+    local PRJ FILEDIR
+    local -a qt=(.git TAGS tags CMakeLists.txt configure)
+    # Iterate over special files/dirs
+    for FILEDIR ($qt); do
+        tmp/iq::up-find-dir $FILEDIR&&PRJ=$REPLY&&break
+    done
+
+    REPLY=$REPLY:h
+    if [[ $PRJ == WRONGSTR ]]; then
+        zswarn -h didn\'t find any main poject dir \
+                    uptree, was looking for: %B{39}·${(j.%f%b, %B{39}·.)qt}
+        return 1
+    fi
+    return 0
+}
