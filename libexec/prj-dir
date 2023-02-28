@@ -17,6 +17,10 @@ prj-dir() {
         if (($+Opts[--verbose]));then
             iqnotice -Q found project at {path}$REPLY{%}, it was one \
                 of {num}$#reply{%} candidates
+<<<<<<< Updated upstream
+=======
+            print $reply, $REPLY
+>>>>>>> Stashed changes
         elif ((!$+Opts[--quiet]));then
                 builtin print -r -- $REPLY
         fi

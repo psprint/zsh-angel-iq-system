@@ -23,7 +23,6 @@ int/iq::parse-opts() {
 
     # Save remains without options in reply (pruning --/-)
     tmp/iq::prune-dashes "$@"
-
     # Get the recognized options
     REPLY="${(j| |)${(@)qe:|reply}}"
     return 0

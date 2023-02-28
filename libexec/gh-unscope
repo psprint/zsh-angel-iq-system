@@ -1,0 +1,40 @@
+#!/usr/bin/env zsh
+# -*- mode: sh; sh-indentation: 4; indent-tabs-mode: nil; sh-basic-offset: 4;-*-
+
+# Copyright (c) 2020 Sebastian Gniazdowski
+
+# An example of type-agnostic script/function, i.e.: the file can be run as a +x
+# script or as an autoload function.
+
+SNIP_EMULATE_OPTIONS_ZERO
+
+typeset -g name=$1
+typeset -ga reply full_names
+typeset -g URL="https://api.github.com/search/repositories?q=$name+in:name+fork:false"
+
+#typeset -g CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zinit-annex-unscope"
+#command mkdir -p "$CACHE_DIR"
+
+download() {
+    local url=$URL"+$1&sort=stars&order=desc"
+    reply=( "${(@f)"$(curl --silent -i "$url")"}" )
+}
+
+integer forks
+
+for forks ( 10 3 0 ) {
+    download "forks:>=$forks"
+    full_names=( ${(M)reply[@]:#[[:space:]]#\"full_name\":[[:space:]]#*,} )
+    full_names=( "${${(M)full_names[@]//(#b)[[:space:]]#\"full_name\":[[:space:]]#\"(*)\",/${match[1]}}[@]}" )
+    full_names=( ${(M)full_names[@]:#*/$name} )
+    if (( ${#full_names} )) {
+        printf %s\\n $full_names
+        reply=($full_names)
+        REPLY=$full_names[1]
+        return 0
+    }
+}
+
+return 1
+
+# vim:ft=zsh:tw=80:sw=4:sts=4:et:foldmarker=[[[,]]]
