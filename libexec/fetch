@@ -1,0 +1,21 @@
+#!/usr/bin/env zsh
+# -*- mode: sh; sh-indentation: 4; indent-tabs-mode: nil; sh-basic-offset: 4;-*-
+# Copyright (c) 2023 Sebastian Gniazdowski
+#
+fetch() {
+    # Preamble – emulate & 0=…
+    SNIP_EMULATE_OPTIONS_ZERO
+    source $0:h:h/share/preamble.inc.zsh --func
+
+    local -a opts; local -A Opts
+    int/iq::parse-opts "C: -dir: p -progress q -quiet" Opts opts "$@"||return 7
+    set -- "$reply[@]"
+    int/iq::opt-cascade Opts -C --dir -p --progress -q --quiet
+    int/iq::reset
+
+    int/iq::get-file "$opts[@]" -- "$@"
+
+    return $?
+}
+fetch "$@"
+# vim:ft=zsh:sw=4:sts=4:et
