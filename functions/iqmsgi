@@ -95,15 +95,8 @@ local q='\{' qn='{'
 builtin print -r $n $err -P -- "${REPLY//$q/$qn}" "%k%f%b%u"
 
 # Mark that iqmsg has run, to use in [[…]]&&iqmsg … cascades
-<<<<<<< Updated upstream
 int/iq::reset
 (($+Opts[-Q]))&&{REPLY=$OBKP;reply=("$obkp[@]");}||REPLY=1
-=======
-(($+Opts[-Q]))&&{REPLY=$OBKP;reply=("$obkp[@]");print Q$+Opts[-Q] $REPLY , $reply}||REPLY=1
-print $+Opts[-Q] $REPLY , $reply
-# vim:ft=zsh:sw=4:sts=4:et
-
->>>>>>> Stashed changes
 }
 iqmsgi "$@"
 # vim:ft=zsh:sw=4:sts=4:et
