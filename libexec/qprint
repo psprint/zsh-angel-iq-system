@@ -10,10 +10,11 @@ qprint(){
     set -- "$reply[@]"
     local QNL=$ZIQNUL
 
+    (($+__Opts[-q]))&&__Opts[-q]=-q
     if ((!$+__Opts[-p]));then
         local __QN
         for __QN ($@){
-            iqmsg {nl}{note}Notice:{%} showing variable {var}$__QN{%}:
+            iqmsg $__Opts[-q] {nl}{note}Notice:{%} showing variable {var}$__QN{%}:
             int/@iq::str4var $__QN
         }
         return $?
