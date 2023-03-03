@@ -1,0 +1,81 @@
+#!/usr/bin/env zsh
+# -*- mode: sh; sh-indentation: 4; indent-tabs-mode: nil; sh-basic-offset: 4;-*-
+# Copyright (c) 2018 Sebastian Gniazdowski
+#
+help() {
+    # Preamble – emulate & 0=…
+    SNIP_EMULATE_OPTIONS_ZERO
+    source $0:h:h/share/preamble.inc.zsh --func
+
+    local -a opts; local -A Opts
+    int/iq::parse-opts "q" Opts opts "$@"||return 7
+    set -- "$reply[@]"
+    int/iq::reset
+
+    (($+Opts[-q]))&&local -A ZIQ
+    local -A QMsg=(
+            tags       "generate Ctags for current directory"
+            con        "open smart console for current directory"
+            qprint     "print contents of given variable (by name not by value)"
+            swap       "swap two files in their locations"
+            gh-create  "create a repository at GitHub"
+            hop        "deploy a block of code for execution in ZLE\
+scope"
+            fresh-in   "finds files changed in ARGUMENT-\
+minutes"
+            filter     "filters out any color escape codes, reads stdin\
+if no arguments"
+            try-ng     "takes string and a pattern and returns the matched \
+string. NON-GREEDY mode"
+            tries-ng   "takes strings and a pattern and returns the strings \
+each after the pattern applied. NON-GREEDY mode"
+            try        "the same as try-ng, but greedy"
+            tries      "the same as tries-ng, but greedy"
+            x-tract    "extracts any archive, recognizes many types"
+        )
+
+    (($+QMsg[$1]))||{iqerr unknown command {cmd}$1{%};return 1;}
+
+    iqnotice $QMsg[$1]
+    case $1 in
+        (tags)
+
+            iqmsg {note}Usage:{pre} angel tags [-z] [-c]{%}{nl}\
+                -- {opt}-z{%}${(l:10:)} process Zsh files{nl}\
+                    {opt}-c{%}${(l:10:)} process C files
+            ;;
+        (con)
+        ;;
+        (countdown)
+        ;;
+        (filter)
+        ;;
+        (fresh-in)
+        ;;
+        (gh-create)
+        ;;
+        (help)
+        ;;
+        (hop)
+        ;;
+        (palette)
+        ;;
+        (qprint)
+        ;;
+        (swap)
+        ;;
+        (tries)
+        ;;
+        (tries-ng)
+        ;;
+        (try)
+        ;;
+        (try-ng)
+        ;;
+        (x-tract)
+        ;;
+    esac
+   return 0
+}
+help "$@"
+# vim:ft=zsh:sw=4:sts=4:et
