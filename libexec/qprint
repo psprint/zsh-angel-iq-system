@@ -9,7 +9,6 @@ qprint(){
     int/iq::parse-opts "o: 1 e n p q c E" __Opts __opts "$@"
     set -- "$reply[@]"
     local QNL=$ZIQNUL
-
     (($+__Opts[-q]))&&__Opts[-q]=-q
     if ((!$+__Opts[-p]));then
         local __QN

@@ -33,7 +33,6 @@ each after the pattern applied. NON-GREEDY mode"
             tries      "the same as tries-ng, but greedy"
             x-tract    "extracts any archive, recognizes many types"
         )
-
     [[ -z $1 ]]&&{iqnotice Available\ commands:;angel qprint -q QMsg;return 0;}
     (($+QMsg[$1]))||{iqerr unknown command: {cmd}$1{%};return 1;}
 
