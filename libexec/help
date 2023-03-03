@@ -20,7 +20,7 @@ help() {
             swap       "swap two files in their locations"
             gh-create  "create a repository at GitHub"
             hop        "deploy a block of code for execution in ZLE\
-scope"
+-scope"
             fresh-in   "finds files changed in ARGUMENT-\
 minutes"
             filter     "filters out any color escape codes, reads stdin\
@@ -34,7 +34,7 @@ each after the pattern applied. NON-GREEDY mode"
             x-tract    "extracts any archive, recognizes many types"
         )
 
-    (($+QMsg[$1]))||{iqerr unknown command {cmd}$1{%};return 1;}
+    (($+QMsg[$1]))||{iqerr unknown command: {cmd}$1{%};return 1;}
 
     iqnotice $QMsg[$1]
     case $1 in
@@ -45,34 +45,55 @@ each after the pattern applied. NON-GREEDY mode"
                     {opt}-c{%}${(l:10:)} process C files
             ;;
         (con)
-        ;;
+            iqmsg {note}Usage:{pre} angel con
+            ;;
         (countdown)
-        ;;
+            iqmsg {note}Usage:{pre} angel countdown {num}[0-9]
+            ;;
         (filter)
-        ;;
+            iqmsg {note}Usage:{pre} angel filter [-T|--trim] \
+                [-s|--1space] [-p|--print] [-t|--timeout] \
+                [arg1] ... [argN]
+
+            ;;
         (fresh-in)
+            iqmsg {note}Usage:{pre} angel fresh-in {data}\\{minutes\}
         ;;
         (gh-create)
-        ;;
-        (help)
+            iqmsg {note}Usage:{pre} angel gh-create {pid}user/repo
         ;;
         (hop)
+            iqmsg {note}Usage:{pre} angel hop [-t/--timeout] \
+                [--msg] [code …]
         ;;
         (palette)
+            iqmsg {note}Usage:{pre} angel palette
         ;;
         (qprint)
+            iqmsg {note}Usage:{pre} angel qprint VAR_NAME
         ;;
         (swap)
+            iqmsg {note}Usage:{pre} angel swap {file}file file-B
         ;;
         (tries)
+            iqmsg {note}Usage:{pre} angel tries {data}string{pre}\
+                … {data}string-N {pat}pattern
         ;;
         (tries-ng)
+            iqmsg {note}Usage:{pre} angel tries-ng {data}string{pre}\
+                … {data}string-N {pat}pattern
         ;;
         (try)
+            iqmsg {note}Usage:{pre} angel try {data}string{pre}\
+                {pat}pattern
         ;;
         (try-ng)
+            iqmsg {note}Usage:{pre} angel try-ng {data}string{pre}\
+                {pat}pattern
         ;;
         (x-tract)
+            iqmsg {note}Usage:{pre} angel x-tract ({file}archive file{pre}\
+\|{opt}--auto{pre})
         ;;
     esac
    return 0
