@@ -49,6 +49,13 @@ if [[ $var == WRONGSTR ]]; then
 …
 fi
 ```
+There are also negation aliases, as `~NAMESTR`, i.e.:
+
+```zsh
+if [[ $var == ~WRONGSTR ]]; then
+    print Good \$var contents
+fi
+```
 
 ## Build console
 
