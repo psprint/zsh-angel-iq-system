@@ -34,18 +34,25 @@
                             Opts opts "$@"
     set -- "$reply[@]"
     local CMD=$1
-    (($#&&$#CMD))&&shift||CMD=help
-
+    if (($+Opts[-h]||$+Opts[--help]));then
+        CMD=help
+    else
+        (($#&&$#CMD))&&shift||CMD=help
+    fi
     if [[ -s $ZIQDIR/libexec/$CMD ]];then
         autoload -z $ZIQDIR/libexec/$CMD #zsweep:pass
 
         # Edit source?
         if (($+Opts[--ed]));then
             int/iq::get-editor||return 1
-            eval "type $REPLY $ZIQ[IQIO]"&&$REPLY $^fpath/$CMD(N.)
+            if eval "type $REPLY $ZIQ[IQIO]";then
+                $REPLY $^fpath/$CMD(N.)
+            else
+                iqerr couldn\'t find editor, please set {var}\$EDITOR
+            fi
         # … or run?
         else
-            $CMD "$opts[@]" "$@"
+            $CMD "${opts[@]:#(--help|-h)}" "$@"
         fi
         EC+=$?
     else
