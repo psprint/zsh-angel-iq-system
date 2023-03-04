@@ -92,6 +92,7 @@ Below are subcommands of the command `angel`, i,e,L `angel {subcommand} …`
 - **gh-clone** : get the the given repository from GitHub, only via `username/repository` ID, with a graphical, colorful progress meter,
 - **clone** : get a given repo via full URL, with a graphical, colorful progress meter,
 - **prj-dir** : get the project by looking for a file (like `.git`, `configure`, e.g.) in uptree (`(../)+{file}`),
+- **fetch**   :  a frontend to curl and wget (first tries cURL)
 - **filter** : filters out any color escape codes, reads stdin if no arguments,
 - **fresh-in** : finds files changed in ARGUMENT-minutes,
 - **hop** : deploy a block of code for later execution in ZLE-scope,
