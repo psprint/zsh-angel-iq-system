@@ -26,6 +26,7 @@ help() {
             countdown  "a graphical countdown, waits for ARGUMENT seconds."
             hop        "deploy a block of code for execution in ZLE\
 -scope"
+            fetch      "a frontend to curl and wget (first tries cURL)"
             fresh-in   "finds files changed in ARGUMENT-\
 minutes"
             filter     "filters out any color escape codes, reads stdin\
@@ -39,6 +40,7 @@ each after the pattern applied. NON-GREEDY mode"
             x-tract    "extracts any archive, recognizes many types"
         )
     [[ -z $1 ]]&&{iqnotice Available\ commands:;angel qprint -q QMsg;return 0;}
+    printf %s\\n $@
     (($+QMsg[$1]))||{iqerr unknown command: {cmd}$1{%};return 1;}
 
     iqnotice $QMsg[$1]
