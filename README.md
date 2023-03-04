@@ -1,3 +1,14 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [Zsh Angel IQ System](#zsh-angel-iq-system)
+  - [Build console](#build-console)
+  - [Ctags browser](#ctags-browser)
+  - [Usage information](#usage-information)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Zsh Angel IQ System
 
 A bunch of intelligent extensions to Zsh. Features:
