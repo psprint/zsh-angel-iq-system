@@ -60,7 +60,23 @@ source file.
 
 ## Ctags browser
 
-A in-shell Ctags symbol browser, under the prompt:
+A in-shell Ctags symbol browser, under the prompt (`alt-w` to activate):
 
 ![symbrowse](https://raw.githubusercontent.com/psprint/zsh-angel-system/master/share/img/symbolbrowse.png)
+**
+## Usage information
+Below are subcommands of the command `angel`, i,e,L `angel {subcommand} …`
 
+- **tags** : generate Ctags for current directory
+- **con** : open smart console for current directory
+- **filter** : filters out any color escape codes, reads stdin if no arguments
+- **fresh-in** : finds files changed in ARGUMENT-minutes
+- **gh-create** : create a repository at GitHub
+- **hop** : deploy a block of code for later execution in ZLE-scope
+- **qprint** : print contents of given variable (by name not by value)
+- **swap** : swap two files in their locations
+- **tries** : the same as tries-ng, but greedy
+- **tries-ng** : takes strings and a pattern and returns the strings each after the pattern applied. NON-GREEDY mode
+- **try** : the same as try-ng, but greedy
+- **try-ng** : takes string and a pattern and returns the matched string. NON-GREEDY mode
+- **x-tract** : extracts any archive, recognizes many types
