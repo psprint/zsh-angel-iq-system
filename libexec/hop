@@ -12,7 +12,8 @@ hop() {
 
     local -A Opts; local -a opts qopts
     int/iq::parse-opts "t: -timeout: i=qopts -zle-nt=qopts \
-                        m=qopts -msg=qopts" Opts opts "$@"||return 7
+                        m=qopts -msg=qopts" Opts opts "$@"||\
+        {iqerr incorrect options given to {cmd}hop{%}; return 7}
     builtin set -- "$reply[@]"
     ((Opts[-t]+Opts[--timeout]<=0))&&Opts[-t]=0.1
     # Cascade options to short ones

@@ -17,7 +17,8 @@ filter() {
     local -A Opts;local -a opts subopts;local -a out
     int/iq::parse-opts "-cat p -print t: -timeout: \
             T=subopts -no-trim=subopts s=subopts -1space=subopts" \
-                Opts opts "$@"||return 7
+                Opts opts "$@"||\
+        {iqerr incorrect options given to {cmd}filter{%}; return 7}
     set -- "$reply[@]"
     # Cascade options to short ones
     int/iq::opt-cascade Opts --timeout -t -p --print
