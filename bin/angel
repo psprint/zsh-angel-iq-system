@@ -40,6 +40,8 @@
         (($#&&$#CMD))&&shift||CMD=help
     fi
     if [[ -s $ZIQDIR/libexec/$CMD ]];then
+        local FBKP=$functions[$CMD]
+        unset -f $CMD IQIO
         autoload -z $ZIQDIR/libexec/$CMD #zsweep:pass
 
         # Edit source?
@@ -54,6 +56,8 @@
         else
             $CMD "${opts[@]:#(--help|-h)}" "$@"
         fi
+
+        [[ -n $FBKP ]]&&functions[$CMD]=$FBKP||unfunction $CMD
         EC+=$?
     else
         iqmsgi $0:t\:$LINENO {err}Error:{txt} \
