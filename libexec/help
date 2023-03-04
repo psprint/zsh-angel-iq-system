@@ -19,6 +19,11 @@ help() {
             qprint     "print contents of given variable (by name not by value)"
             swap       "swap two files in their locations"
             gh-create  "create a repository at GitHub"
+            gh-unscope "get the username of the given repository at GitHub (wins the one with biggest # of forks)"
+            gh-clone   "get the the given repository from GitHub, only via username/repository ID, with a graphical, colorful progress meter"
+            clone      "get a given repo via full URL, with a graphical, colorful progress meter"
+            prj-dir    "get the project by looking for a file (like .git, configure, e.g.) in uptree ((../)+{file})"
+            countdown  "a graphical countdown, waits for ARGUMENT seconds."
             hop        "deploy a block of code for execution in ZLE\
 -scope"
             fresh-in   "finds files changed in ARGUMENT-\
@@ -48,12 +53,15 @@ each after the pattern applied. NON-GREEDY mode"
             iqmsg {note}Usage:{pre} angel con
             ;;
         (countdown)
-            iqmsg {note}Usage:{pre} angel countdown {num}[0-9]
+            iqmsg {note}Usage:{pre} angel countdown {num}\[0-9\]
             ;;
         (filter)
-            iqmsg {note}Usage:{pre} angel filter [-T|--trim] \
-                [-s|--1space] [-p|--print] [-t|--timeout] \
-                [arg1] ... [argN]
+            iqmsg {note}Usage:{pre} angel filter \
+                \[{opt}-T{pre}\|{opt}--trim{pre}\] \
+                \[{opt}-s{pre}\|{opt}--1space{pre}\] \
+                \[{opt}-p{pre}\|{opt}--print{pre}\] \
+                \[{opt}-t{pre}\|{opt}--timeout{pre}\] \
+                \[arg1{pre}\] ... \[argN{pre}\]
 
             ;;
         (fresh-in)
@@ -63,8 +71,8 @@ each after the pattern applied. NON-GREEDY mode"
             iqmsg {note}Usage:{pre} angel gh-create {pid}user/repo
         ;;
         (hop)
-            iqmsg {note}Usage:{pre} angel hop [-t/--timeout] \
-                [--msg] [code …]
+            iqmsg {note}Usage:{pre} angel hop \[-t/--timeout\] \
+                \[--msg] \[code …]
         ;;
         (palette)
             iqmsg {note}Usage:{pre} angel palette
