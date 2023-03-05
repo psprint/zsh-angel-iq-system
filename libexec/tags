@@ -30,6 +30,8 @@ tags() {
                       --c-kinds=+px --extras=+r
                       --extras=-{anonymous})
         iqmsg -h "$TXT {type}C{%}…"
+        int/iq::get-prj-dir||REPLY=$PWD
+        int/iq::run-command -C $REPLY -- "$qcmd[@]"
     fi
 
     # default – Zsh script
@@ -38,10 +40,10 @@ tags() {
                     --options=$ZIQDIR/share/zsh.ctags
                     --languages=zsh,zsh3,make)
         iqmsg -h "$TXT {type}Zsh{%} and {type}Make{%}…"
+        int/iq::get-prj-dir||REPLY=$PWD
+        int/iq::run-command -C $REPLY -- "$qcmd[@]"
     fi
 
-    int/iq::get-prj-dir||REPLY=$PWD
-    int/iq::run-command -C $REPLY -- "$qcmd[@]"
     EC+=$?
 
     ((EC))&&iqerr problems during {tag}TAGS{%} generation (code:{num}$EC{%})…
