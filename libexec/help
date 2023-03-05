@@ -14,7 +14,7 @@ help() {
 
     (($+Opts[-q]))&&local -A ZIQ
     local -A QMsg=(
-            tags       "generate Ctags for current directory"
+            tags       "generate Ctags for current project"
             con        "open smart console for current directory"
             qprint     "print contents of given variable (by name not by value)"
             swap       "swap two files in their locations"
