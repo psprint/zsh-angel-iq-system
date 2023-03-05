@@ -1,1 +1,1 @@
--r:noglob iqmsgi -h $0:t\:${(%):-%I} {warn}Warning:{txt}
+-r:noglob iqmsgi -h ${${(%):-%x}:t}${(%):-:%I} {warn}Warning:{txt}
