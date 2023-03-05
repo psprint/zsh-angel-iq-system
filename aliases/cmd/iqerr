@@ -1,1 +1,1 @@
--r:noglob iqmsgi -h $0:t\:$LINENO {err}Error:{txt}
+-r:noglob iqmsgi -h $0:t\:${(%):-%I} {err}Error:{txt}

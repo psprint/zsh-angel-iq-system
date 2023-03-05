@@ -1,1 +1,1 @@
--r:noglob iqmsgi $0:t\:$LINENO
+-r:noglob iqmsgi $0:t\:${(%):-%I}

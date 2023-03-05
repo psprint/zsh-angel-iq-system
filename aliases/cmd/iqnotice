@@ -1,1 +1,1 @@
--r:noglob iqmsgi $0:t\:$LINENO {note}%bNotice:{txt}
+-r:noglob iqmsgi $0:t\:${(%):-%I} {note}%bNotice:{txt}

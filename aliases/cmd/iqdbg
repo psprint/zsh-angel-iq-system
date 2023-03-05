@@ -1,1 +1,1 @@
--r:noglob iqmsgi $0:t\:$LINENO $ndbg -h {pre}Debug:{txt}
+-r:noglob iqmsgi $0:t\:${(%):-%I} $ndbg -h {pre}Debug:{txt}
