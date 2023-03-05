@@ -36,7 +36,7 @@ if [[ $1 != --refresh ]]; then
     ((${+commands[gstdbuf]}))&& \
         local -a stdbuf1=( gstdbuf -o0 -i0 ) stdbuf2=( gstdbuf -o0 -i0 )
 
-    ZUI[COLORING_PATTERN]="(([^\/—])(#c2,))(#e)" ZUI[COLORING_MATCH_MULTIPLE]=0
+    ZUI[COLORING_PATTERN]="((([^\/—])(#c2,))(#e))~*[·]*" ZUI[COLORING_MATCH_MULTIPLE]=0
     ZUI[COLORING_COLOR]=$ZUI[BOLD]$ZUI[YELLOW]       
     ZUI[START_IN_SEARCH_MODE]=0
 
@@ -56,12 +56,12 @@ generator_A() {
     reply=()
 
     # First Group
-    -zui_std_rc_button "button17" "·Refresh console·" \
-        'reply=( ",all," ); source $ZIQ_FEAT_DIR/iqfeat --refresh && -zui_std_stalog "Console " "source " reloaded'
+    -zui_std_rc_button "button17" "·New feature·" \
+        'reply=( ",all," ); new_feature'
     group1=( $reply ) reply=()
 
     # Content
-    reply=( )
+    reply=( "$group1[@]" )
 
     # Non-selectable lines  Hops to jump with [ and ]   Local anchors
     reply2=( )              reply3=( 3 )                reply4=( )
