@@ -32,7 +32,7 @@ minutes"
                     try:"the same as try-ng, but greedy"
                     tries:"the same as tries-ng, but greedy"
                     x-tract:"extracts any archive, recognizes many types"
- 
+                    palette:"shows the 256 color palette"
         )
          _describe -t features "available commands" q && ret=0
         ;;
