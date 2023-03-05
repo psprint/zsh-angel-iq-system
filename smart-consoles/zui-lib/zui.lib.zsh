@@ -6,8 +6,7 @@
 #
 
 0="${(%):-%N}" # this gives immunity to functionargzero being unset
-ZUI_REPO_DIR="${0%/*}"
-ZUI_CONFIG_DIR="$HOME/.config/zui"
+typeset -g ZUI_REPO_DIR="${0%/*}" ZUI_CONFIG_DIR="$HOME/.config/zui"
 
 #
 # Update FPATH if:

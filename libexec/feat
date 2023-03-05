@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-con(){
+feat(){
     # Preamble – emulate & 0=…
     SNIP_EMULATE_OPTIONS_ZERO
     source $0:h:h/share/preamble.inc.zsh --func
@@ -11,5 +11,7 @@ con(){
 
     set -- "$reply[@]"
     int/iq::opt-cascade Opts
-    [[ -x $ZIQDIR/smart-consoles/iqcon ]]&&$ZIQDIR/smart-consoles/iqcon
+    [[ -x $ZIQDIR/smart-consoles/iqfeat ]]&&$ZIQDIR/smart-consoles/iqfeat
 }
+
+feat "$@"
