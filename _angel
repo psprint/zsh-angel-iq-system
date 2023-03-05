@@ -6,6 +6,7 @@ local curcontext="$curcontext" state ret=1
 
 _arguments -C \
     '1: :->command'\
+    '2: :->command'\
     '*: :->argument' && ret=0
 
 case $state in
