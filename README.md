@@ -91,10 +91,10 @@ Below are subcommands of the command `angel`, i,e,L `angel {subcommand} …`
 - **gh-unscope** : get the username of the given repository at GitHub (wins the one with biggest # of forks),
 - **gh-clone** : get the the given repository from GitHub, only via `username/repository` ID, with a graphical, colorful progress meter,
 - **clone** : get a given repo via full URL, with a graphical, colorful progress meter,
-- **prj-dir** : get the project by looking for a file (like `.git`, `configure`, e.g.) in uptree (`(../)+{file}`),
+- **prj-dir** : get the project directory absolute path by looking for a file (like `.git`, `configure`, e.g.) in uptree (`(../)+{file}`),
 - **fetch**   :  a frontend to curl and wget (first tries cURL)
 - **filter** : filters out any color escape codes, reads stdin if no arguments,
-- **fresh-in** : finds files changed in ARGUMENT-minutes,
+- **fresh-in** : finds files changed in ARGUMENT-minutes
 - **hop** : deploy a block of code for later execution in ZLE-scope,
 - **qprint** : print contents of given variable (by name not by value),
 - **swap** : swap two files in their locations,
