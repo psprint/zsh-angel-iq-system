@@ -29,7 +29,7 @@ int/iq::get-prj-dir() {
 
     REPLY=$REPLY:h
     if [[ $PRJ == WRONGSTR ]]; then
-        iqwarn $opts didn\'t find any main poject dir \
+        iqwarn -Q $opts didn\'t find any main poject dir \
                     uptree, was looking for: \
                         {nl}{file}${(pj[{%},{nl}{file}])qt}{%}.
         return 1

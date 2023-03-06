@@ -56,9 +56,9 @@
         else
             $CMD "${opts[@]:#(--help|-h)}" "$@"
         fi
+        EC+=$?
 
         [[ -n $FBKP ]]&&functions[$CMD]=$FBKP||unfunction $CMD
-        EC+=$?
     else
         iqmsgi $0:t\:$LINENO {err}Error:{txt} \
             no such subcommand %B{quot}·{cmd}${(U)CMD}{%}%B{quot}·{%},\
