@@ -14,7 +14,7 @@ prj-dir() {
     int/iq::reset
     integer retval
 
-    if int/iq::get-prj-dir;then
+    if int/iq::get-prj-dir $opts;then
         if (($+Opts[--verbose]));then
             iqnotice -Q found project at {path}$REPLY{%}, it was one \
                 of {num}$#reply{%} candidates

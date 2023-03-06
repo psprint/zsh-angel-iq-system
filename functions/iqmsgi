@@ -16,9 +16,8 @@ source $0:h:h/share/preamble.inc.zsh --func
 # -e - print to stderr
 # -n - no new line
 local -A Opts; local -a opts
-int/iq::parse-opts "h p q -quiet e n Q" Opts opts "$@"
+int/iq::parse-opts "h p q -quiet e n Q" Opts opts "$@"||return 13
 set -- "$reply[@]"
-
 # Quiet mode? → no printing if so
 (($+Opts[-q]==1&&$+Opts[-p]!=1))&&return
 

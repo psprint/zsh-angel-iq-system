@@ -5,14 +5,14 @@ int/iq::get-prj-dir() {
     SNIP_EMULATE_OPTIONS_ZERO
 
     local -a opts; local -A Opts
-    int/iq::parse-opts "" Opts opts "$@"||return 7
+    int/iq::parse-opts "q -quiet" Opts opts "$@"||return 7
     set -- "$reply[@]"
     int/iq::reset
     integer retval
 
     tmp/iq::up-find-dir() {
-        local w=$1
-        reply=($PWD/(../)#$~w(N.,@,/))
+        local W=$1
+        reply=($PWD/(../)#$~W(N.,@,/))
         reply=(${(@On)reply})
         # Fix path's ../,etc.
         REPLY=$reply[1]:a
@@ -29,8 +29,9 @@ int/iq::get-prj-dir() {
 
     REPLY=$REPLY:h
     if [[ $PRJ == WRONGSTR ]]; then
-        zswarn -Q -h didn\'t find any main poject dir \
-                    uptree, was looking for: %B{39}·${(j.%f%b, %B{39}·.)qt}
+        iqwarn $opts didn\'t find any main poject dir \
+                    uptree, was looking for: \
+                        {nl}{file}${(pj[{%},{nl}{file}])qt}{%}.
         return 1
     fi
     return 0
