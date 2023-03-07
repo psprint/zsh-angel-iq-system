@@ -91,8 +91,8 @@ fi
 
 ## Start application ##
 -zui_std_stalog "" "@@@ " "Welcome to " "IQ System " "features console!" " @@@";
+tput smcup
 while (( 1 )); do
-    tput smcup
     zui-event-loop 1:generator_A 1:generator_B
     if [[ -z $REPLY ]]; then
         break
