@@ -40,7 +40,15 @@ each after the pattern applied. NON-GREEDY mode"
             x-tract    "extracts any archive, recognizes many types"
             palette    "shows the 256 color palette"
         )
-    [[ -z $1 ]]&&{iqnotice Available\ commands:;angel qprint -q QMsg;return 0;}
+    [[ -z $1 ]]&&{iqnotice Available\ commands:;angel qprint -q QMsg|\
+        {
+            local line
+            while IFS= read line;do
+                iqmsg -- ${line/(#m)(#s)[^:]##/{pre}$MATCH{%}}
+            done
+        }
+        return 0;
+    }
     printf %s\\n $@
     (($+QMsg[$1]))||{iqerr unknown command: {cmd}$1{%};return 1;}
 
