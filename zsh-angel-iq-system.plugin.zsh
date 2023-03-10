@@ -35,4 +35,6 @@ zle -N iq::action-complete-ice iq::action-complete
     [[ -n $IQTMP ]]&&bindkey $IQTMP iq::action-complete-ice
 }
 
+: ${TINFO:=${XDG_CONFIG_HOME:-$HOME/.config}/tigsuite/features.reg}
+export TINFO
 # vim:ft=zsh:tw=80:sw=4:sts=4:et:foldmarker=[[[,]]]
