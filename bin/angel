@@ -31,7 +31,7 @@
                          o: 1 e n p q -quiet E O -ed s h -help m -msg \
                          -auto -move -move2 -prune -bkp \
                             T -cat -1space i -zle-nt" \
-                            Opts opts "$@"
+                            Opts opts "$@"||return 7
     set -- "$reply[@]"
     local CMD=$1
     if (($+Opts[-h]||$+Opts[--help]));then
