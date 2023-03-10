@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 
 int/iq::get-editor() {
-    SNIP_EMULATE_OPTIONS_ZERO
+    eval "$SNIP_EMULATE_OPTIONS_ZERO"
 
     # Input/options
     local -A Opts

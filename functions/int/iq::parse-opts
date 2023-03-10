@@ -5,7 +5,7 @@
 
 int/iq::parse-opts() {
     # Preamble – emulate & 0=…
-    SNIP_EMULATE_OPTIONS_ZERO
+    eval "$SNIP_EMULATE_OPTIONS_ZERO"
     tmp/iq::prune-dashes() {
         # Remove any --/- end option mark
         integer QIDX=${@[(i)(--|-)]}
@@ -17,7 +17,7 @@ int/iq::parse-opts() {
     tmp/iq::prune-dashes "$@"
     local -a qe=("$reply[@]")
 
-    builtin zparseopts SNIP_-F_OPT_FOR_ZP_OPTS_VERSION \
+    builtin zparseopts SNIP_F_OPT_FOR_ZP_OPTS_VERSION \
         -D -E ${(s| |)ASVAR:+-A $ASVAR} ${(s| |)ARVAR:+-a $ARVAR} -- \
             ${(s: :)OPTSPEC} ||return 7 #zsweep:pass
 

@@ -30,7 +30,7 @@
 # key: value
 
 int/@iq::str4var() {
-    SNIP_EMULATE_OPTIONS_ZERO
+    eval "$SNIP_EMULATE_OPTIONS_ZERO"
     local MATCH; integer MBEGIN MEND
 
     integer idx

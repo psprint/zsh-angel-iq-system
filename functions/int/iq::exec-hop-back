@@ -15,7 +15,7 @@
 # iq::exec-hop-back  @sleep:5.5 "BUFFER='The time has passed, sorry for replacing your command line ;)'"
 
 int/iq::exec-hop-back() {
-    SNIP_EMULATE_OPTIONS_ZERO
+    eval "$SNIP_EMULATE_OPTIONS_ZERO"
 
     local QMESSAGE_SCRIPT="(){emulate -L zsh -o promptsubst;\
 POSTDISPLAY=$'\n'%TXT%;zle -R;\

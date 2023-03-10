@@ -9,7 +9,7 @@
 # $2 - the pattern to match in the string
 
 filter() {
-    SNIP_EMULATE_OPTIONS_ZERO
+    eval "$SNIP_EMULATE_OPTIONS_ZERO"
     source $0:h:h/share/preamble.inc.zsh --func
 
     integer EC

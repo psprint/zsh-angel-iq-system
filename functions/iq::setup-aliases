@@ -26,13 +26,14 @@ if [[ ! -d $ZIQAES && ! -d $Opts[--path] ]];then
 fi
 
 local DIR dirs=($Opts[--path](/N) $ZIQAES $ZIQAES/*(/N))
-
 for DIR ($dirs);do
     # Set up aliases (global, suffix and the proper ones)
     [[ -f $DIR/*[^~](#qNY1.,@) ]]&&for REPLY in $DIR/*[^~](N.,@);do
         REPLY="$REPLY:t=$(<$REPLY)"
+        local KEY=${(M)REPLY##[^=]##}
         alias "${${REPLY#*=}%%:*}" "${(M)REPLY##[^=]##}=${REPLY#*:}"
-        ZIQ[${(M)REPLY##[^=]##}]=${REPLY#*:}
+        ZIQ[$KEY]=${REPLY#*:}
+        [[ $KEY == SNIP_* ]]&&typeset -g $KEY="${REPLY#*:}"
     done
 done
 int/iq::reset

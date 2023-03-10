@@ -2,7 +2,7 @@
 
 # Copyright (c) 2023 Sebastian Gniazdowski
 int/iq::run-command() {
-    SNIP_EMULATE_OPTIONS_ZERO
+    eval "$SNIP_EMULATE_OPTIONS_ZERO"
 
     # Input/options
     local -A Opts;local -a opts

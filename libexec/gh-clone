@@ -4,7 +4,7 @@
 #
 gh-clone() {
     # Preamble – emulate & 0=…
-    SNIP_EMULATE_OPTIONS_ZERO
+    eval "$SNIP_EMULATE_OPTIONS_ZERO"
     source $0:h:h/share/preamble.inc.zsh --func
 
     local -a opts; local -A Opts

@@ -6,7 +6,7 @@
 # An example of type-agnostic script/function, i.e.: the file can be run as a +x
 # script or as an autoload function.
 
-SNIP_EMULATE_OPTIONS_ZERO
+eval "$SNIP_EMULATE_OPTIONS_ZERO"
 
 typeset -g name=$1
 typeset -ga reply full_names

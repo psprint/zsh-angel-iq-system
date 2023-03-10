@@ -6,7 +6,7 @@
 
 int/iq::opt-cascade() {
     # Preamble – emulate & 0=…
-    SNIP_EMULATE_OPTIONS_ZERO
+    eval "$SNIP_EMULATE_OPTIONS_ZERO"
     local VARNAME=$1 VARSTRQ VARSTRP
     shift
     integer EC

@@ -13,7 +13,7 @@
 #
 
 int/@iq::process-buffer() {
-    SNIP_EMULATE_OPTIONS_ZERO
+    eval "$SNIP_EMULATE_OPTIONS_ZERO"
 
     local MBEGIN MEND MATCH mbegin mend match
 

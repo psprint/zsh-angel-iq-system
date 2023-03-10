@@ -7,7 +7,7 @@
 
 iq::action-complete() {
     # Preamble – emulate & 0=…
-    SNIP_EMULATE_OPTIONS_ZERO
+    eval "$SNIP_EMULATE_OPTIONS_ZERO"
     # The index of the match that's inserted in cmd line
     integer -g ziac_midx
     typeset -ga ziac_matches ziac_wids

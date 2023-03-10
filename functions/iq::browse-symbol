@@ -26,7 +26,7 @@ iq::browse-symbol() {
 
 0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
 
-SNIP_EMULATE_OPTIONS_ZERO
+eval "$SNIP_EMULATE_OPTIONS_ZERO"
 
 # When an error, then no cursor keys bindings
 zmodload zsh/terminfo 2>/dev/null

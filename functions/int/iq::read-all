@@ -6,7 +6,7 @@
 
 int/iq::read-all() {
     # Preamble – emulate & 0=…
-    SNIP_EMULATE_OPTIONS_ZERO
+    eval "$SNIP_EMULATE_OPTIONS_ZERO"
 
     local -A Opts; local -a opts
     int/iq::parse-opts "d: u: f -fix" Opts opts "$@"||return 1

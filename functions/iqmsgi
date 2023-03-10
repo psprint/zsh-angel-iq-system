@@ -6,7 +6,7 @@
 
 iqmsgi() {
 
-SNIP_EMULATE_OPTIONS_ZERO
+eval "$SNIP_EMULATE_OPTIONS_ZERO"
 local OBKP=$REPLY obkp=("$reply[@]")
 source $0:h:h/share/preamble.inc.zsh --func
 

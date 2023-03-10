@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 
 swap() {
-    SNIP_EMULATE_OPTIONS_ZERO
+    eval "$SNIP_EMULATE_OPTIONS_ZERO"
     source $0:h:h/share/preamble.inc.zsh --func||return 3
 
     local Q
@@ -13,9 +13,9 @@ swap() {
 
     integer EC
     local suffix=$(( RANDOM % 1000 ))
-    command mv -v "$1" "$1"_"$suffix"; EC+=$?
-    command mv -v "$2" "$1"; EC+=$?
-    command mv -v "$1"_"$suffix" "$2"; EC+=$?
+    command mv -v "$1:a" "$1:a"_"$suffix"; EC+=$?
+    command mv -v "$2:a" "$1:a"; EC+=$?
+    command mv -v "$1:a"_"$suffix" "$2:a"; EC+=$?
 
     ((EC))&&iqwarn Something wrong happened, summed exit values: {int}$EC||\
             iqmsg {head}Files have been correctly moved

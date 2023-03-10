@@ -5,7 +5,7 @@
 #
 
 iq::format-dbg() {
-    SNIP_EMULATE_OPTIONS_ZERO
+    eval "$SNIP_EMULATE_OPTIONS_ZERO"
 
     # Parse -o, -l options
     local -A Opts; local -a opts
