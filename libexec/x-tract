@@ -5,7 +5,7 @@ x-tract() {
     source $0:h:h/share/preamble.inc.zsh --func
 
     local -a opt_move opt_move2 opt_prune opt_auto opt_bkp opt_quiet
-    zparseopts SNIP_F_OPT_FOR_ZP_OPTS_VERSION \
+    zparseopts $SNIP_F_OPT_FOR_ZP_OPTS_VERSION \
             -D -E -- -move=opt_move -move2=opt_move2 -prune=opt_prune \
             -auto=opt_auto -bkp=opt_bkp q=opt_quiet -quiet=opt_quiet|| \
         {iqerr "incorrect options given to" \
