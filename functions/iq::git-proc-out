@@ -3,7 +3,8 @@
 # Copyright (c) 2016-2020 Sebastian Gniazdowski and contributors
 
 int/iq::git-proc-out() {
-    SNIP_EMULATE_OPTIONS_ZERO
+    builtin emulate -L zsh -o extended_glob -o typeset_silent \
+        -o warn_create_global -o rc_quotes
 
     { typeset -g COLS="$(tput cols)" } 2>/dev/null
 
