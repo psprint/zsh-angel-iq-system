@@ -17,7 +17,8 @@ int/iq::parse-opts() {
     tmp/iq::prune-dashes "$@"
     local -a qe=("$reply[@]")
 
-    builtin zparseopts $SNIP_F_OPT_FOR_ZP_OPTS_VERSION \
+    eval "local qfopt=$SNIP_F_OPT_FOR_ZP_OPTS_VERSION"
+    builtin zparseopts $qfopt \
         -D -E ${(s| |)ASVAR:+-A $ASVAR} ${(s| |)ARVAR:+-a $ARVAR} -- \
             ${(s: :)OPTSPEC} ||return 7 #zsweep:pass
 
