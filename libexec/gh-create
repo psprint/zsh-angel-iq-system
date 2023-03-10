@@ -35,15 +35,24 @@ gh-create() {
 
     plugin="${plugin//[^a-zA-Z0-9_]##/-}"
     local uspl2=${org:-$user}/$plugin
-    iqmsg -h Plugin is {pid}$uspl2
+    iqmsg -h Plugin is: {pid}$uspl2
 
     if [[ $user != _local && -n $user ]]; then
         iqwarn {head}Creating Github repository…
         if [[ -n $org ]]; then
              command curl --silent -u $user https://api.github.com/orgs/$org/repos -d '{"name":"'$plugin'"}' >/dev/null
         else
-            curl --silent -u $user https://api.github.com/user/repos -d '{"name":"'$plugin'"}' >/dev/null
-        fi
+            local -a qt
+            qt=(${(M)${(@f)"$(<~/.git-credentials)"}:#(#s)https://$user:*})
+            qt=${${qt[1]##https:\/\/$user:}%@github.com}
+            command curl IQIO --silent -L \
+              -X POST \
+              -H "Accept: application/vnd.github+json" \
+              ${qt:+-H} ${qt:+"Authorization: token $qt"} \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              https://api.github.com/user/repos \
+              -d '{"name":"'$plugin'","private":false}'
+         fi
          command git clone https://github.com/${org:-$user}/$plugin.git ${org:-$user}---${plugin//\//---} || {
             iqerr {err}Creation of remote repository {pid}$uspl2 \
                 {err}failed!{nl}Bad credentials?
