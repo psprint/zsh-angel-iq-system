@@ -15,7 +15,8 @@ qprint(){
     if ((!$+__Opts[-p]));then
         local __QN
         for __QN ($@){
-            iqmsg $__Opts[-q] {nl}{note}Notice:{%} showing variable {var}$__QN{%}:
+            iqmsg -Q $__Opts[-q] {nl}{note}Notice:\
+                {%}showing variable {var}$__QN{%}:
             int/@iq::str4var $__QN
         }
         return $?
