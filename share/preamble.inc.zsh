@@ -14,7 +14,8 @@ builtin zparseopts \
 # Set options
 ((!$+Opts[--func]))&&builtin emulate -L zsh -o extendedglob \
                         -o warncreateglobal -o typesetsilent \
-                        -o noshortloops -o nopromptsubst
+                        -o noshortloops -o nopromptsubst \
+                        -o rcquotes
 
 integer QIDX=${@[(i)(--|-)]}
 ((QIDX<=$#))&&builtin set -- "$@[1,QIDX-1]" "$@[QIDX+1,-1]"

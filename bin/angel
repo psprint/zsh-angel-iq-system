@@ -12,7 +12,7 @@
     # Set options
     builtin emulate -L zsh -o extendedglob -o noshortloops \
                             -o warncreateglobal -o typesetsilent \
-                            -o nopromptsubst
+                            -o nopromptsubst -o rcquotes
 
     # Run as script?
     integer QBESCRIPT=${${${(M)0:#$ZSH_ARGZERO:t}:+1}:-0};
@@ -41,8 +41,8 @@
     fi
     if [[ -s $ZIQDIR/libexec/$CMD ]];then
         local FBKP=$functions[$CMD]
-        unset -f $CMD IQIO
-        autoload -z $ZIQDIR/libexec/$CMD #zsweep:pass
+        builtin unset -f $CMD IQIO
+        builtin autoload -z $ZIQDIR/libexec/$CMD #zsweep:pass
 
         # Edit source?
         if (($+Opts[--ed]));then
@@ -58,7 +58,7 @@
         fi
         EC+=$?
 
-        [[ -n $FBKP ]]&&functions[$CMD]=$FBKP||unfunction $CMD
+        [[ -n $FBKP ]]&&functions[$CMD]=$FBKP||builtin unfunction $CMD IQIO
     else
         iqmsgi $0:t\:$LINENO {err}Error:{txt} \
             no such subcommand %B{quot}·{cmd}${(U)CMD}{%}%B{quot}·{%},\
