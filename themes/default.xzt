@@ -5,6 +5,7 @@ err     %B203
 warn    %B204
 builtin %B179
 head    41
+pid     41
 bin     %B174
 src     %B135
 nick    %B179
