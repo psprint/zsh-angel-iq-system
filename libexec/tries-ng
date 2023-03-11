@@ -56,7 +56,7 @@ ${retval::=0}}
          : ${(S)input[@]//(#b)(${~pat})/${reply[${#reply}+1]::=$match[1]}\
 ${retval::=0}}
     fi
-     REPLY=$reply[1]
+    REPLY=$reply[1]
     return retval
 }
 
