@@ -43,8 +43,8 @@ int/iq::run-command() {
                 ${=Opts[-0]:+-0 $Opts[-0]} \
                 ${Opts[-s]:+-s} ${Opts[-o]:+-o} -- \
                     "$qcmd[@]"
-    local QREPLY=$REPLY qout=("$reply[@]")
     EC=$?
+    local QREPLY=$REPLY qout=("$reply[@]")
     ((EC))&&{iqwarn command didn\'t run cleanly (returned: {num}$EC{%});}
     REPLY=$QREPLY reply=("$qout[@]")
     return EC

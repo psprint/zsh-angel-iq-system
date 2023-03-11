@@ -21,7 +21,7 @@ tags() {
     # Info texts
     local TXT="{note}Generating {tag}${${eopt:+TAGS}:-tags}{%} index for"
     command rm -f TAGS tags
-    integer EC
+    integer EC=$?
     local -a exc=(--exclude='*.orig' --exclude='*.rej')
     # C programming language
     if (($+Opts[-c]));then
@@ -40,11 +40,13 @@ tags() {
                     --options=$ZIQDIR/share/zsh.ctags
                     --languages=zsh,zsh3,make)
         iqmsg -h "$TXT {type}Zsh{%} and {type}Make{%}…"
-        int/iq::get-prj-dir||REPLY=$PWD
-        int/iq::run-command -C $REPLY -- "$qcmd[@]"
+        local QDIR
+        int/iq::get-prj-dir&&QDIR=$REPLY||QDIR=$PWD
+        int/iq::run-command -C $QDIR -- "$qcmd[@]"
     fi
-
     EC+=$?
+    ((!EC))&&iqmsg -h Successfully created {path}${QDIR/$PWD/.}/TAGS{%} index||\
+            iqmsg -h Problems creating {path}${QDIR/$PWD/.}/TAGS{%} index
 
     ((EC))&&iqerr problems during {tag}TAGS{%} generation (code:{num}$EC{%})…
     return EC
