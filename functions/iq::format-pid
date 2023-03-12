@@ -13,11 +13,11 @@ iq::format-pid() {
     set -- "$reply[@]"
 
     if (($+Opts[-h]||$+Opts[--help]));then
-        autoload -z $ZSDIR/functions/zsmsgi # zsweep:pass
-        zsmsgi {txt}Usage:{cmd} iq::format-pid {opt}-loh{%}{nl} \
+        iqnotice {txt}Usage:{cmd} iq::format-pid {opt}-loh{%}{nl} \
             {opt}-o{%} – output to stdout, not only to {var}\$REPLY{%}{nl} \
             {opt}-l{%} – use new-lines to print arguments{%}{nl} \
             {opt}-z{%} – output even empty result
+        return 0
     fi
 
     # Mute warncreateglobal warning
