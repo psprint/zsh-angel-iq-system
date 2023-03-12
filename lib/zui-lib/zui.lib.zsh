@@ -4,9 +4,11 @@
 #
 # to ~/.zshrc.
 #
+eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
+    0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}
 
-0="${(%):-%N}" # this gives immunity to functionargzero being unset
-typeset -g ZUI_REPO_DIR="${0%/*}" ZUI_CONFIG_DIR="$HOME/.config/zui"
+typeset -g ZUI_REPO_DIR="$0:h" \
+        ZUI_CONFIG_DIR="${XDG_CONFIG_HOME:-HOME/.config}/zui"
 
 #
 # Update FPATH if:
@@ -44,13 +46,23 @@ bindkey "^O^Z" zui-demo-various
 
 typeset -gAH ZUI
 typeset -ga ZUI_MESSAGES
+typeset -g ZUIO
+: ${ZUI[SERIALZE_FLE_PFX]:=AppState:}
+: ${ZUI[SERIALZE_FLE_EXT]:=.dat}
+: ${ZUI[SERIALZE_EXVAR_PFX]:=ZUI_SERIALIZED_STATE_OF_APP___}
+: ${ZUI[SERIALZE_FIELD_PFX]:=SERIALZED_STATE_OF_APP:_}
+: ${ZUI[CACHE_DIR]:=${XDG_CACHE_HOME:-$HOME/.cache}/zui-zsh}
+: ${ZUIO:=$ZUI[CACHE_DIR]/all-io.log}
+: ${ZUI[WRONGSTR_P]:="([[:space:][:punct:][:INCOMPLETE:][:INVALID:][:IFS:]\
+[:cntrl:]]|[^[:print:]])#"}
+command mkdir -p $ZUI[CACHE_DIR] $ZUIO:h $ZUI_CONFIG_DIR
 
 #
 # Load modules
 #
 
-zmodload -F zsh/stat b:zstat && ZUI[stat_available]="1" || ZUI[stat_available]="0"
-zmodload zsh/datetime && ZUI[datetime_available]="1" || ZUI[datetime_available]="0"
+zmodload zsh/stat&&ZUI[stat_available]=1 || ZUI[stat_available]=0
+zmodload zsh/datetime&&ZUI[datetime_available]=1 || ZUI[datetime_available]=0
 
 #
 # Functions
@@ -59,24 +71,24 @@ zmodload zsh/datetime && ZUI[datetime_available]="1" || ZUI[datetime_available]=
 # Cleanup and init stubs, to be first stdlib
 # functions called, sourcing the libraries
 
-(( 0 == ${+functions[-zui_std_cleanup]} )) && {
+if (( 0 == ${+functions[-zui_std_cleanup]} ));then
     function -zui_std_cleanup() {
-        unfunction -- -zui_std_cleanup
-        [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
-        [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/syslib.lzui"
-        [[ "${ZUI[utillib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/utillib.lzui"
+        unfunction -- -zui_std_cleanup &>>!$ZUIO
+        [[ ${ZUI[stdlib_sourced]} != 1 ]] && source ${ZUI_REPO_DIR}/stdlib.lzui
+        [[ ${ZUI[syslib_sourced]} != 1 ]] && source ${ZUI_REPO_DIR}/syslib.lzui
+        [[ ${ZUI[utillib_sourced]} != 1 ]] && source ${ZUI_REPO_DIR}/utillib.lzui
         -zui_std_cleanup "$@"
     }
-}
+fi
 
-(( 0 == ${+functions[-zui_std_init]} )) && {
+if (( 0 == ${+functions[-zui_std_init]} ));then
     function -zui_std_init() {
-        unfunction -- -zui_std_init
-        [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
-        [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/syslib.lzui"
-        [[ "${ZUI[utillib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/utillib.lzui"
+        unfunction -- -zui_std_init &>>!$ZUIO
+        [[ ${ZUI[stdlib_sourced]} != 1 ]] && source ${ZUI_REPO_DIR}/stdlib.lzui
+        [[ ${ZUI[syslib_sourced]} != 1 ]] && source ${ZUI_REPO_DIR}/syslib.lzui
+        [[ ${ZUI[utillib_sourced]} != 1 ]] && source ${ZUI_REPO_DIR}/utillib.lzui
         -zui_std_init "$@"
     }
-}
+fi
 
 # vim:ft=zsh

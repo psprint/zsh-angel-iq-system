@@ -890,21 +890,36 @@ function -zui_std_cleanup() {
 } # }}}
 
 # FUNCTION: -zui_std_serialize {{{
-# Stores my_* keys of ZUI hash into
-# "serialized_${ZUI[app]}" key, which
+# Stores all keys of ZUI hash into
+# "serialized_${ZUI[app]}" key, exported
+# variable and file in XDG cache dir, that
 # can be read with *deserialize() call
 function -zui_std_serialize() {
-    local dst="${1:-${ZUI[app]}}"
+    local APP=${1:-${ZUI[app]:-NoAppIDSet}}
+    local PERFLE=$ZUI[CACHE_DIR]/$ZUI[SERIALZE_FLE_PFX]$APP$ZUI[SERIALZE_FLE_EXT]
+    local VAR=$ZUI[SERIALZE_EXVAR_PFX]$APP \
+            FIELD=$ZUI[SERIALZE_FIELD_PFX]$APP
 
     local -a skeys
-    skeys=( ${ZUI[(I)my_*]} CURRENT_IDX FROM_WHAT_IDX_LIST_IS_SHOWN CURRENT_SEGMENT SEARCH_MODE SEARCH_BUFFER UNIQ_MODE TEXT_OFFSET PREV_SBUFFER PREV_SIDX )
+    skeys=( ${(k)ZUI} )
 
-    local k out
+    local k OUT
     for k in "${skeys[@]}"; do
-        (( ${+ZUI[$k]} )) && out+="${(q)k} ${(q)ZUI[$k]} "
+        (( ${+ZUI[$k]} )) && OUT+="${(q)k} ${(q)ZUI[$k]} "
     done
 
-    ZUI[serialized_$dst]="${out% }"
+    # Truncate trailing spaces
+    OUT=${OUT%%[[:space:][:INVALID:][:INCOMPLETE:]]##}
+
+    # Finally save in 3 locations:
+    ZUI[$FIELD]=$OUT            # 1. The `ZUI` hash field
+    typeset -gx $VAR=$OUT       # 2. Exported var
+
+    # 3. File in ~/.cache/zui-zsh (by default, customizable):
+    {builtin print -r -- $OUT>!$PERFLE;} &>>!$ZUIO
+
+    # Testable
+    [[ -n $ZUI[$FIELD] && -n ${(P)VAR} && -s $PERFLE ]]
 } # }}}
 
 # FUNCTION: -zui_std_deserialize {{{
@@ -913,15 +928,25 @@ function -zui_std_serialize() {
 # keys. Use this to restore application state
 # after exit and consecutive start.
 function -zui_std_deserialize() {
-    local src="${1:-${ZUI[app]}}"
+    local APP="${1:-${ZUI[app]:-NoAppIDSet}}" DATA
+    local PERFLE=$ZUI[CACHE_DIR]/$ZUI[SERIALZE_FLE_PFX]$APP$ZUI[SERIALZE_FLE_EXT]
+    local VAR=$ZUI[SERIALZE_EXVAR_PFX]$APP \
+            FIELD=$ZUI[SERIALZE_FIELD_PFX]$APP
 
     local -a data
-    data=( "${(Q@)${(z@)ZUI[serialized_$src]}}" )
+    DATA=${(P)VAR}||DATA=
+    [[ $DATA == $~ZUI[WRONGSTR_P] ]]&&DATA=$ZUI[$FIELD]
+    [[ $DATA == $~ZUI[WRONGSTR_P] ]]&&{DATA="$(<$PERFLE)"&>>!$ZUIO;}
+    [[ $DATA == $~ZUI[WRONGSTR_P] ]]&&return 1
 
-    if (( ${#data} % 2 == 0 && ${#data} > 0 )); then
-        ZUI+=( "${data[@]}" )
-        unset "ZUI[serialized_$src]"
-    fi
+    # Deserialize into `data` array:
+    data=( "${(Q@)${(z@)DATA}}" )
+
+    # Is array even? If yes, then make the data live
+    ((${#data}&1-1&&$#data>0))&&ZUI+=("${data[@]}")
+
+    # Testable
+    return $?
 } # }}}
 
 # FUNCTION: -zui_std_set_mod_factor {{{

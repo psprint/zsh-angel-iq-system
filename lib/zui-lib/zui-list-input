@@ -239,7 +239,6 @@ integer uniq_mode="$12"
 integer disable_search="$13"
 local list_var_current="${14}[\$current_idx]"
 local list_var_prev="${14}[\$prev_idx]"
-
 integer prev_idx="$current_idx"
 local text
 local -a wrk_reply
