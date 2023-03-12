@@ -9,7 +9,7 @@ integer EC
 local -A Opts
 builtin zparseopts \
     ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} \
-        -D -E -A Opts -- -func||return 7
+        -D -E -A Opts -- -func -script||return 18
 
 # Set options
 ((!$+Opts[--func]))&&builtin emulate -L zsh -o extendedglob \
