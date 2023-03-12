@@ -179,6 +179,10 @@ generator_B() {
 };
 
 get_cflags() {
+    if [[ ! -s Makefile ]];then
+        -zui_std_stalog "Couldn't find " "Makefile " "in " "$PWD"
+        return 1
+    fi
     local CFLAGS=`grep '^CFLAGS[[:space:]]*=' Makefile`
     -zui_std_stalog "Obtained: " "CFLAGS = ${CFLAGS#*=[[:space:]]##}"
     return 1
