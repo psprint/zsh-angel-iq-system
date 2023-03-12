@@ -26,7 +26,7 @@ separ()
 
 if [[ $1 != --refresh ]]; then
     -zui_std_cleanup deserialize:"iqfeat"
-    -zui_std_init app:"iqfeat" app_name:"Features Console"
+    -zui_std_init app:"iqfeat" app_name:"°Features° Console"
     emulate -L zsh -o extendedglob -o typesetsilent -o warncreateglobal -o combiningchars
     -zui_std_init2 # after emulate -LR
 
@@ -37,7 +37,7 @@ if [[ $1 != --refresh ]]; then
         local -a stdbuf1=( gstdbuf -o0 -i0 ) stdbuf2=( gstdbuf -o0 -i0 )
 
     ZUI[COLORING_PATTERN]="((([^\/—])(#c2,))(#e))~*[·]*" ZUI[COLORING_MATCH_MULTIPLE]=0
-    ZUI[COLORING_COLOR]=$ZUI[BOLD]$ZUI[YELLOW]       
+    ZUI[COLORING_COLOR]=$ZUI[BOLD]$ZUI[YELLOW]
     ZUI[START_IN_SEARCH_MODE]=1
 
     -zui_std_store_default_app_config b:instant_search 1

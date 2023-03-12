@@ -5,10 +5,9 @@
 # to ~/.zshrc.
 #
 eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
-    0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}
+    0="${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}"
 
-typeset -g ZUI_REPO_DIR="$0:h" \
-        ZUI_CONFIG_DIR="${XDG_CONFIG_HOME:-HOME/.config}/zui"
+typeset -gx ZUI_REPO_DIR="$0:h"
 
 #
 # Update FPATH if:
@@ -23,22 +22,33 @@ fi
 [[ ${+fg_bold} = "0" || -z "${fg_bold[green]}" ]] && builtin autoload -Uz colors && colors
 
 #
+# Global parameters
+#
+
+typeset -gAH ZUI
+typeset -ga ZUI_MESSAGES
+typeset -g ZUIO
+: ${ZUI[SERIALZE_FLE_PFX]:=AppState:}
+: ${ZUI[SERIALZE_FLE_EXT]:=.dat}
+: ${ZUI[SERIALZE_EXVAR_PFX]:=ZUI_SERIALIZED_APP_STATE___}
+: ${ZUI[SERIALZE_FIELD_PFX]:=SERIALZED_APP_STATE:}
+: ${ZUI[CACHE_DIR]:=${XDG_CACHE_HOME:-$HOME/.cache}/zui-zsh}
+: ${ZUIO:=$ZUI[CACHE_DIR]/all-io.log}
+: ${ZUI[WRONGSTR_P]:="([[:space:][:punct:][:INCOMPLETE:][:INVALID:][:IFS:]\
+[:cntrl:]]|[^[:print:]])#"}
+command mkdir -p $ZUI[CACHE_DIR] $ZUIO:h $ZUI_CONFIG_DIR
+
+#
 # Setup
 #
 
 # Support reloading
-(( ${+functions[zui-list]} )) && { unfunction -- zui-list zui-list-draw zui-list-input zui-list-wrapper -zui-log zui-event-loop -zui-list-box-loop zui-process-buffer zui-process-buffer2 zui-usetty-wrapper zui-demo-various zui-demo-hello-world zui-demo-text-fields zui-demo-fly zui-demo-append zui-demo-buttons zui-demo-anchors zui-demo-list-boxes zui-demo-history -zui_std_cleanup -zui_std_init 2>/dev/null; unset ZUI; }
 
-autoload -- zui-list zui-list-draw zui-list-input zui-list-wrapper -zui-log zui-event-loop -zui-list-box-loop
-autoload -- zui-process-buffer zui-process-buffer2 zui-usetty-wrapper
-
-fpath+=( "${ZUI_REPO_DIR}/demos" )
-autoload -- zui-demo-hello-world zui-demo-fly zui-demo-append zui-demo-text-fields zui-demo-list-boxes zui-demo-anchors
-autoload -- zui-demo-ganchors zui-demo-buttons zui-demo-special-text zui-demo-history zui-demo-various zui-demo-timeout
-autoload -- zui-demo-configure zui-demo-edit zui-demo-toggles zui-demo-nmap
-
-zle -N zui-demo-various
-bindkey "^O^Z" zui-demo-various
+unset -f -m "(-|)zui[_-]*"
+fpath+=("${ZUI_REPO_DIR}/functions" "${ZUI_REPO_DIR}/demos")
+fpath=(${(u)fpath})
+autoload -Uz -- $ZUI_REPO_DIR/functions/*[a-z](N.:t) \
+                $ZUI_REPO_DIR/demos/*[a-z](N.:t)
 
 #
 # Global parameters
@@ -74,9 +84,9 @@ zmodload zsh/datetime&&ZUI[datetime_available]=1 || ZUI[datetime_available]=0
 if (( 0 == ${+functions[-zui_std_cleanup]} ));then
     function -zui_std_cleanup() {
         unfunction -- -zui_std_cleanup &>>!$ZUIO
-        [[ ${ZUI[stdlib_sourced]} != 1 ]] && source ${ZUI_REPO_DIR}/stdlib.lzui
-        [[ ${ZUI[syslib_sourced]} != 1 ]] && source ${ZUI_REPO_DIR}/syslib.lzui
-        [[ ${ZUI[utillib_sourced]} != 1 ]] && source ${ZUI_REPO_DIR}/utillib.lzui
+        [[ ${ZUI[stdlib_sourced]} != 1 ]] && source $ZUI_REPO_DIR/stdlib.lzui
+        [[ ${ZUI[syslib_sourced]} != 1 ]] && source $ZUI_REPO_DIR/syslib.lzui
+        [[ ${ZUI[utillib_sourced]} != 1 ]] && source $ZUI_REPO_DIR/utillib.lzui
         -zui_std_cleanup "$@"
     }
 fi
@@ -84,9 +94,9 @@ fi
 if (( 0 == ${+functions[-zui_std_init]} ));then
     function -zui_std_init() {
         unfunction -- -zui_std_init &>>!$ZUIO
-        [[ ${ZUI[stdlib_sourced]} != 1 ]] && source ${ZUI_REPO_DIR}/stdlib.lzui
-        [[ ${ZUI[syslib_sourced]} != 1 ]] && source ${ZUI_REPO_DIR}/syslib.lzui
-        [[ ${ZUI[utillib_sourced]} != 1 ]] && source ${ZUI_REPO_DIR}/utillib.lzui
+        [[ ${ZUI[stdlib_sourced]} != 1 ]] && source $ZUI_REPO_DIR/stdlib.lzui
+        [[ ${ZUI[syslib_sourced]} != 1 ]] && source $ZUI_REPO_DIR/syslib.lzui
+        [[ ${ZUI[utillib_sourced]} != 1 ]] && source $ZUI_REPO_DIR/utillib.lzui
         -zui_std_init "$@"
     }
 fi

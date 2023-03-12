@@ -19,15 +19,15 @@ setopt typesetsilent extendedglob
             # Text chunk to output now
             out="$match[1]"
             # Save color
-            col="-1"
+            col=-1
             (( ${match[2]:-0} >= 30 && ${match[2]:-0} <= 39 )) && col="$match[2]"
             (( ${match[3]:-0} >= 30 && ${match[3]:-0} <= 39 )) && col="$match[3]"
             # Save background color
-            bcol="-1"
+            bcol=-1
             (( ${match[2]:-0} >= 40 && ${match[2]:-0} <= 49 )) && bcol="$match[2]"
             (( ${match[3]:-0} >= 40 && ${match[3]:-0} <= 49 )) && bcol="$match[3]"
             # Save attribute
-            attr="-1"
+            attr=-1
             (( ${match[2]:--1} >= 0 && ${match[2]:--1} <= 27 )) && attr="$match[2]"
             (( ${match[3]:--1} >= 0 && ${match[3]:--1} <= 27 )) && attr="$match[3]"
         else
@@ -88,26 +88,26 @@ setopt typesetsilent extendedglob
                 # col, bcol, attr are currently
                 # not possible at the same time,
                 # but this code supports that
-                [[ "$attr" = "1" ]] && zcurses attr "$win" "$current/$currentb" +bold || zcurses attr "$win" "$current/$currentb"
+                [[ "$attr" = 1 ]] && zcurses attr "$win" "$current/$currentb" +bold || zcurses attr "$win" "$current/$currentb"
             elif (( bcol >= 40 && bcol <= 49 )); then
                 currentb="${__c[bcol-39]}"
-                [[ "$attr" = "1" ]] && zcurses attr "$win" "$current/$currentb" +bold || zcurses attr "$win" "$current/$currentb"
+                [[ "$attr" = 1 ]] && zcurses attr "$win" "$current/$currentb" +bold || zcurses attr "$win" "$current/$currentb"
             elif [[ "$attr" -eq 0 ]]; then
                 zcurses attr "$win" "$wrk_bold" "${ZUI[colorpair]}"
                 current="$foreground"
                 currentb="$background"
-            elif [[ "$attr" = "1" ]]; then
+            elif [[ "$attr" = 1 ]]; then
                 zcurses attr "$win" +bold
             fi
 
-            if [[ "$attr" != "-1" ]]; then
+            if [[ "$attr" != -1 ]]; then
                 # Bold, blink, reverse, underline
                 [[ "$attr" = "21" ]] && zcurses attr "$win" -bold || {
-                    [[ "$attr" = "5" || "$attr" = "6" ]] && zcurses attr "$win" +blink || {
+                    [[ "$attr" = 5 || "$attr" = 6 ]] && zcurses attr "$win" +blink || {
                         [[ "$attr" = "25" ]] && zcurses attr "$win" -blink || {
-                            [[ "$attr" = "7" ]] && zcurses attr "$win" +reverse || {
+                            [[ "$attr" = 7 ]] && zcurses attr "$win" +reverse || {
                                 [[ "$attr" = "27" ]] && zcurses attr "$win" -reverse || {
-                                    [[ "$attr" = "4" ]] && zcurses attr "$win" +underline || {
+                                    [[ "$attr" = 4 ]] && zcurses attr "$win" +underline || {
                                         [[ "$attr" = "24" ]] && zcurses attr "$win" -underline
                                     }
                                 }
@@ -136,7 +136,7 @@ integer max_text_len=page_width-x_offset
 integer i=1 max_idx=page_height end_idx=${#}
 (( end_idx > max_idx )) && end_idx=max_idx
 
-[[ "${ZUI[bold]}" = "1" ]] && local wrk_bold="+bold" || local wrk_bold="-bold"
+[[ "${ZUI[bold]}" = 1 ]] && local wrk_bold="+bold" || local wrk_bold="-bold"
 zcurses attr "$win" "$wrk_bold" "${ZUI[colorpair]}"
 zcurses clear "$win"
 
