@@ -6,13 +6,13 @@ int/iq::run-cmd-compact() {
 
     # Input/options
     local -A Opts;local -a opts
-    int/iq::parse-opts "p o E s 0: 2: 1:" Opts opts "$@"||return 7
+    int/iq::parse-opts "-ex p o E s 0: 2: 1:" Opts opts "$@"||return 7
     set -- "$reply[@]"
     integer EC
 
     tmp/iqrun() {
         setopt localoptions
-        qcmd=("$@")
+        local -a qcmd=("$@")
         (($+Opts[-p]))&&{setopt globsubst;qcmd=(${~:-"$@"});}
         integer EC EOPT=${${Opts[-E]+1}:-2} OUT=1 ERR=2 IN
         [[ -n $Opts[-0] ]]&&exec {IN}<$Opts[-0]
@@ -32,7 +32,6 @@ int/iq::run-cmd-compact() {
         ((IN))&&exec {IN}<&-
         return EC
     }
-
     tmp/iqrun-cmd() {
         integer EC
         if (($+Opts[-o]));then
@@ -49,6 +48,8 @@ int/iq::run-cmd-compact() {
     int/iq::reset
     if (($+Opts[-s]));then
         (tmp/iqrun-cmd "$@")
+    elif (($+Opts[--ex]));then
+        exec tmp/iqrun-cmd "$@"
     else
         tmp/iqrun-cmd "$@"
     fi
