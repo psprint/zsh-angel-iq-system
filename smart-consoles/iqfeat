@@ -105,9 +105,9 @@ while (( 1 )); do
             builtin cd -q -- $PTH
             $REPLY $qfe[2,-1]
         )
-        zcurses clear main redraw
-        zcurses clear status redraw
     fi
+    zcurses clear main redraw
+    zcurses clear status redraw
 done
 
 -zui_std_cleanup serialize
