@@ -2,7 +2,8 @@
 
 # Copyright (c) 2023 Sebastian Gniazdowski
 int/iq::run-cmd-compact() {
-    eval "$SNIP_EMULATE_OPTIONS_ZERO"
+    eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
+        0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
 
     # Input/options
     local -A Opts;local -a opts

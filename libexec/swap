@@ -1,7 +1,8 @@
 #!/usr/bin/env zsh
 
 swap() {
-    eval "$SNIP_EMULATE_OPTIONS_ZERO"
+    eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
+        0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
     source $0:h:h/share/preamble.inc.zsh --func||return 3
 
     local Q

@@ -8,7 +8,8 @@
 # $2 - the pattern to match in the string
 
 try(){
-    eval "$SNIP_EMULATE_OPTIONS_ZERO"
+    eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
+        0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
 
     [[ ! -s $ZIQDIR/libexec/try-ng ]]&&\
         {iqerr couldn\'t locate {cmd}try-ng{%}, cannot continue

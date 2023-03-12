@@ -1,7 +1,8 @@
 #!/usr/bin/env zsh
 
 int/iq::prune-esc() {
-    eval "$SNIP_EMULATE_OPTIONS_ZERO"
+    eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
+        0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
 
     # Input/options
     local -A Opts;local -a opts

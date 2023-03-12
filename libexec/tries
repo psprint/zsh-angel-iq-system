@@ -9,7 +9,8 @@
 # $2 - the pattern to match in the string
 
 tries(){
-    eval "$SNIP_EMULATE_OPTIONS_ZERO"
+    eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
+        0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
 
     [[ ! -s $ZIQDIR/libexec/tries-ng ]]&&\
         {iqerr couldn\'t locate {cmd}tries-ng{%}, cannot continue

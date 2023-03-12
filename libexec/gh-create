@@ -7,7 +7,8 @@
 # $1 - (optional) plugin spec (4 formats: user---plugin, user/plugin, user, plugin)
 # $2 - (optional) plugin (only when $1 - i.e. user - given)
 gh-create() {
-    eval "$SNIP_EMULATE_OPTIONS_ZERO"
+    eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
+        0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
 
     local user=${1%%/*} plugin=${${${(M)1%%/*}:+${1##*/}}:-$2}
 

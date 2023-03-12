@@ -2,7 +2,8 @@
 
 feat(){
     # Preamble – emulate & 0=…
-    eval "$SNIP_EMULATE_OPTIONS_ZERO"
+    eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
+        0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
     source $0:h:h/share/preamble.inc.zsh --func
 
     local -A Opts; local -a opts
