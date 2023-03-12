@@ -13,7 +13,7 @@
 # Besides vertical navigation, it does horizontal navigation over elements of line.
 # Uses curses library.
 
-emulate -LR zsh
+emulate -L zsh
 
 setopt typesetsilent extendedglob noshortloops
 [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
@@ -21,7 +21,7 @@ setopt typesetsilent extendedglob noshortloops
 zmodload zsh/curses
 zmodload zsh/terminfo 2>/dev/null
 
-trap "REPLY=-2; reply=(); return" TERM INT QUIT
+trap "REPLY=-2; reply=(); return 1" TERM INT QUIT
 
 # Outputs a message in the bottom of the screen
 # "[UNIQ]", "Text", "[Grep string]", "Generation time", "$reply[@]" from callback
@@ -400,6 +400,7 @@ __colormap2=(
 #
 
 local backuptheme stbackuptheme
+-zui_std_load_config b:instant_select 1 2 'ZUI[instant_select]'
 -zui_std_load_config s:colorpair "white/black" 2 'ZUI[colorpair]'
 -zui_std_load_config b:border 0 2 'ZUI[border]'
 -zui_std_load_config s:border_cp "yellow/black" 2 'ZUI[border_cp]'

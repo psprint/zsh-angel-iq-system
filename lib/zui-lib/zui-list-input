@@ -364,7 +364,7 @@ if [[ -n "${ZUI[current_tfield]}" ]]; then
     else
         ZUI[current_tfield]=""
     fi
-elif [[ "$search" = "0" ]]; then
+elif ((!search)); then
 
 case "$key" in
     (UP|k)
@@ -636,8 +636,18 @@ else
 
 case "$key" in
     ($'\n'|ENTER)
-        search=0
-        -zui_list_cursor_visibility "status" 0
+        if ((ZUI[instant_select]));then
+            # Cascade to this function with search ($10) set to false (0)
+            zui-list-input $current_idx $current_segment \
+                            $from_what_idx_list_is_shown \
+                            $page_height $page_width $last_element \
+                            $nseg $hscroll ENTER 0 \
+                            $buffer $uniq_mode $disable_search \
+            return $?
+        else
+            search=0
+            -zui_list_cursor_visibility "status" 0
+        fi
         ;;
     ($'\C-L')
         reply=( -1 REDRAW )
