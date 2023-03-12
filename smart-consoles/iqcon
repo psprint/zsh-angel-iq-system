@@ -57,7 +57,7 @@ run_make_install()
 }
 
 run_gen() {
-    local AUTOGEN=$ZIQDIR/smart-console/autoconf.zsh
+    local AUTOGEN=$ZIQDIR/smart-consoles/autoconf.zsh
     [[ ! -f $AUTOGEN ]]&&{print Couldn\'t find autoconf.zsh…;return;}
     [[ ! -s $AUTOGEN ]]&&{print autoconf.zsh is empty file…;return;}
     [[ ! -x $AUTOGEN ]]&&{print autoconf.zsh – no +x chmod…;return;}
@@ -194,15 +194,15 @@ fi
 ## Start application ##
 -zui_std_stalog "" "@@@ " "Welcome to " "IQ System " "build console!" " @@@";
 while (( 1 )); do
+    tput smcup
     zui-event-loop 1:generator_A 1:generator_B
-    if [[ -z $REPLY ]]; then
-        break
-    fi
+    tput rmcup
+    [[ -z $REPLY ]]&&break
     if [[ $REPLY == (#b)(|$'\e'\[[[\;0-9A-Z]#[mK])(|$'\e'\[[[\;0-9A-Z]#[mK])([a-zA-Z0-9_.-]#/)#([a-zA-Z0-9_.-]##):([0-9]##):([0-9]##):* ]]; then
         mcedit +$match[5] **/$match[4](Y1)
-        zcurses clear main redraw
-        zcurses clear status redraw
     fi
+    zcurses clear main redraw
+    zcurses clear status redraw
 done
 
 -zui_std_cleanup serialize
