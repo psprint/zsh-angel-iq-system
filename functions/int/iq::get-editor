@@ -10,14 +10,14 @@ int/iq::get-editor() {
     set -- "$reply[@]"
     local qed1=${Opts[-e]:-${EDITOR:-${VISUAL:-mcedit}}}
     local QED=$qed1
-    (($+commands[$QED]))||QED=gedit
-    (($+commands[$QED]))||QED=mcedit
+    (($+commands[$QED]))||QED=vim
     (($+commands[$QED]))||QED=emacs
     (($+commands[$QED]))||QED=micro
-    (($+commands[$QED]))||QED=vim
+    (($+commands[$QED]))||QED=mcedit
+    (($+commands[$QED]))||QED=gedit
     (($+commands[$QED]))||QED=
 
-    [[ -z $QED ]]&&type -w $qed1 ZSIO&&QED=$qed1
+    [[ -z $QED ]]&&type -w $qed1 IQIO&&QED=$qed1
     [[ -z $QED ]]&&iqerr no editor found, please set \
                 %B{var}EDITOR{%}/{var}VISUAL{%} in environment, exiting…
 

@@ -1,0 +1,119 @@
+#!/usr/bin/env zsh
+# -*- mode: sh; sh-indentation: 4; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
+
+# Copyright (c) 2021 Sebastian Gniazdowski
+
+# Run as script? Or as a function? Supports both ways.
+
+iqfeat()
+{
+0="${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}"
+source $0:h:h/share/preamble.inc.zsh
+
+export ZIQ_FEAT_DIR=${0:h} ZIQ_ORIG_PWD=$PWD
+# Ensure that CWD doesn't change
+trap "cd -q -- ${(qqq)ZIQ_ORIG_PWD}; return 1" INT TERM QUIT HUP
+trap "cd -q -- ${(qqq)ZIQ_ORIG_PWD}" EXIT
+
+(($+ZUI))||source $ZIQ_FEAT_DIR/../lib/zui-lib/zui.lib.zsh
+
+local -Ua fpath=($ZIQ_FEAT_DIR $fpath) path=($ZIQ_FEAT_DIR $path)
+
+separ()
+{
+    qfiles+=("$ZUI[YELLOW]${(l:COLUMNS*3::—:):-}$ZUI[FMT_END]")
+}
+
+if [[ $1 != --refresh ]]; then
+    -zui_std_cleanup deserialize:"iqfeat"
+    -zui_std_init app:"iqfeat" app_name:"Features Console"
+    emulate -L zsh -o extendedglob -o typesetsilent -o warncreateglobal -o combiningchars
+    -zui_std_init2 # after emulate -LR
+
+    # Needed for immediate output from coprocesses (disables buffering).
+    ((${+commands[stdbuf]}))&& \
+        local -a stdbuf1=( stdbuf -o0 -i0 ) stdbuf2=( stdbuf -o0 -i0 )
+    ((${+commands[gstdbuf]}))&& \
+        local -a stdbuf1=( gstdbuf -o0 -i0 ) stdbuf2=( gstdbuf -o0 -i0 )
+
+    ZUI[COLORING_PATTERN]="((([^\/—])(#c2,))(#e))~*[·]*" ZUI[COLORING_MATCH_MULTIPLE]=0
+    ZUI[COLORING_COLOR]=$ZUI[BOLD]$ZUI[YELLOW]       
+    ZUI[START_IN_SEARCH_MODE]=1
+
+    -zui_std_store_default_app_config b:instant_search 1
+    -zui_std_store_default_app_config s:select_mode "quit"   # Quit event loop on text-selection
+    -zui_std_store_default_app_config b:text_select 1        # Allow selection of text
+    -zui_std_store_default_app_config s:timeout 50
+    -zui_std_store_default_app_config s:text_mode off
+    -zui_std_store_default_app_config b:top_anchors 0
+    local -a qfiles GEN2_HOPS
+fi
+
+generator_A() {
+    local mod="$1" ice="$2"
+
+    local -a group1 group2 group3
+    reply=()
+
+    # First Group
+    -zui_std_rc_button "button17" "·New feature·" \
+        'reply=( ",all," ); new_feature'
+    group1=( $reply ) reply=()
+
+    # Content
+    reply=( "$group1[@]" )
+
+    # Non-selectable lines  Hops to jump with [ and ]   Local anchors
+    reply2=( )              reply3=( 3 )                reply4=( )
+
+}
+
+generator_B() {
+    reply=()
+    -zui_std_special_text "·≈$PWD/≈·"
+    qfiles=()
+    separ
+    qfiles+=(**/*~*~(.N))
+    reply=( "${reply[1]}" "$qfiles[@]" )
+    reply2=( )  reply3=( 1 $GEN2_HOPS )  reply4=( )
+}
+
+# Read & publish configure/make output
+-zui-standard-timeout-callback() {
+}
+
+typeset -ag toggle_cols=( $ZUI[BLUE] $ZUI[BG_YELLOW] )
+ZUI[autscr_col]=$toggle_cols[ZUI[autscr]+1]
+
+if [[ $1 == --refresh ]]; then
+    return
+fi
+
+## Start application ##
+-zui_std_stalog "" "@@@ " "Welcome to " "IQ System " "open console!" " @@@";
+while (( 1 )); do
+    command tput smcup
+    zcurses refresh
+    zui-event-loop 1:generator_A 1:generator_B
+    command tput rmcup
+    [[ -z $REPLY ]]&&break
+    [[ $REPLY == *(·|–|—)* ]]&&continue
+    local QFILE=$REPLY
+    int/iq::get-editor||return 1
+    (
+        # Run the editor in $REPLY, first cd-ing into project's directory
+        $REPLY -- $QFILE
+    )
+    zcurses clear main redraw
+    zcurses clear status redraw
+done
+
+-zui_std_cleanup serialize
+command tput rmcup
+return 0
+
+}
+
+iqfeat "$@"
+
+# vim:ft=zsh:tw=80:sw=4:sts=4:et:foldmarker=[[[,]]]
