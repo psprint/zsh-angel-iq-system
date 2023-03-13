@@ -10,14 +10,8 @@ iqfeat()
 0="${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}"
 source $0:h:h/share/preamble.inc.zsh
 
-export ZIQ_FEAT_DIR=${0:h} ZIQ_ORIG_PWD=$PWD
-# Ensure that CWD doesn't change
-trap "cd -q -- ${(qqq)ZIQ_ORIG_PWD}; return 1" INT TERM QUIT HUP
-trap "cd -q -- ${(qqq)ZIQ_ORIG_PWD}" EXIT
-
-(($+ZUI))||source $ZIQ_FEAT_DIR/../lib/zui-lib/zui.lib.zsh
-
-local -Ua fpath=($ZIQ_FEAT_DIR $fpath) path=($ZIQ_FEAT_DIR $path)
+int/iq::init-sm-con "$@"
+eval "$REPLY"
 
 separ()
 {

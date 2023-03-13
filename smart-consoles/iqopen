@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 # -*- mode: sh; sh-indentation: 4; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 
-# Copyright (c) 2021 Sebastian Gniazdowski
+# Copyright (c) 2023 Sebastian Gniazdowski
 
 # Run as script? Or as a function? Supports both ways.
 
@@ -11,31 +11,9 @@ iqopen()
 eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
     0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}
 source $0:h:h/share/preamble.inc.zsh --script
-export ZIQ_OPEN_DIR=${0:h} ZIQ_ORIG_PWD=$PWD
-# Ensure that CWD doesn't change
-trap "cd -q -- ${(qqq)ZIQ_ORIG_PWD}; return 1" INT TERM QUIT HUP
-trap "cd -q -- ${(qqq)ZIQ_ORIG_PWD}" EXIT
 
-if ! zmodload zsh/curses;then
-    iqerr no {pid}zsh/curses{%} module found, it is requred to run any \
-                smart-consoles, exiting…
-    return 1
-fi
-
-# Options and arguments
-local -A Opts; local -a opts
-int/iq::parse-opts "C: -dir:" Opts opts "$@"||\
-    {iqerr incorrect options given to {cmd}open{%}; return 17;}
-set -- "$reply[@]"
-int/iq::opt-cascade Opts -C --dir
-
-# Change directory to the supplied one
-[[ -n $Opts[-C] ]]&&cd -q -- $Opts[-C]
-
-# Load  TUI library, the Zsh User Interface (ZUI)
-(($+ZUI))||source $ZIQ_OPEN_DIR/../lib/zui-lib/zui.lib.zsh
-
-local -Ua fpath=($ZIQ_OPEN_DIR $fpath) path=($ZIQ_OPEN_DIR $path)
+int/iq::init-sm-con "$@"
+eval "$REPLY"
 
 separ()
 {

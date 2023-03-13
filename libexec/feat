@@ -3,16 +3,16 @@
 feat(){
     # Preamble – emulate & 0=…
     eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
-        0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
+        0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}
     source $0:h:h/share/preamble.inc.zsh --func
 
     local -A Opts; local -a opts
-    int/iq::parse-opts "" Opts opts "$@"||\
-        {iqerr incorrect options given to {cmd}fetch{%}; return 7}
+    int/iq::parse-opts "C: -dir:" Opts opts "$@"||\
+        {iqerr incorrect options given to {cmd}feat{%}; return 7;}
     set -- "$reply[@]"
-    int/iq::opt-cascade Opts
 
-    [[ -x $ZIQDIR/smart-consoles/iqfeat ]]&&$ZIQDIR/smart-consoles/iqfeat
+    [[ -x $ZIQDIR/smart-consoles/iqfeat ]]&&\
+        $ZIQDIR/smart-consoles/iqfeat $opts -- "$@"
 }
 
 feat "$@"

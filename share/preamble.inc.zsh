@@ -55,6 +55,7 @@ fi
 fpath[1,0]=($ZIQDIR/{,bin,functions,libexec})
 
 typeset -xUg fpath FPATH path PATH
+
 # Autoload via fpath, not direct paths
 autoload -z $ZIQDIR/functions/*~*~(.N:t) \
             $ZIQDIR/functions/*/*~*~(.N:t2) \

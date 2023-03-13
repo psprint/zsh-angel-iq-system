@@ -7,18 +7,13 @@
 
 iqcon()
 {
+# Preamble – emulate & 0=…
+eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
+    0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}
+source $0:h:h/share/preamble.inc.zsh --script
 
-0="${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}"
-source $0:h:h/share/preamble.inc.zsh
-
-export ZIQ_SCON_DIR=${0:h} ZIQ_ORIG_PWD=$PWD
-# Ensure that CWD doesn't change
-trap "cd -q -- ${(qqq)ZIQ_ORIG_PWD}; return 1" INT TERM QUIT HUP
-trap "cd -q -- ${(qqq)ZIQ_ORIG_PWD}" EXIT
-
-(($+ZUI))||source $ZIQ_SCON_DIR/../lib/zui-lib/zui.lib.zsh
-
-local -Ua fpath=($ZIQ_SCON_DIR $fpath) path=($ZIQ_SCON_DIR $path)
+int/iq::init-sm-con "$@"
+eval "$REPLY"
 
 
 # Dependency: load the local copy of zdharma/zui TUI library/plugin (only if needed).
@@ -107,7 +102,7 @@ generator_A() {
         'internal=1; ZUI[redraw]=1; separ; coproc 2>&1 run_make_install; istarted=1'
     # -zui_std_rc_button "button5" "${ZUI[MAGENTA]}Copy syntax files${ZUI[FMT_END]}" 'internal=1; cpstax && -zui_std_stalog "Syntax files" " copied"'
     -zui_std_rc_button "button17" "${ZUI[YELLOW]}Reload console${ZUI[FMT_END]}" \
-        'reply=( ",all," ); builtin source $ZIQ_SCON_DIR/iqcon --refresh && -zui_std_stalog "Console " "source " reloaded'
+        'reply=( ",all," ); builtin source $ZIQ_CON_DIR/iqcon --refresh && -zui_std_stalog "Console " "source " reloaded'
     group1=( $reply ) reply=()
 
     # Second Group

@@ -1,19 +1,21 @@
 #!/usr/bin/env zsh
+#
+# Copyright (c) 2023 Sebastian Gniazdowski
+#
 
 open(){
     # Preamble – emulate & 0=…
     eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
         0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}
-
     source $0:h:h/share/preamble.inc.zsh --func
 
     local -A Opts; local -a opts
     int/iq::parse-opts "C: -dir:" Opts opts "$@"||\
-        {iqerr incorrect options given to {cmd}fetch{%}; return 7}
+        {iqerr incorrect options given to {cmd}open{%}; return 7;}
     set -- "$reply[@]"
 
     [[ -x $ZIQDIR/smart-consoles/iqopen ]]&& \
-            $ZIQDIR/smart-consoles/iqopen $opts "$@"
+        $ZIQDIR/smart-consoles/iqopen $opts -- "$@"
     return $?
 }
 
