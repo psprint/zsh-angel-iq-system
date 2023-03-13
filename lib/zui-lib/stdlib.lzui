@@ -834,6 +834,7 @@ function -zui_std_cleanup() {
            app app_name
            # Configuration keys
            text_mode text_mode_ts_
+           timeout timeout_ts_
            colorpair colorpair_ts_
            border border_ts_
            border_cp border_cp_ts_

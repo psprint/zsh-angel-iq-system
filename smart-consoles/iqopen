@@ -17,9 +17,21 @@ eval "$REPLY"
 
 set -- "$reply[@]"
 ZUI[SEARCH_BUFFER]=$*
-separ()
-{
-    qfiles+=("$ZUI[YELLOW]${(l:COLUMNS*3::—:):-}$ZUI[FMT_END]")
+
+iqopen_preview_file(){
+    ((ZUI[gen_B_idx]=1-ZUI[gen_B_idx]))
+    ZUI[VIEW_CHANGE]=1
+    -zui_std_fly_mod_regen 2 1
+    if ((ZUI[gen_B_idx]%2));then
+        ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_PVIEW_BKP]
+    else
+        ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_MAIN_BKP]
+    fi
+    __last_element=$#__list
+}
+
+separ() {
+    REPLY="$ZUI[YELLOW]${(l:COLUMNS*3::—:):-}$ZUI[FMT_END]";
 }
 
 if [[ $1 != --refresh ]]; then
@@ -35,17 +47,18 @@ if [[ $1 != --refresh ]]; then
     ((${+commands[gstdbuf]}))&& \
         local -a stdbuf1=( gstdbuf -o0 -i0 ) stdbuf2=( gstdbuf -o0 -i0 )
 
-    ZUI[COLORING_PATTERN]="((([^\/—])(#c2,))(#e))~*[·]*" ZUI[COLORING_MATCH_MULTIPLE]=0
+    ZUI[COLORING_MATCH_MULTIPLE]=0
     ZUI[COLORING_COLOR]=$ZUI[BOLD]$ZUI[YELLOW]
     ZUI[START_IN_SEARCH_MODE]=1
 
     -zui_std_store_default_app_config b:instant_search 1
     -zui_std_store_default_app_config s:select_mode "quit"   # Quit event loop on text-selection
     -zui_std_store_default_app_config b:text_select 1        # Allow selection of text
-    -zui_std_store_default_app_config s:timeout 50
+    -zui_std_store_default_app_config s:timeout 25
     -zui_std_store_default_app_config s:text_mode off
     -zui_std_store_default_app_config b:top_anchors 0
-    local -a qfiles GEN2_HOPS
+    local -a qfiles qlines GEN2_HOPS
+    zui::bindkey F2 {iqopen_preview_file}
 fi
 
 generator_A() {
@@ -55,7 +68,7 @@ generator_A() {
     reply=()
 
     # First Group
-    -zui_std_rc_button "button17" "·New feature·" \
+    : -zui_std_rc_button "button17" "·New feature·" \
         'reply=( ",all," ); new_feature'
     group1=( $reply ) reply=()
 
@@ -67,7 +80,37 @@ generator_A() {
 
 }
 
-generator_B() {
+generator_B(){
+    local -a gener=(generator_B_tree generator_B_preview)
+    $gener[1+(ZUI[gen_B_idx]%2)]
+}
+
+generator_B_preview() {
+    local QPATH=$__list[ZUI[CURRENT_IDX]] QTXT
+    ZUI[COLORING_PATTERN]="(#s)·*·(#e)"
+    if ((ZUI[VIEW_CHANGE]));then
+        ZUI[CURRENT_IDX_MAIN_BKP]=$ZUI[CURRENT_IDX]
+        ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_PVIEW_BKP]
+    fi
+    reply=() qlines=()
+    if [[ -n $QPATH ]];then
+        QTXT="·Contents of: °$QPATH°·"
+        qlines=("${(@f)"$(<$QPATH)"}")
+    else
+        QTXT="!NO FILE SELECTED, PRESS F2 TO SHOW FILE TREE!"
+    fi
+    -zui_std_special_text $QTXT
+    separ
+    reply=( "${reply[1]}" $REPLY "$qlines[@]" )
+    reply2=( )  reply3=( 1 $GEN2_HOPS )  reply4=( )
+}
+
+generator_B_tree() {
+    ZUI[COLORING_PATTERN]="((([^\/—])(#c2,))(#e))~*[·]*"
+    if ((ZUI[VIEW_CHANGE]));then
+        ZUI[CURRENT_IDX_PVIEW_BKP]=$ZUI[CURRENT_IDX]
+        ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_MAIN_BKP]
+    fi
     reply=()
     -zui_std_special_text "·≈$PWD/≈·"
     qfiles=()
@@ -79,6 +122,21 @@ generator_B() {
 
 # Read & publish configure/make output
 -zui-standard-timeout-callback() {
+    ((ZUI[VIEW_CHANGE]))||return 0
+    integer IN=ZUI[CURRENT_IDX]
+
+    if ((ZUI[gen_B_idx]%2));then
+        ((ZUI[CURRENT_IDX]==ZUI[CURRENT_IDX_MAIN_BKP]))&&\
+            ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_PVIEW_BKP]
+    else
+        ((ZUI[CURRENT_IDX]==ZUI[CURRENT_IDX_PVIEW_BKP]))&&\
+            ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_MAIN_BKP]
+    fi
+    if ((IN!=ZUI[CURRENT_IDX]));then
+        ZUI[redraw]=1
+        -zui_list_verify_vars
+        ZUI[VIEW_CHANGE]=0
+    fi
 }
 
 typeset -ag toggle_cols=( $ZUI[BLUE] $ZUI[BG_YELLOW] )
@@ -87,9 +145,6 @@ ZUI[autscr_col]=$toggle_cols[ZUI[autscr]+1]
 if [[ $1 == --refresh ]]; then
     return
 fi
-
-tmp/iqredraw() {
-}
 
 ## Start application ##
 -zui_std_stalog "" "@@@ " "Welcome to " "IQ System " "open console!" " @@@";

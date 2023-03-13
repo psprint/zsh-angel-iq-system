@@ -432,7 +432,7 @@ local backuptheme stbackuptheme
 local -a __c
 __c=( "${(@s;:;)ZUI[palette]}" "white" "default" )
 
-(( ZUI[timeout] != -1 )) && (( ZUI[timeout] = ZUI[timeout] < 200 ? 200 : ZUI[timeout] ))
+((ZUI[timeout] != -1)) && ((ZUI[timeout]=ZUI[timeout]<25?25:ZUI[timeout]))
 
 local -a zui_log_colors
 zui_log_colors=( "${(@s: :)ZUI[log_colors]}" )

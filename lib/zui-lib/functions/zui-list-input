@@ -364,7 +364,13 @@ if [[ -n "${ZUI[current_tfield]}" ]]; then
         ZUI[current_tfield]=""
     fi
 elif ((!search)); then
+local QKEY
+integer EC FOUND
+for QKEY in ${ZUI[(I)bindkey_*]##bindkey_}; do
+    [[ $QKEY == $key ]]&&{eval $ZUI[bindkey_$QKEY]; EC=$?; FOUND=1; break;}
+done
 
+((!found))&&\
 case "$key" in
     (UP|k)
         # Are there any elements before the current one?
@@ -632,7 +638,13 @@ case "$key" in
 esac
 
 else
+local QKEY
+integer EC FOUND
+for QKEY in ${ZUI[(I)bindkey_*]##bindkey_}; do
+    [[ $QKEY == $key ]]&&{eval $ZUI[bindkey_$QKEY]; EC=$?; FOUND=1; break;}
+done
 
+((!found))&&\
 case "$key" in
     ($'\n'|ENTER)
         if ((ZUI[instant_select]));then
@@ -867,5 +879,7 @@ reply[6]="$hscroll"
 reply[7]="$search"
 reply[8]="$buffer"
 reply[9]="$uniq_mode"
+
+return EC
 
 # vim: set filetype=zsh:

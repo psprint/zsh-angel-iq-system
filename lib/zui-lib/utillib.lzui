@@ -6,6 +6,12 @@
 
 ZUI[utillib_sourced]="1"
 
+function zui::bindkey() {
+    local QSEQ=$1 QC=$2
+    ZUI[bindkey_$QSEQ]=$QC
+    [[ -n $QSEQ ]]
+}
+
 # FUNCTION: -zui_util_map_bools {{{
 # Maps boolean values of expressions given in $1
 # (string separated by ';') to parameters given
