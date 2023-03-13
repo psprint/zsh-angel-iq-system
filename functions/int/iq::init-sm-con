@@ -43,6 +43,7 @@ int/iq::init-sm-con() {
         trap "cd -q -- ${(qqq)ZIQ_ORIG_PWD}" EXIT
         local -Ua fpath=($ZIQ_CON_DIR $fpath) path=($ZIQ_CON_DIR $path)
         fpath[1,0]=(${${:-$ZIQ_CON_DIR/../lib/zui-lib/functions}:a})'
+    reply=("$@")
     return EC
 }
 int/iq::init-sm-con "$@"
