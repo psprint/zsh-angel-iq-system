@@ -81,6 +81,7 @@ if [[ $1 != --refresh ]]; then
     -zui_std_store_default_app_config s:select_mode "quit"   # Quit event loop on text-selection
     -zui_std_store_default_app_config b:text_select 1        # Allow selection of text
     -zui_std_store_default_app_config s:timeout 50
+    -zui_std_store_default_app_config s:mark "white MAGENTA reverse"
     -zui_std_store_default_app_config s:text_mode off
 
     local -a coproc_output GEN2_HOPS

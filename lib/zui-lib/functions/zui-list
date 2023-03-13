@@ -185,10 +185,9 @@ trap "REPLY=-2; reply=(); return 1" TERM INT QUIT
 
     # No existing replaced marks – then just add the mark
     if [[ "${buf/$target_mark/}" = "$buf" ]]; then
-        buf="${target_mark}${buf}${ZUI[FMT_END]}"
+        buf=${target_mark}${buf}${ZUI[FMT_END]}
     fi
-
-    REPLY="$buf"
+    REPLY=$buf
 }
 
 -zui_list_mark_current_segment_in_current_element() {
@@ -199,23 +198,33 @@ trap "REPLY=-2; reply=(); return 1" TERM INT QUIT
 
         # There will be no colorifying for current element
         integer current_page_idx=$(( ZUI[CURRENT_IDX] - ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + 1 ))
-        local element="${__list[${ZUI[CURRENT_IDX]}]}"
+        local elem="${__list[${ZUI[CURRENT_IDX]}]}" buf=
 
-        local output=""
-
+ 
+        if [[ $ZUI[text_mode] != (all|nohyp) ]]&&\
+                ! -zui_std_has_any_hyperlinks "$elem"
+        then
+            if [[ $elem != *[$'\020'-$'\030']* && -z $ZUI[current_tfield] ]];then
+                -zui_list_replace_color_marks_with $elem $ZUI[MARK]
+            else
+                -zui_list_replace_color_marks_with $elem $ZUI[MARK2]
+            fi
+            buf=$REPLY
+        fi
         [[ $ZUI[CURRENT_SEGMENT] -lt 1 ]] && ZUI[CURRENT_SEGMENT]=1
         [[ $ZUI[CURRENT_SEGMENT] -gt "$__nseg" ]] && ZUI[CURRENT_SEGMENT]="$__nseg"
         integer active_segment=$ZUI[CURRENT_SEGMENT]
 
         # Lets find interesting segment and mark it with \7...\31
-        zui-process-buffer "$element"
+    [[ -z $buf ]]&&{
+
+        zui-process-buffer "$elem"
         integer size="${#ZUI_PB_WORDS}" i
-        local buf=""
         for (( i=1; i<=size; i++ )); do
             if [[ "$i" -eq "$active_segment" ]]; then
                 ZUI_PB_WORDS[i]=${ZUI_PB_WORDS[i]//$'\n'/\\n}
                 # Mark segment if marking always or non-hyperlink lines, or if the line contains any hyperlinks
-                if [[ $ZUI[text_mode] = (all|nohyp) ]] || -zui_std_has_any_hyperlinks "$element"; then
+                if [[ $ZUI[text_mode] = (all|nohyp) ]] || -zui_std_has_any_hyperlinks "$elem"; then
                     # No background color?
                     if [[ $ZUI_PB_WORDS[i] != *[$'\020'-$'\030']* && -z $ZUI[current_tfield] ]]; then
                         -zui_list_replace_color_marks_with $ZUI_PB_WORDS[i] $ZUI[MARK]
@@ -228,7 +237,7 @@ trap "REPLY=-2; reply=(); return 1" TERM INT QUIT
             buf+="$ZUI_PB_SPACES[i]$ZUI_PB_WORDS[i]"
         done
         buf+="$ZUI_PB_SPACES[i]"
-
+    }
         # Remove hyperlinks
         buf="${buf//(#b)$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'/${(Q)match[1]}}"
         #                      id                data1             data2             data3              width               sidx                text                
@@ -237,7 +246,7 @@ trap "REPLY=-2; reply=(); return 1" TERM INT QUIT
         buf="${buf//(#b)$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\02']#)$'\02'/${(mr:${(P)${(Q)match[1]}}:: :)${(As:;:)${(P)${(Q)match[3]}}}[${(P)${(Q)match[2]}}]}}"
 
         -zui_list_translate_color_marks "$buf"
-        __disp_list2[current_page_idx]="${REPLY//$'\n'/n}"  # replace newlines with "\n" (3/3)
+        __disp_list2[current_page_idx]="${REPLY//$'\n'/n}"  # replace newlines with "n" (3/3)
 }
 
 -zui_list_compute_mark_codes() {

@@ -37,4 +37,5 @@ zle -N iq::action-complete-ice iq::action-complete
 
 export TINFO
 : ${TINFO:=${XDG_CONFIG_HOME:-$HOME/.config}/tigsuite/features.reg}
+alias ao="noglob angel open"
 # vim:ft=zsh:tw=80:sw=4:sts=4:et:foldmarker=[[[,]]]

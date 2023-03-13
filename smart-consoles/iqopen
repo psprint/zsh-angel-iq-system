@@ -37,7 +37,7 @@ separ() {
 if [[ $1 != --refresh ]]; then
     ok/qnstr $PWD&&local APP=$REPLY
     -zui_std_cleanup deserialize:"iqopen_$APP"
-    -zui_std_init app:"iqopen_$APP" app_name:"°Features° Console"
+    -zui_std_init app:"iqopen_$APP" app_name:"°Open° Console"
     emulate -L zsh -o extendedglob -o typesetsilent -o warncreateglobal -o combiningchars
     -zui_std_init2 # after emulate -LR
     ZUI[gen_B_idx]=0
@@ -56,6 +56,7 @@ if [[ $1 != --refresh ]]; then
     -zui_std_store_default_app_config s:select_mode "quit"   # Quit event loop on text-selection
     -zui_std_store_default_app_config b:text_select 1        # Allow selection of text
     -zui_std_store_default_app_config s:timeout 25
+    -zui_std_store_default_app_config s:mark "white MAGENTA reverse"
     -zui_std_store_default_app_config s:text_mode off
     -zui_std_store_default_app_config b:top_anchors 0
     local -a qfiles qlines GEN2_HOPS
