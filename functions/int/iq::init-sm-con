@@ -7,7 +7,7 @@ int/iq::init-sm-con() {
     eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
         0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
 
-    integer EC;[[ -f $0 ]]||EC+=$?
+    integer EC;[[ -f $0 ]];EC+=$?
     export ZIQ_CON_DIR=${0:h:h} ZIQ_ORIG_PWD=$PWD
 
     if ! builtin zmodload zsh/curses;then

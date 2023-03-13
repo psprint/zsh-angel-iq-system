@@ -23,8 +23,9 @@ separ()
 }
 
 if [[ $1 != --refresh ]]; then
-    -zui_std_cleanup deserialize:"iqopen"
-    -zui_std_init app:"iqopen" app_name:"°Features° Console"
+    ok/qnstr $PWD&&local APP=$REPLY
+    -zui_std_cleanup deserialize:"iqopen_$APP"
+    -zui_std_init app:"iqopen_$APP" app_name:"°Features° Console"
     emulate -L zsh -o extendedglob -o typesetsilent -o warncreateglobal -o combiningchars
     -zui_std_init2 # after emulate -LR
 

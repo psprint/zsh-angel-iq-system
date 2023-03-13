@@ -12,7 +12,7 @@ int/iq::parse-opts() {
         integer QIDX=${@[(i)(--|-)]}
         ((QIDX<=$#))&&reply=("$@[1,QIDX-1]" "$@[QIDX+1,-1]")||reply=("$@")
     }
-
+    int/iq::reset
     local OPTSPEC=$1 ASVAR=$2 ARVAR=$3
     shift 3
     tmp/iq::prune-dashes "$@"
