@@ -831,6 +831,7 @@ function -zui_std_cleanup() {
     # Anchors, checkboxes, actions, internal actions
     keys=( ${ZUI[(I)zuianchor*]} ${ZUI[(I)zuieanchor*]} ${ZUI[(I)zuitfield*]} ${ZUI[(I)zuilbox*]}
            ${ZUI[(I)zuiaction*]} ${ZUI[(I)zuiiaction*]} ${ZUI[(I)fly_*]}
+           ${ZUI[(I)bindkey_*]}
            app app_name
            # Configuration keys
            text_mode text_mode_ts_
@@ -859,18 +860,18 @@ function -zui_std_cleanup() {
            log_colors log_colors_ts_
     )
 
-    [[ -n "${ZUI[app]}" ]] && ZUI[previous_app]="${ZUI[app]}"
-
-    # Serialize?
-    if [[ "$1" = serialize* ]]; then
-        local dst="${${1#serialize}#:}"
-        -zui_std_serialize "${dst:-${ZUI[app]}}"
-    fi
+    [[ -n ${ZUI[app]} ]] && ZUI[previous_app]=${ZUI[app]}
 
     local k
-    for k in "${keys[@]}" ${ZUI[(I)my_*]}; do
+    for k in ${keys[@]} ${ZUI[(I)my_*]}; do
         unset "ZUI[$k]"
     done
+
+    # Serialize?
+    if [[ $1 = serialize* ]]; then
+        local dst=${${1#serialize}#:}
+        -zui_std_serialize ${dst:-${ZUI[previous_app]}}
+    fi
 
     builtin unfunction -- -zui-standard-global-anchors-callback \
                             -zui-standard-status-callback \
@@ -878,9 +879,9 @@ function -zui_std_cleanup() {
                             -zui-standard-timeout-callback &>>!$ZUIO
 
     # Deserialize?
-    if [[ "$1" = deserialize* ]]; then
-        local src="${${1#deserialize}#:}"
-        -zui_std_deserialize "${src:-${ZUI[app]}}"
+    if [[ $1 = deserialize* ]]; then
+        local src=${${1#deserialize}#:}
+        -zui_std_deserialize ${src:-${ZUI[previous_app]}}
     fi
 } # }}}
 

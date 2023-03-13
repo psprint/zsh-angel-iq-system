@@ -40,6 +40,7 @@ if [[ $1 != --refresh ]]; then
     -zui_std_init app:"iqopen_$APP" app_name:"°Features° Console"
     emulate -L zsh -o extendedglob -o typesetsilent -o warncreateglobal -o combiningchars
     -zui_std_init2 # after emulate -LR
+    ZUI[gen_B_idx]=0
 
     # Needed for immediate output from coprocesses (disables buffering).
     ((${+commands[stdbuf]}))&& \
