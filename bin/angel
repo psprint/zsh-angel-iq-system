@@ -39,6 +39,7 @@
     else
         (($#&&$#CMD))&&shift||CMD=help
     fi
+    [[ $CMD == (feat|open|con) ]]&&{set -- $CMD "$@";CMD=console;}
     if [[ -s $ZIQDIR/libexec/$CMD ]];then
         local FBKP=$functions[$CMD]
         builtin unset -f $CMD IQIO
