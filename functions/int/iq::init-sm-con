@@ -23,7 +23,8 @@ int/iq::init-sm-con() {
     set -- "$reply[@]"
     int/iq::opt-cascade Opts -C --dir
     EC+=$?
-
+    int/iq::reset
+ 
     # Change directory to the supplied one
     if [[ -n $Opts[-C] ]];then
         if ! cd -q -- $Opts[-C];then
@@ -34,7 +35,7 @@ int/iq::init-sm-con() {
     fi
 
     # Load  TUI library, the Zsh User Interface (ZUI)
-    (($+ZUI))||{source $ZIQ_CON_DIR/../lib/zui-lib/zui.lib.zsh;return EC+$?;}
+    (($+ZUI))||{source $ZIQ_CON_DIR/../lib/zui-lib/zui.lib.zsh;EC+=$?;}
 
     # REPLY eval – ensure that CWD doesn't change
     REPLY='

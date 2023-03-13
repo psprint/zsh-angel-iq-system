@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-feat(){
+console(){
     # Preamble – emulate & 0=…
     eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
         0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}
@@ -8,11 +8,11 @@ feat(){
 
     local -A Opts; local -a opts
     int/iq::parse-opts "C: -dir:" Opts opts "$@"||\
-        {iqerr incorrect options given to {cmd}feat{%}; return 7;}
+        {iqerr incorrect options given to {cmd}${${@:#-*}[1]}{%}; return 7;}
     set -- "$reply[@]"
 
-    [[ -x $ZIQDIR/smart-consoles/iqfeat ]]&&\
-        $ZIQDIR/smart-consoles/iqfeat $opts -- "$@"
+    [[ -x $ZIQDIR/smart-consoles/iq$1 ]]&&\
+        $ZIQDIR/smart-consoles/iq$1 $opts -- "${(@)@[2,-1]}"
 }
 
-feat "$@"
+console "$@"
