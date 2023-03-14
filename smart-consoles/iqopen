@@ -19,19 +19,22 @@ eval "$REPLY"
 ZUI[SEARCH_BUFFER]=$*
 
 iqw(){
-    -zui_std_stalog "$@"
+    -zui_glib_msg "$@"
 }
 
 iqopen_preview_file(){
     ((ZUI[gen_B_idx]=1-ZUI[gen_B_idx]))
     ZUI[VIEW_CHANGE]=1
-    -zui_std_fly_mod_regen 2 1
     if ((ZUI[gen_B_idx]%2));then
         ZUI[CURRENT_IDX_MAIN_BKP]=$ZUI[CURRENT_IDX]
+        #ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_PVIEW_BKP]
     else
         ZUI[CURRENT_IDX_PVIEW_BKP]=$ZUI[CURRENT_IDX]
+        #ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_MAIN_BKP]
     fi
-    __last_element=$#__list
+    ZUI[PREV_CURRENT_IDX]=$ZUI[CURRENT_IDX]
+    -zui_glib_fly_mod_regen 2 1
+    #__last_element=$#__list
 }
 
 separ() {
@@ -40,10 +43,10 @@ separ() {
 
 if ((!$+Opts[--refresh])); then
     ok/qnstr $PWD&&local APP=$REPLY
-    -zui_std_cleanup deserialize:"iqopen_$APP"
-    -zui_std_init app:"iqopen_$APP" app_name:"°Open° Console"
+    -zui_glib_cleanup deserialize:"iqopen_$APP"
+    -zui_glib_init app:"iqopen_$APP" app_name:"°Open° Console"
     emulate -L zsh -o extendedglob -o typesetsilent -o warncreateglobal -o combiningchars
-    -zui_std_init2 # after emulate -LR
+    -zui_glib_init2 # after emulate -LR
     ZUI[gen_B_idx]=0
 
     # Needed for immediate output from coprocesses (disables buffering).
@@ -56,19 +59,21 @@ if ((!$+Opts[--refresh])); then
     ZUI[COLORING_COLOR]=$ZUI[BOLD]$ZUI[YELLOW]
     ZUI[START_IN_SEARCH_MODE]=1
 
-    -zui_std_store_default_app_config b:instant_search 1
-    -zui_std_store_default_app_config s:select_mode "quit"   # Quit event loop on text-selection
-    -zui_std_store_default_app_config b:text_select 1        # Allow selection of text
-    -zui_std_store_default_app_config s:timeout 25
-    -zui_std_store_default_app_config s:mark "white MAGENTA reverse"
-    -zui_std_store_default_app_config s:text_mode off
-    -zui_std_store_default_app_config b:top_anchors 0
+    -zui_glib_store_default_app_config b:instant_search 1
+    -zui_glib_store_default_app_config s:select_mode "quit"   # Quit event loop on text-selection
+    -zui_glib_store_default_app_config b:text_select 1        # Allow selection of text
+    -zui_glib_store_default_app_config s:timeout 25
+    -zui_glib_store_default_app_config s:mark "white MAGENTA reverse"
+    -zui_glib_store_default_app_config s:text_mode off
+    -zui_glib_store_default_app_config b:top_anchors 0
     local -a qfiles qlines GEN2_HOPS
-    zui::bindkey F2 {iqopen_preview_file}
-    zui::bindkey F9 '{print current:$ZUI[CURRENT_IDX], PVIEW:$ZUI[CURRENT_IDX_PVIEW_BKP]}, main:$ZUI[CURRENT_IDX_MAIN_BKP];}'
-    zui::bindkey F10 '{builtin source $ZIQ_CON_DIR/iqopen --refresh||\
-                        iqw "Reload finished with error: " $?;}'
 fi
+
+zui::bindkey F2 {iqopen_preview_file}
+#    zui::bindkey F3 "{print q:$ZUI[mark]}"
+zui::bindkey F9 '{print current:$ZUI[CURRENT_IDX], PVIEW:$ZUI[CURRENT_IDX_PVIEW_BKP], main:$ZUI[CURRENT_IDX_MAIN_BKP];}'
+zui::bindkey F10 '{builtin source $ZIQ_CON_DIR/iqopen --refresh||\
+                    iqw -r "Reload finished with error: " $?;}'
 
 generator_A() {
     local mod="$1" ice="$2"
@@ -77,7 +82,7 @@ generator_A() {
     reply=()
 
     # First Group
-    : -zui_std_rc_button "button17" "·New feature·" \
+    : -zui_glib_rc_button "button17" "·New feature·" \
         'reply=( ",all," ); new_feature'
     group1=( $reply ) reply=()
 
@@ -105,7 +110,7 @@ generator_B_preview() {
     else
         QTXT="!NO FILE SELECTED, PRESS F2 TO SHOW FILE TREE!"
     fi
-    -zui_std_special_text $QTXT
+    -zui_glib_special_text $QTXT
     separ
     reply=( "${reply[1]}" $REPLY "$qlines[@]" )
     reply2=( 1 2 )  reply3=( 1 $GEN2_HOPS )  reply4=( )
@@ -115,7 +120,7 @@ generator_B_tree() {
     ZUI[COLORING_PATTERN]="(((([^\/—])(#c2,))(#e))|·[^·]##·)"
     ZUI[QPATH]= ZUI[QIDX]=0
     reply=()
-    -zui_std_special_text "Showing files in: ·$PWD/·"
+    -zui_glib_special_text "Showing files in: ·$PWD/·"
     qfiles=()
     separ
     qfiles+=(**/*~*~(.N))
@@ -126,18 +131,19 @@ generator_B_tree() {
 # Read & publish configure/make output
 -zui-standard-timeout-callback() {
     ((ZUI[VIEW_CHANGE]))||return 0
-    integer IN=ZUI[CURRENT_IDX]
+    integer IN=ZUI[PREV_CURRENT_IDX]
 
     # Preview
     if ((ZUI[gen_B_idx]%2));then
-        ((ZUI[CURRENT_IDX]==ZUI[CURRENT_IDX_MAIN_BKP]))&&\
-            ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_PVIEW_BKP]
+        ((ZUI[PREV_CURRENT_IDX]==ZUI[CURRENT_IDX_MAIN_BKP]))&&\
+            ZUI[PREV_CURRENT_IDX]=$ZUI[CURRENT_IDX_PVIEW_BKP]
     # Tree
     else
-        ((ZUI[CURRENT_IDX]==ZUI[CURRENT_IDX_PVIEW_BKP]))&&\
-            ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_MAIN_BKP]
+        ((ZUI[PREV_CURRENT_IDX]==ZUI[CURRENT_IDX_PVIEW_BKP]))&&\
+            ZUI[PREV_CURRENT_IDX]=$ZUI[CURRENT_IDX_MAIN_BKP]
     fi
-    if ((IN!=ZUI[CURRENT_IDX]));then
+    if ((IN!=ZUI[PREV_CURRENT_IDX]));then
+        ZUI[CURRENT_IDX]=$ZUI[PREV_CURRENT_IDX]
         -zui_list_verify_vars
         ZUI[redraw]=1
         ZUI[VIEW_CHANGE]=0
@@ -146,12 +152,12 @@ generator_B_tree() {
 }
 
 if (($+Opts[--refresh])); then
-    iqw "Reload went OK"
-    return 0
+    iqw "Reload went OK, status normal"
+    return 3
 fi
 
 ## Start application ##
--zui_std_stalog "" "@@@ " "Welcome to " "IQ System " "open console!" " @@@";
+-zui_glib_msg "" "@@@ " "Welcome to " "IQ System " "open console!" " @@@";
 integer EC
 while (( 1 )); do
     command tput smcup
@@ -159,6 +165,7 @@ while (( 1 )); do
     command tput rmcup
     [[ -z $REPLY ]]&&break
     local QFILE=; integer QIDX=0
+    print  $REPLY >>/tmp/reply
     if ((ZUI[gen_B_idx]%2));then
         QFILE=$ZUI[QPATH]
         QIDX=ZUI[USER_CURRENT_IDX]
@@ -169,7 +176,7 @@ while (( 1 )); do
     if [[ -n $QFILE ]];then
         if ! int/iq::get-editor;then
             EC+=$?
-            -zui_std_stalog "" "" "" 'ERROR: Couldn''t find editor, tried '\
+            -zui_glib_msg "" "" "" 'ERROR: Couldn''t find editor, tried '\
                 "\$VISUAL (=$VISUAL) " then "" " \$EDITOR (=$EDITOR)"
             ZUI[SEARCH_MODE]=0
         else
@@ -185,7 +192,7 @@ while (( 1 )); do
     zcurses clear status redraw
 done
 
--zui_std_cleanup serialize
+-zui_glib_cleanup serialize
 command tput rmcup
 return 0
 

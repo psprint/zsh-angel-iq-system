@@ -78,26 +78,26 @@ zmodload zsh/datetime&&ZUI[datetime_available]=1 || ZUI[datetime_available]=0
 # Functions
 #
 
-# Cleanup and init stubs, to be first stdlib
+# Cleanup and init stubs, to be first glib
 # functions called, sourcing the libraries
 
-if (( 0 == ${+functions[-zui_std_cleanup]} ));then
-    function -zui_std_cleanup() {
-        unfunction -- -zui_std_cleanup &>>!$ZUIO
-        [[ ${ZUI[stdlib_sourced]} != 1 ]] && source $ZUI_REPO_DIR/stdlib.lzui
+if (( 0 == ${+functions[-zui_glib_cleanup]} ));then
+    function -zui_glib_cleanup() {
+        unfunction -- -zui_glib_cleanup &>>!$ZUIO
+        [[ ${ZUI[glib_sourced]} != 1 ]] && source $ZUI_REPO_DIR/glib.lzui
         [[ ${ZUI[syslib_sourced]} != 1 ]] && source $ZUI_REPO_DIR/syslib.lzui
         [[ ${ZUI[utillib_sourced]} != 1 ]] && source $ZUI_REPO_DIR/utillib.lzui
-        -zui_std_cleanup "$@"
+        -zui_glib_cleanup "$@"
     }
 fi
 
-if (( 0 == ${+functions[-zui_std_init]} ));then
-    function -zui_std_init() {
-        unfunction -- -zui_std_init &>>!$ZUIO
-        [[ ${ZUI[stdlib_sourced]} != 1 ]] && source $ZUI_REPO_DIR/stdlib.lzui
+if (( 0 == ${+functions[-zui_glib_init]} ));then
+    function -zui_glib_init() {
+        unfunction -- -zui_glib_init &>>!$ZUIO
+        [[ ${ZUI[glib_sourced]} != 1 ]] && source $ZUI_REPO_DIR/glib.lzui
         [[ ${ZUI[syslib_sourced]} != 1 ]] && source $ZUI_REPO_DIR/syslib.lzui
         [[ ${ZUI[utillib_sourced]} != 1 ]] && source $ZUI_REPO_DIR/utillib.lzui
-        -zui_std_init "$@"
+        -zui_glib_init "$@"
     }
 fi
 

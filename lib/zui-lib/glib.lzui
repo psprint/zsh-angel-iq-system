@@ -4,7 +4,7 @@
 # Standard functions
 #
 
-ZUI[stdlib_sourced]="1"
+ZUI[glib_sourced]="1"
 
 # Available colors to embed in generated text
 #
@@ -67,11 +67,11 @@ ZUI[MARK]=$'\035'           # octal value, decimal 29 - Group separator
 ZUI[MARK2]=$'\036'          # octal value, decimal 30 - Record separator
 ZUI[MARK_E]=$ZUI[FMT_END]
 
-# FUNCTION: -zui_std_init {{{
+# FUNCTION: -zui_glib_init {{{
 # Initializes ZUI application. To be called before any emulate -L
 # Can take two arguments, prefixed with app: or app_name:, to set
 # ZUI[app] or ZUI[app_name]
-function -zui_std_init() {
+function -zui_glib_init() {
     [[ -o interactivecomments ]] && ZUI[INTERACTIVE_COMMENTS]="1" || ZUI[INTERACTIVE_COMMENTS]="0"
     [[ -o promptsubst ]] && ZUI[PROMPT_SUBST]="1" || ZUI[PROMPT_SUBST]="0"
 
@@ -83,10 +83,10 @@ function -zui_std_init() {
     [[ "$2" = app_name:* ]] && ZUI[app_name]=${2#app_name:}
 } # }}}
 
-# FUNCTION: -zui_std_init2 {{{
+# FUNCTION: -zui_glib_init2 {{{
 # Initializes ZUI application. To
 # be called after any emulate -L
-function -zui_std_init2() {
+function -zui_glib_init2() {
     unsetopt localoptions
     [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
     [[ "${ZUI[INTERACTIVE_COMMENTS]}" = "1" ]] && setopt interactivecomments
@@ -98,14 +98,14 @@ function -zui_std_init2() {
     }
 } # }}}
 
-# FUNCTION: -zui_std_special_text {{{
+# FUNCTION: -zui_glib_special_text {{{
 # Appends special-text into output array. The text can contain special
 # characters like ', `, (, [, space.
 #
 # $1 - text
 # $2 - optional output array name
 #
-function -zui_std_special_text() {
+function -zui_glib_special_text() {
     local __text="$1"
     local __var_name="${2:-reply}"
 
@@ -119,7 +119,7 @@ function -zui_std_special_text() {
     : ${(PA)__var_name::=$__output}
 } # }}}
 
-# FUNCTION: -zui_std_button_ext {{{
+# FUNCTION: -zui_glib_button_ext {{{
 # Appends hyperlink into output array. It's an action button
 # shown without surrounding "[" and "]".
 #
@@ -134,7 +134,7 @@ function -zui_std_special_text() {
 #
 # Output array is extended by hyperlink's text (one new element)
 #
-function -zui_std_button_ext() {
+function -zui_glib_button_ext() {
     local __id="${(q)1}" __data1="${(q)2}" __data2="${(q)3}" __data3="${(q)4}" __data4="${(q)5}" __text="$6" __handler="$7"
     local __var_name="${8:-reply}"
 
@@ -154,13 +154,13 @@ function -zui_std_button_ext() {
     : ${(PA)__var_name::=$__output}
 } # }}}
 
-# FUNCTION: -zui_std_rc_button_ext {{{
+# FUNCTION: -zui_glib_rc_button_ext {{{
 # Appends hyperlink into output array. It's an action button
 # shown with surrounding [ and ].
 #
-# Arguments are the same as in -zui_std_button_ext
+# Arguments are the same as in -zui_glib_button_ext
 #
-function -zui_std_rc_button_ext() {
+function -zui_glib_rc_button_ext() {
     local __id="${(q)1}" __data1="${(q)2}" __data2="${(q)3}" __data3="${(q)4}" __data4="${(q)5}" __text="$6" __handler="$7"
     local __var_name="${8:-reply}"
 
@@ -180,37 +180,37 @@ function -zui_std_rc_button_ext() {
     : ${(PA)__var_name::=$__output}
 } # }}}
 
-# FUNCTION: -zui_std_rc_button {{{
+# FUNCTION: -zui_glib_rc_button {{{
 # Short rectangle button function - no user data
 #
 # $1 - action ID
 # $2 - text
 # $3 - optional handler function name, can be empty text
 # $4 - optional output variable name (defualt: 'reply')
-function -zui_std_rc_button() {
+function -zui_glib_rc_button() {
     local __id="$1" __text="$2" __handler="$3" __var_name="${4:-reply}"
-    -zui_std_rc_button_ext "$__id" "" "" "" "" "$__text" "$__handler" "$__var_name"
+    -zui_glib_rc_button_ext "$__id" "" "" "" "" "$__text" "$__handler" "$__var_name"
 }
 # }}}
 
-# FUNCTION: -zui_std_button {{{
+# FUNCTION: -zui_glib_button {{{
 # Short button function - no user data
 #
 # $1 - action ID
 # $2 - text
 # $3 - optional handler function name, can be empty text
 # $4 - optional output variable name (defualt: 'reply')
-function -zui_std_button() {
+function -zui_glib_button() {
     local __id="$1" __text="$2" __handler="$3" __var_name="${4:-reply}"
-    -zui_std_button_ext "$__id" "" "" "" "" "$__text" "$__handler" "$__var_name"
+    -zui_glib_button_ext "$__id" "" "" "" "" "$__text" "$__handler" "$__var_name"
 }
 # }}}
 
-# FUNCTION: -zui_std_anchor {{{
+# FUNCTION: -zui_glib_anchor {{{
 # Appends anchor hyperlink into "reply" output array
 # (or to array given by name via $8).
 #
-# Arguments are initially the same as in -zui_std_\
+# Arguments are initially the same as in -zui_glib_\
 # button, except:
 #
 # - the first data argument (data1, $2) needs to be
@@ -235,7 +235,7 @@ function -zui_std_button() {
 # anchor is also set to be external.
 #
 # Example call:
-#    -zui_std_anchor "regen1" "4" "" ",mod1_ice2," "$RANDOM" "[${ZUI[MAGENTA]}Regen${ZUI[FMT_END]}]"
+#    -zui_glib_anchor "regen1" "4" "" ",mod1_ice2," "$RANDOM" "[${ZUI[MAGENTA]}Regen${ZUI[FMT_END]}]"
 #
 # Generator has instance ID (mod and ice) in $1 and $2
 # by the design of restart-regeneration loop. So, this
@@ -244,7 +244,7 @@ function -zui_std_button() {
 # - regeneration user-data. "4" is the line number on
 # which the cursor will be placed.
 #
-function -zui_std_anchor() {
+function -zui_glib_anchor() {
     setopt localoptions extendedglob
 
     local __id="${(q)1}" __data1="${(q)2}" __data2="${(q)3}" __data3="${(q)4}" __data4="${(q)5}" __text="$6" __handler="$7"
@@ -281,7 +281,7 @@ function -zui_std_anchor() {
     ZUI[$__pfx$__id]="$__data1"
 } # }}}
 
-# FUNCTION: -zui_std_text_field {{{
+# FUNCTION: -zui_glib_text_field {{{
 # Appends text-field hyperlink into output array (default: reply)
 #
 # $1 - action ID
@@ -294,7 +294,7 @@ function -zui_std_anchor() {
 # $8 - handler (function name)
 # $9 - optional output array name (default: reply)
 #
-function -zui_std_text_field() {
+function -zui_glib_text_field() {
     local __id="${(q)1}" __width_var="${(q)2}" __sidx_var="${(q)3}" __text_var="${(q)4}" __data1="${(q)5}" __data2="${(q)6}" __data3="${(q)7}" __handler="$8"
     local __var_name="${9:-reply}"
 
@@ -318,7 +318,7 @@ function -zui_std_text_field() {
     : ${(PA)__var_name::=$__output}
 } # }}}
 
-# FUNCTION: -zui_std_list_box {{{
+# FUNCTION: -zui_glib_list_box {{{
 # Appends list-box hyperlink into output array (default: reply)
 #
 # $1 - action ID
@@ -331,7 +331,7 @@ function -zui_std_text_field() {
 # $8 - handler (function name)
 # $9 - optional output array name (default: reply)
 #
-function -zui_std_list_box() {
+function -zui_glib_list_box() {
     local __id="${(q)1}" __width_var="${(q)2}" __idx_var="${(q)3}" __opts_var="${(q)4}" __data1="${(q)5}" __data2="${(q)6}" __data3="${(q)7}" __handler="$8"
     local __var_name="${9:-reply}"
 
@@ -355,7 +355,7 @@ function -zui_std_list_box() {
     : ${(PA)__var_name::=$__output}
 } # }}}
 
-# FUNCTION: -zui_std_get_ganchor {{{
+# FUNCTION: -zui_glib_get_ganchor {{{
 # Doesn't have data1 (normally index to jump to) nor other data, and
 # also doesn't have handler. Returns anchor button that jumps to given
 # GLOBAL anchor and calls its handler (which invokes -zui-standard-gl\
@@ -365,7 +365,7 @@ function -zui_std_list_box() {
 # $2 - instance index
 # $3 - visible text of the anchor
 # $4 - optional output array name
-function -zui_std_get_ganchor() {
+function -zui_glib_get_ganchor() {
     local __mod="$1" __ice="$2" __text="$3" __var_name="${4:-reply}"
 
     # Quote only text, not codes
@@ -376,7 +376,7 @@ function -zui_std_get_ganchor() {
     : ${(PA)__var_name::=$__output}
 } # }}}
 
-# FUNCTION: -zui_std_decode_hyperlink {{{
+# FUNCTION: -zui_glib_decode_hyperlink {{{
 # Decodes given button/anchor/raw hyperlink returning
 # data contained. Testable - test to check if string
 # was correctly decoded.
@@ -390,7 +390,7 @@ function -zui_std_get_ganchor() {
 # $reply[4] - data3
 # $reply[5] - data4
 #
-function -zui_std_decode_hyperlink() {
+function -zui_glib_decode_hyperlink() {
     local __var_name="${2:-reply}"
     : ${(PA)__var_name::=}
 
@@ -412,7 +412,7 @@ function -zui_std_decode_hyperlink() {
     return 1
 } # }}}
 
-# FUNCTION: -zui_std_decode_text_field {{{
+# FUNCTION: -zui_glib_decode_text_field {{{
 # Decodes given text-field and returns data contained.
 # Testable - test to check if hyperlink was correctly
 # decoded.
@@ -428,7 +428,7 @@ function -zui_std_decode_hyperlink() {
 # $reply[6] - data2
 # $reply[7] - data3
 #
-function -zui_std_decode_text_field() {
+function -zui_glib_decode_text_field() {
     local __var_name="${2:-reply}"
     : ${(PA)__var_name::=}
 
@@ -455,7 +455,7 @@ function -zui_std_decode_text_field() {
     return 1
 } # }}}
 
-# FUNCTION: -zui_std_decode_list_box {{{
+# FUNCTION: -zui_glib_decode_list_box {{{
 # Decodes given list-box and returns data contained.
 # Testable - test to check if hyperlink was correctly
 # decoded.
@@ -471,7 +471,7 @@ function -zui_std_decode_text_field() {
 # $reply[6] - data2
 # $reply[7] - data3
 #
-function -zui_std_decode_list_box() {
+function -zui_glib_decode_list_box() {
     local __var_name="${2:-reply}"
     : ${(PA)__var_name::=}
 
@@ -498,7 +498,7 @@ function -zui_std_decode_list_box() {
     return 1
 } # }}}
 
-# FUNCTION: -zui_std_decode {{{
+# FUNCTION: -zui_glib_decode {{{
 # Tries various decoding functions, testable. Returns (in REPLY)
 # "1" if hyperlink (anchor, button, raw link), "2" if text field,
 # "3" if list-box
@@ -506,24 +506,24 @@ function -zui_std_decode_list_box() {
 # $1 - hyperlink
 # $2 - output parameter name, for type (default: REPLY)
 # $3 - output array name, for hyperlink data (default: reply)
-function -zui_std_decode() {
+function -zui_glib_decode() {
     local __out="${2:-REPLY}" __var_name="${3:-reply}"
     : ${(PA)__var_name::=}
-    [[ "$1" = *$'\01'* ]] && { -zui_std_decode_hyperlink "$1" "$__var_name" && { : ${(P)__out::=1}; return 0; }; }
-    [[ "$1" = *$'\032'* ]] && { -zui_std_decode_text_field "$1" "$__var_name" && { : ${(P)__out::=2}; return 0; }; }
-    [[ "$1" = *$'\034'* ]] && { -zui_std_decode_list_box "$1" "$__var_name" && { : ${(P)__out::=3}; return 0; }; }
+    [[ "$1" = *$'\01'* ]] && { -zui_glib_decode_hyperlink "$1" "$__var_name" && { : ${(P)__out::=1}; return 0; }; }
+    [[ "$1" = *$'\032'* ]] && { -zui_glib_decode_text_field "$1" "$__var_name" && { : ${(P)__out::=2}; return 0; }; }
+    [[ "$1" = *$'\034'* ]] && { -zui_glib_decode_list_box "$1" "$__var_name" && { : ${(P)__out::=3}; return 0; }; }
     : ${(P)__out::=0}
     return 1
 } # }}}
 
-# FUNCTION: -zui_std_get_stext {{{
+# FUNCTION: -zui_glib_get_stext {{{
 #
 # $1 - special-text string
 # $2 - optional output parameter name (default: "REPLY")
 #
 # REPLY: decoded text contained in the special string
 #
-function -zui_std_get_stext() {
+function -zui_glib_get_stext() {
     local __var_name="${2:-REPLY}"
 
     if [[ "$1" = (#b)(*)$'\01'$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'(*) ]]; then
@@ -535,8 +535,8 @@ function -zui_std_get_stext() {
     return 1
 } # }}}
 
-# FUNCTION: -zui_std_strip_meta_data {{{
-function -zui_std_strip_meta_data() {
+# FUNCTION: -zui_glib_strip_meta_data {{{
+function -zui_glib_strip_meta_data() {
         local buf="$1"
         # Remove hyperlinks
         buf="${buf//(#b)$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'/${(Q)match[1]}}"
@@ -556,57 +556,57 @@ function -zui_std_strip_meta_data() {
 
         REPLY="$buf"
 } # }}}
-# FUNCTION: -zui_std_strip_color_codes {{{
-function -zui_std_strip_color_codes() {
+# FUNCTION: -zui_glib_strip_color_codes {{{
+function -zui_glib_strip_color_codes() {
     # [all] [fg] [bg] TEXT
     REPLY="${1//[$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'\037']/}"
 } # }}}
-# FUNCTION: -zui_std_is_hyperlink {{{
+# FUNCTION: -zui_glib_is_hyperlink {{{
 # Checks if given text is a button/anchor/raw hyperlink
-function -zui_std_is_hyperlink() {
+function -zui_glib_is_hyperlink() {
     [[ "$1" = *$'\01'[^$'\01']##$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'[^$'\02']#$'\02'* ]]
 } # }}}
 
-# FUNCTION: -zui_std_is_special_text {{{
+# FUNCTION: -zui_glib_is_special_text {{{
 # Checks if given text is a button/anchor/raw hyperlink
-function -zui_std_is_special_text() {
+function -zui_glib_is_special_text() {
     [[ "$1" = *$'\01'$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'[^$'\02']#$'\02'* ]]
 } # }}}
 
-# FUNCTION: -zui_std_is_text_field {{{
+# FUNCTION: -zui_glib_is_text_field {{{
 # Checks if given text is a text field hyperlink
-function -zui_std_is_text_field() {
+function -zui_glib_is_text_field() {
     #                 id                data1             data2             data3             width_var         sidx_var          text_var             
     [[ "$1" = *$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\02']#$'\02'* ]]
 } # }}}
 
-# FUNCTION: -zui_std_is_list_box {{{
+# FUNCTION: -zui_glib_is_list_box {{{
 # Checks if given text is a list box hyperlink
-function -zui_std_is_list_box() {
+function -zui_glib_is_list_box() {
     #                 id                data1             data2             data3             width_var         sidx_var          text_var             
     [[ "$1" = *$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\02']#$'\02'* ]]
 } # }}}
 
-# FUNCTION: -zui_std_is_any_hyperlink {{{
+# FUNCTION: -zui_glib_is_any_hyperlink {{{
 # Tests if given text is a hyperlink. Returns (in REPLY)
 # "1" if plain hyperlink (anchor, button, raw link), "2"
 # if text field, "3" if list-box
 #
 # $1 - hyperlink
 # $2 - output parameter name, for type (default: REPLY)
-function -zui_std_is_any_hyperlink() {
+function -zui_glib_is_any_hyperlink() {
     local __out="${2:-REPLY}"
-    [[ "$1" = *$'\01'* ]] && { -zui_std_is_hyperlink "$1" && { : ${(P)__out::=1}; return 0; }; }
-    [[ "$1" = *$'\032'* ]] && { -zui_std_is_text_field "$1" && { : ${(P)__out::=2}; return 0; }; }
-    [[ "$1" = *$'\034'* ]] && { -zui_std_is_list_box "$1" && { : ${(P)__out::=3}; return 0; }; }
+    [[ "$1" = *$'\01'* ]] && { -zui_glib_is_hyperlink "$1" && { : ${(P)__out::=1}; return 0; }; }
+    [[ "$1" = *$'\032'* ]] && { -zui_glib_is_text_field "$1" && { : ${(P)__out::=2}; return 0; }; }
+    [[ "$1" = *$'\034'* ]] && { -zui_glib_is_list_box "$1" && { : ${(P)__out::=3}; return 0; }; }
     : ${(P)__out::=0}
     return 1
 } # }}}
 
-# FUNCTION: -zui_std_has_any_hyperlinks {{{
+# FUNCTION: -zui_glib_has_any_hyperlinks {{{
 # Checks if given text has any hyperlinks (buttons/anchors/raws,
 # text fields, list boxes)
-function -zui_std_has_any_hyperlinks() {
+function -zui_glib_has_any_hyperlinks() {
     [[ "$1" = *$'\01'[^$'\01']##$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'[^$'\02']#$'\02'* ]] ||
     #                 id                data1             data2             module index      width_var         sidx_var          text_var             
     [[ "$1" = *$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\02']#$'\02'* ]] ||
@@ -614,7 +614,7 @@ function -zui_std_has_any_hyperlinks() {
     [[ "$1" = *$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\02']#$'\02'* ]]
 } # }}}
 
-# FUNCTION: -zui_std_pack_hyperlinks_into_box {{{
+# FUNCTION: -zui_glib_pack_hyperlinks_into_box {{{
 # Puts given links in a box, i.e. into sequence of lines
 # that are limited in length. The sequence is returned
 # in reply array. The length of a link is the length of
@@ -626,7 +626,7 @@ function -zui_std_has_any_hyperlinks() {
 # $4 - hyperlink 2
 # $5 - ...
 #
-function -zui_std_pack_hyperlinks_into_box() {
+function -zui_glib_pack_hyperlinks_into_box() {
     local width="$1" max_height="$2"
     shift 2
 
@@ -694,7 +694,7 @@ function -zui_std_pack_hyperlinks_into_box() {
     #done
 } # }}}
 
-# FUNCTION: -zui_std_load_config {{{
+# FUNCTION: -zui_glib_load_config {{{
 # Loads variable from configuration if it's older than
 # e.g.  2 seconds. The point is: I expect users to not
 # always manage ZUI hash well: forgot to call *cleanup,
@@ -713,7 +713,7 @@ function -zui_std_pack_hyperlinks_into_box() {
 # $2 - default value, 0 or 1 for bools
 # $3 - time limit
 # $4 - output parameter to fill (name)
-function -zui_std_load_config() {
+function -zui_glib_load_config() {
     local __ts=${EPOCHSECONDS:-0}
 
     local __bool="${${${1##b:*}:+0}:-1}" __default="$2" __cvar="${${1#b:}#s:}" __time_limit="${3:-2}" __var_name="${4:-REPLY}"
@@ -756,8 +756,8 @@ function -zui_std_load_config() {
     return 0
 } # }}}
 
-# FUNCTION: -zui_std_refresh_configs {{{
-# Causes -zui_std_load_config to think
+# FUNCTION: -zui_glib_refresh_configs {{{
+# Causes -zui_glib_load_config to think
 # the configuration variable is freshly
 # loaded. Use this when restarting list
 # and updating ZUI[config] manually, with
@@ -765,7 +765,7 @@ function -zui_std_load_config() {
 #
 # $1, $2 ... – keys in ZUI to update, config
 #              variables' names
-function -zui_std_refresh_configs() {
+function -zui_glib_refresh_configs() {
     local ts=${EPOCHSECONDS:-0} config
     (( ts == 0 )) && ts=$( date +%s )
 
@@ -774,7 +774,7 @@ function -zui_std_refresh_configs() {
     done
 } # }}}
 
-# FUNCTION: -zui_std_store_default_app_config {{{
+# FUNCTION: -zui_glib_store_default_app_config {{{
 # Stores given ZUI[app] configuration if it is not
 # already set by user, i.e. if given Zstyle is empty,
 # it is then set to given value, so that ZUI will
@@ -786,7 +786,7 @@ function -zui_std_refresh_configs() {
 # $2 - value to write, 0 or 1 for bools
 #
 # Returns 0 if written, 1 if Zstyle was already set
-function -zui_std_store_default_app_config() {
+function -zui_glib_store_default_app_config() {
     local cvar="${${1#b:}#s:}" value="$2" bool="${${${1##b:*}:+0}:-1}"
     local zstyle_path=":plugin:zui:app:${ZUI[app]}" tmp
     integer isset
@@ -812,11 +812,11 @@ function -zui_std_store_default_app_config() {
     fi
 } # }}}
 
-# FUNCTION: -zui_std_cleanup {{{
+# FUNCTION: -zui_glib_cleanup {{{
 # This function clears application data
 # from $ZUI global hash. To be called at
 # exit and at start of zui application
-function -zui_std_cleanup() {
+function -zui_glib_cleanup() {
     # Optimization to not recreate windows on list
     # restart - but yes here, on app restart
     (( ${+builtins[zcurses]} )) && {
@@ -870,7 +870,7 @@ function -zui_std_cleanup() {
     # Serialize?
     if [[ $1 = serialize* ]]; then
         local dst=${${1#serialize}#:}
-        -zui_std_serialize ${dst:-${ZUI[previous_app]}}
+        -zui_glib_serialize ${dst:-${ZUI[previous_app]}}
     fi
 
     builtin unfunction -- -zui-standard-global-anchors-callback \
@@ -881,16 +881,16 @@ function -zui_std_cleanup() {
     # Deserialize?
     if [[ $1 = deserialize* ]]; then
         local src=${${1#deserialize}#:}
-        -zui_std_deserialize ${src:-${ZUI[previous_app]}}
+        -zui_glib_deserialize ${src:-${ZUI[previous_app]}}
     fi
 } # }}}
 
-# FUNCTION: -zui_std_serialize {{{
+# FUNCTION: -zui_glib_serialize {{{
 # Stores all keys of ZUI hash into
 # "serialized_${ZUI[app]}" key, exported
 # variable and file in XDG cache dir, that
 # can be read with *deserialize() call
-function -zui_std_serialize() {
+function -zui_glib_serialize() {
     local APP=${1:-${ZUI[app]:-NoAppIDSet}}
     local PERFLE=$ZUI[CACHE_DIR]/$ZUI[SERIALZE_FLE_PFX]$APP$ZUI[SERIALZE_FLE_EXT]
     local VAR=$ZUI[SERIALZE_EXVAR_PFX]$APP \
@@ -918,12 +918,12 @@ function -zui_std_serialize() {
     [[ -n $ZUI[$FIELD] && -n ${(P)VAR} && -s $PERFLE ]]
 } # }}}
 
-# FUNCTION: -zui_std_deserialize {{{
+# FUNCTION: -zui_glib_deserialize {{{
 # Reads ZUI[serialized_${ZUI[app]}] and maps
 # the content onto ZUI keys, normally my_*
 # keys. Use this to restore application state
 # after exit and consecutive start.
-function -zui_std_deserialize() {
+function -zui_glib_deserialize() {
     local APP="${1:-${ZUI[app]:-NoAppIDSet}}" DATA
     local PERFLE=$ZUI[CACHE_DIR]/$ZUI[SERIALZE_FLE_PFX]$APP$ZUI[SERIALZE_FLE_EXT]
     local VAR=$ZUI[SERIALZE_EXVAR_PFX]$APP \
@@ -946,30 +946,30 @@ function -zui_std_deserialize() {
     return $?
 } # }}}
 
-# FUNCTION: -zui_std_set_mod_factor {{{
+# FUNCTION: -zui_glib_set_mod_factor {{{
 # Modifies how many instances of a module should be generated.
 # A regeneration (no on-the-fly support) should be called on
 # the new instances.
 #
 # $1 - module index
 # $2 - new factor
-function -zui_std_set_mod_factor() {
+function -zui_glib_set_mod_factor() {
     local key="${zuiel_module_hash[(i)${1}_*]}"
     zuiel_module_hash[$key]="$2"
 } # }}}
 
-# FUNCTION: -zui_std_get_mod_factor {{{
+# FUNCTION: -zui_glib_get_mod_factor {{{
 # Returns factor of given module (it's the number
 # of instances of the module that are generated)
 #
 # $1 - module index
 # $2 - output parameter name (default: REPLY)
-function -zui_std_get_mod_factor() {
+function -zui_glib_get_mod_factor() {
     local __var_name="${2:-REPLY}" __key="${zuiel_module_hash[(i)${1}_*]}"
     : ${(P)__var_name::=${zuiel_module_hash[$__key]}}
 } # }}}
 
-# FUNCTION: -zui_std_set_mod_spacing {{{
+# FUNCTION: -zui_glib_set_mod_spacing {{{
 # It sets corresponding ZUI[SPACING_$mod_$ice] variable,
 # which then can be read in generator, and returned via
 # reply5, and from that point actually used in drawing,
@@ -983,12 +983,12 @@ function -zui_std_get_mod_factor() {
 # $1 - module index
 # $2 - instance index
 # $3 - the spacing to set (i.e. number of blank lines)
-function -zui_std_set_mod_spacing() {
+function -zui_glib_set_mod_spacing() {
     ZUI[SPACING_${1}_${2}]="$3"
 }
 # }}}
 
-# FUNCTION: -zui_std_get_mod_spacing {{{
+# FUNCTION: -zui_glib_get_mod_spacing {{{
 # Gets module's spacing, either from the transport place
 # - ZUI[SPACING_${mod}_${ice}] hash field, or from the
 # destination place - mod${1}_ice${2}_spacing parameter
@@ -1000,7 +1000,7 @@ function -zui_std_set_mod_spacing() {
 # $1 - module index
 # $2 - instance index
 # $3 - "tra" or "dst" - transport or destination
-function -zui_std_get_mod_spacing() {
+function -zui_glib_get_mod_spacing() {
     REPLY=1
 
     if [[ "$3" = "tra" ]]; then
@@ -1016,7 +1016,7 @@ function -zui_std_get_mod_spacing() {
 }
 # }}}
 
-# FUNCTION: -zui_std_load_global_index_and_size {{{
+# FUNCTION: -zui_glib_load_global_index_and_size {{{
 # Use this to quickly load variables:
 #
 # - mod${midx}_ice${iidx}_global_index
@@ -1033,7 +1033,7 @@ function -zui_std_get_mod_spacing() {
 # $2 - instance index
 # $3 - output parameter name for global index
 # $4 - output parameter name for size
-function -zui_std_load_global_index_and_size() {
+function -zui_glib_load_global_index_and_size() {
     local tmp var_name
     3=${2:-REPLY}
     4=${3:-REPLY2}
@@ -1053,14 +1053,14 @@ function -zui_std_load_global_index_and_size() {
     return 0
 } # }}}
 
-# FUNCTION: -zui_std_reset_replies {{{
+# FUNCTION: -zui_glib_reset_replies {{{
 # Resets parameters reply{,2..5}, i.e. sets them
 # to empty arrays or strings
-function -zui_std_reset_replies() {
+function -zui_glib_reset_replies() {
     reply=() reply2=() reply3=() reply4=() reply5=""
 } # }}}
 
-# FUNCTION: -zui_std_map_replies {{{
+# FUNCTION: -zui_glib_map_replies {{{
 # Maps reply{,2..5} parameters onto module
 # parameters:
 #    mod${midx}_ice${iidx}_output mod${midx}_ice${iidx}_size
@@ -1069,7 +1069,7 @@ function -zui_std_reset_replies() {
 #
 # $1 - module index
 # $2 - instance index
-function -zui_std_map_replies() {
+function -zui_glib_map_replies() {
     local var_name
     var_name="mod${1}_ice${2}_output"
     : ${(PA)var_name::="${reply[@]}"}
@@ -1085,7 +1085,7 @@ function -zui_std_map_replies() {
     : ${(PA)var_name::=$reply5}
 } # }}}
 
-# FUNCTION: -zui_std_fly_mod_regen_ext {{{
+# FUNCTION: -zui_glib_fly_mod_regen_ext {{{
 # Submits on-the-fly module update. Needs
 # generator to run and instance ID.
 #
@@ -1094,12 +1094,12 @@ function -zui_std_map_replies() {
 # $3 - instance index
 # $4, $5, ... - additional arguments for
 #      the generator
--zui_std_fly_mod_regen_ext() {
+-zui_glib_fly_mod_regen_ext() {
     local generator="$1" mod="$2" ice="$3"
 
     shift 3
 
-    -zui_std_reset_replies
+    -zui_glib_reset_replies
 
     "$generator" "$mod" "$ice" "$@"
 
@@ -1110,23 +1110,23 @@ function -zui_std_map_replies() {
     # this *_regenerate call. Note that the data
     # will be overwritten if restart-update will
     # regenerate "$module".
-    -zui_std_map_replies "$mod" "$ice"
+    -zui_glib_map_replies "$mod" "$ice"
 
     # No typical saving of any newly created local
     # anchors. There is no regeneration loop (i.e.
     # it is on-the-fly update) and placing anchors
     # is handled in zui-list.
-    # -zui_std_gather_lanchors regen_lanchors
+    # -zui_glib_gather_lanchors regen_lanchors
 
     # Submit on-the-fly list update. The same data
-    # as in -zui_std_map_replies.
-    -zui_std_submit_fly_from_gen_replies "$mod" "$ice"
+    # as in -zui_glib_map_replies.
+    -zui_glib_submit_fly_from_gen_replies "$mod" "$ice"
 
     # No output from this function
-    -zui_std_reset_replies
+    -zui_glib_reset_replies
 } # }}}
 
-# FUNCTION: -zui_std_fly_mod_regen {{{
+# FUNCTION: -zui_glib_fly_mod_regen {{{
 # Submits on-the-fly module update. Needs only instance ID,
 # the generator to run is the one specified for zui-event-loop
 #
@@ -1134,7 +1134,7 @@ function -zui_std_map_replies() {
 # $2 - instance index
 # $3, $4, ... - additional arguments for
 #      the generator
--zui_std_fly_mod_regen() {
+-zui_glib_fly_mod_regen() {
     local mod="$1" ice="$2" key="${zuiel_module_hash[(i)${1}_*]}"
     local generator="${key#[[:digit:]]#_}"
 
@@ -1142,14 +1142,14 @@ function -zui_std_map_replies() {
 
     [[ -z "$generator" ]] && return
 
-    -zui_std_reset_replies
+    -zui_glib_reset_replies
     "$generator" "$mod" "$ice" "$@"
-    -zui_std_map_replies "$mod" "$ice"
-    -zui_std_submit_fly_from_gen_replies "$mod" "$ice"
-    -zui_std_reset_replies
+    -zui_glib_map_replies "$mod" "$ice"
+    -zui_glib_submit_fly_from_gen_replies "$mod" "$ice"
+    -zui_glib_reset_replies
 } # }}}
 
-# FUNCTION: -zui_std_fly_array_refresh {{{
+# FUNCTION: -zui_glib_fly_array_refresh {{{
 # Submits on-the-fly array refresh. The given instance ID
 # should point to an array ("a:" prefix at zui-event-loop).
 # The array will be read again and pasted into document
@@ -1159,7 +1159,7 @@ function -zui_std_map_replies() {
 # single instance.
 #
 # $1 - module's index
--zui_std_fly_array_refresh() {
+-zui_glib_fly_array_refresh() {
     local __mod="$1" __ice="1" __key="${zuiel_module_hash[(i)${1}_*]}"
 
     local __arr="${zuiel_module_hash[$__key]}"
@@ -1171,30 +1171,30 @@ function -zui_std_map_replies() {
     fi
 
     reply2=( ) reply3=( 1 ) reply4=( )
-    -zui_std_map_replies "$__mod" "$__ice"
-    -zui_std_submit_fly_from_gen_replies "$__mod" "$__ice"
+    -zui_glib_map_replies "$__mod" "$__ice"
+    -zui_glib_submit_fly_from_gen_replies "$__mod" "$__ice"
 
     # No output from this function
-    -zui_std_reset_replies
+    -zui_glib_reset_replies
 } # }}}
 
-# FUNCTION: -zui_std_submit_fly_from_gen_replies {{{
+# FUNCTION: -zui_glib_submit_fly_from_gen_replies {{{
 # Internal action can call this function in
 # order to replace module with new version.
-# But see call -zui_std_fly_mod_regen.
+# But see call -zui_glib_fly_mod_regen.
 #
 # It uses parameters reply{,2..5} normally
 # returned from a module generator. It covers
 # calls to multiple submit functions:
 #
-# - -zui_std_submit_list_update
-# - -zui_std_submit_nonselectables
-# - -zui_std_submit_hops
-# - -zui_std_submit_lanchors
+# - -zui_glib_submit_list_update
+# - -zui_glib_submit_nonselectables
+# - -zui_glib_submit_hops
+# - -zui_glib_submit_lanchors
 #
 # $1 - module index
 # $2 - instance index
-function -zui_std_submit_fly_from_gen_replies() {
+function -zui_glib_submit_fly_from_gen_replies() {
     local mod="$1" ice="$2" global_index previous_size var_name
 
     # Get global index and previous size. We reach for
@@ -1207,14 +1207,14 @@ function -zui_std_submit_fly_from_gen_replies() {
     previous_size="${(P)var_name}"
 
     # Not submitting module output, it is assumed
-    # that -zui_std_map_replies was called
-    -zui_std_submit_list_update "$mod" "$ice" "$global_index" "$(( global_index + previous_size - 1 ))" # "${reply[@]}"
-    -zui_std_submit_nonselectables "${reply2[@]}"
-    -zui_std_submit_hops "${reply3[@]}"
-    -zui_std_submit_lanchors "${reply4[@]}"
+    # that -zui_glib_map_replies was called
+    -zui_glib_submit_list_update "$mod" "$ice" "$global_index" "$(( global_index + previous_size - 1 ))" # "${reply[@]}"
+    -zui_glib_submit_nonselectables "${reply2[@]}"
+    -zui_glib_submit_hops "${reply3[@]}"
+    -zui_glib_submit_lanchors "${reply4[@]}"
 } # }}}
 
-# FUNCTION: -zui_std_submit_list_update {{{
+# FUNCTION: -zui_glib_submit_list_update {{{
 # Internal action can call this function in
 # order to replace part of list with new text.
 #
@@ -1223,13 +1223,13 @@ function -zui_std_submit_fly_from_gen_replies() {
 # $3 - beginning line number of area to replace
 # $4 - end line number of area to replace
 # $5, $6, ... - new elements to replace lines $1..$2
-function -zui_std_submit_list_update() {
+function -zui_glib_submit_list_update() {
     integer size=$(( $4 - $3 + 1 ))
     4=$size
     ZUI[fly_update]="${(j: :)${(q)@}}"
 } # }}}
 
-# FUNCTION: -zui_std_submit_hops {{{
+# FUNCTION: -zui_glib_submit_hops {{{
 # Internal action can call this function when
 # replacing part of list to provide new hops,
 # by submitting local indices. They will be
@@ -1237,11 +1237,11 @@ function -zui_std_submit_list_update() {
 #
 # $1, $2, ... - local indices of hops in the
 #               substituted fragment
-function -zui_std_submit_hops() {
+function -zui_glib_submit_hops() {
     ZUI[fly_hops]="${(j: :)${(q)@}}"
 } # }}}
 
-# FUNCTION: -zui_std_submit_nonselectables {{{
+# FUNCTION: -zui_glib_submit_nonselectables {{{
 # Internal action can call this function when
 # replacing part of list to provide new local
 # indices that are non-selectable. They will
@@ -1249,24 +1249,26 @@ function -zui_std_submit_hops() {
 #
 # $1, $2, ... - local indices of nonselectables
 #               in the substituted fragment
-function -zui_std_submit_nonselectables() {
+function -zui_glib_submit_nonselectables() {
     ZUI[fly_nonselectables]="${(j: :)${(q)@}}"
 } # }}}
 
-# FUNCTION: -zui_std_submit_lanchors {{{
+# FUNCTION: -zui_glib_submit_lanchors {{{
 # Internal action can call this function when
 # replacing part of list to provide new local
 # anchors (their IDs). Their indices (stored
 # in $ZUI) will be globalized.
 #
 # $1, $2, ... - IDs of anchors to be globalized
-function -zui_std_submit_lanchors() {
+function -zui_glib_submit_lanchors() {
     ZUI[fly_lanchors]="${(j: :)${(q)@}}"
 } # }}}
 
-# FUNCTION: -zui_std_stalog {{{
-function -zui_std_stalog() {
-    -zui_sys_add_message 1 ${EPOCHSECONDS:-0} "$@"
+# FUNCTION: -zui_glib_msg {{{
+function -zui_glib_msg() {
+    integer t=1
+    [[ $1 == -r ]]&&{t=3;shift;}
+    -zui_sys_add_message $tpe ${EPOCHSECONDS:-0} "$@"
 } # }}}
 
 # vim:ft=zsh

@@ -2,12 +2,12 @@
 #
 # Text editor supporting maximum 1000 lines, 6000 with Zsh 5.3.2
 
--zui_std_cleanup deserialize:"zui-demo-edit"
--zui_std_init app:"zui-demo-edit" app_name:"ZUI Text Editor"
+-zui_glib_cleanup deserialize:"zui-demo-edit"
+-zui_glib_init app:"zui-demo-edit" app_name:"ZUI Text Editor"
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
--zui_std_init2 # after emulate -LR
+-zui_glib_init2 # after emulate -LR
 
--zui_std_store_default_app_config s:status_size 3
+-zui_glib_store_default_app_config s:status_size 3
 
 local edited_file="$1" width=100 offset=1 internal
 local -a lines logs
@@ -21,10 +21,10 @@ demo_generator_A() {
     local mod="$1" ice="$2"
 
     reply=()
-    -zui_std_rc_button "button_save_$ice" "${ZUI[RED]}Save${ZUI[FMT_END]}" 'internal=1; print -rl -- "${lines[@]}" > "$edited_file" && logs+=( "File saved" ) || logs+=( "Save failed" )'
-    -zui_std_rc_button "button_relo_$ice" "${ZUI[RED]}Reload${ZUI[FMT_END]}" 'internal=1; lines=( "${(@f)"$(<$edited_file)"}" ) && logs+=( "File \`$edited_file'"'"' loaded" ); -zui_std_fly_mod_regen 2 1'
-    -zui_std_rc_button "button_addl_$ice" "${ZUI[RED]}Add line${ZUI[FMT_END]}" 'internal=1; lines+=( "" ); -zui_std_fly_mod_regen 2 1'
-    -zui_std_rc_button "button_remo_$ice" "${ZUI[RED]}Remove line${ZUI[FMT_END]}" 'internal=1; lines[-1]=( ); -zui_std_fly_mod_regen 2 1'
+    -zui_glib_rc_button "button_save_$ice" "${ZUI[RED]}Save${ZUI[FMT_END]}" 'internal=1; print -rl -- "${lines[@]}" > "$edited_file" && logs+=( "File saved" ) || logs+=( "Save failed" )'
+    -zui_glib_rc_button "button_relo_$ice" "${ZUI[RED]}Reload${ZUI[FMT_END]}" 'internal=1; lines=( "${(@f)"$(<$edited_file)"}" ) && logs+=( "File \`$edited_file'"'"' loaded" ); -zui_glib_fly_mod_regen 2 1'
+    -zui_glib_rc_button "button_addl_$ice" "${ZUI[RED]}Add line${ZUI[FMT_END]}" 'internal=1; lines+=( "" ); -zui_glib_fly_mod_regen 2 1'
+    -zui_glib_rc_button "button_remo_$ice" "${ZUI[RED]}Remove line${ZUI[FMT_END]}" 'internal=1; lines[-1]=( ); -zui_glib_fly_mod_regen 2 1'
 
     # Content
     reply=( "${ZUI[YELLOW]}$edited_file${ZUI[FMT_END]}" "${reply[*]}" )
@@ -40,7 +40,7 @@ demo_generator_B() {
     local -a output
     for (( idx=1; idx <= size; idx ++ )); do
         reply=()  # use the output immediately to utilize array-append optimizations of zsh 5.3.2
-        noglob -zui_std_text_field "tfield${idx}" width offset lines[$idx]
+        noglob -zui_glib_text_field "tfield${idx}" width offset lines[$idx]
         output+=( "${reply[1]}" )
     done
 
@@ -53,7 +53,7 @@ demo_generator_B() {
 ## Start application ##
 zui-event-loop 1:demo_generator_A 1:demo_generator_B 1:demo_generator_A
 
--zui_std_cleanup serialize
+-zui_glib_cleanup serialize
 
 return 0
 

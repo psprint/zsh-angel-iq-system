@@ -1,13 +1,13 @@
 # Started from Zle or from command line
 
--zui_std_cleanup deserialize:"zui-demo-fly"
--zui_std_init app:"zui-demo-fly" app_name:"ZUI On-The-Fly Regeneration"
+-zui_glib_cleanup deserialize:"zui-demo-fly"
+-zui_glib_init app:"zui-demo-fly" app_name:"ZUI On-The-Fly Regeneration"
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
--zui_std_init2 # after emulate -LR
+-zui_glib_init2 # after emulate -LR
 
--zui_std_store_default_app_config b:border 1
--zui_std_store_default_app_config b:status_border 1
--zui_std_store_default_app_config s:text_mode off
+-zui_glib_store_default_app_config b:border 1
+-zui_glib_store_default_app_config b:status_border 1
+-zui_glib_store_default_app_config s:text_mode off
 
 local internal  # trick variable to make a handler no-restart
 
@@ -16,8 +16,8 @@ demo_generator_A() {
     local mod="$1" ice="$2"
 
     reply=()
-    -zui_std_rc_button_ext "restart" "" "" ",mod1_ice1," "" "${ZUI[MAGENTA]}restart${ZUI[FMT_END]}"
-    -zui_std_rc_button "on-the-fly" "${ZUI[MAGENTA]}on-the-fly${ZUI[FMT_END]}" 'internal=1; -zui_std_fly_mod_regen "'"$mod"'" "'"$ice"'"'
+    -zui_glib_rc_button_ext "restart" "" "" ",mod1_ice1," "" "${ZUI[MAGENTA]}restart${ZUI[FMT_END]}"
+    -zui_glib_rc_button "on-the-fly" "${ZUI[MAGENTA]}on-the-fly${ZUI[FMT_END]}" 'internal=1; -zui_glib_fly_mod_regen "'"$mod"'" "'"$ice"'"'
 
     # Content
     reply=( "${ZUI[YELLOW]}ZUI${ZUI[FMT_END]} can regenerate module instance with ${reply[1]} or ${reply[2]}!" "Random number: $RANDOM" )
@@ -43,7 +43,7 @@ demo_generator_A() {
 ## Start application ##
 zui-event-loop 1:demo_generator_A
 
--zui_std_cleanup serialize
+-zui_glib_cleanup serialize
 
 return 0
 

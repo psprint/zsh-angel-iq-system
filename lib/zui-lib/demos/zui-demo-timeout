@@ -1,11 +1,11 @@
 # Started from Zle or from command line
 
--zui_std_cleanup deserialize:"zui-demo-timeout"
--zui_std_init app:"zui-demo-timeout" app_name:"ZUI Timeout Demo"
+-zui_glib_cleanup deserialize:"zui-demo-timeout"
+-zui_glib_init app:"zui-demo-timeout" app_name:"ZUI Timeout Demo"
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
--zui_std_init2 # after emulate -LR
+-zui_glib_init2 # after emulate -LR
 
--zui_std_store_default_app_config s:timeout 500
+-zui_glib_store_default_app_config s:timeout 500
 
 demo_generator_A() {
     local mod="$1" ice="$2"
@@ -17,13 +17,13 @@ demo_generator_A() {
     reply2=( 2 )            reply3=( 1 )                reply4=( )
 }
 
--zui-standard-timeout-callback() { -zui_std_fly_mod_regen 1 1; }
+-zui-standard-timeout-callback() { -zui_glib_fly_mod_regen 1 1; }
 -zui-standard-status-callback() { reply=( "timeout_update: " "${ZUI[timeout_update]}" ); return 1; }
 
 ## Start application ##
 zui-event-loop 1:demo_generator_A
 
--zui_std_cleanup serialize
+-zui_glib_cleanup serialize
 
 return 0
 

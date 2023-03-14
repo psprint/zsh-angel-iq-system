@@ -1,11 +1,11 @@
 # Started from Zle or from command line
 
--zui_std_cleanup deserialize:"zui-demo-toggles"
--zui_std_init app:"zui-demo-toggles" app_name:"ZUI Toggle Buttons"
+-zui_glib_cleanup deserialize:"zui-demo-toggles"
+-zui_glib_init app:"zui-demo-toggles" app_name:"ZUI Toggle Buttons"
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
--zui_std_init2 # after emulate -LR
+-zui_glib_init2 # after emulate -LR
 
--zui_std_store_default_app_config s:text_mode off
+-zui_glib_store_default_app_config s:text_mode off
 
 local internal  # trick variable to make a handler no-restart
 
@@ -18,9 +18,9 @@ demo_generator_A() {
     -zui_util_map_bools "ZUI[my_toggle2];ZUI[my_toggle3]" "col2;col3" "${ZUI[BG_GREEN]}" "${ZUI[GREEN]}"
 
     reply=()
-    -zui_std_button "toggle1"  "[${dat1}] Checkbox" '(( ZUI[my_toggle1]=1-ZUI[my_toggle1] )); -zui_std_fly_mod_regen 1 1; internal=1'
-    -zui_std_rc_button "toggle2"  "${col2}Toggle 1${ZUI[FMT_END]}" '(( ZUI[my_toggle2]=1-ZUI[my_toggle2] )); -zui_std_fly_mod_regen 1 1; internal=1'
-    -zui_std_rc_button "toggle3"  "${col3}Toggle 2${ZUI[FMT_END]}" '(( ZUI[my_toggle3]=1-ZUI[my_toggle3] )); -zui_std_fly_mod_regen 1 1; internal=1'
+    -zui_glib_button "toggle1"  "[${dat1}] Checkbox" '(( ZUI[my_toggle1]=1-ZUI[my_toggle1] )); -zui_glib_fly_mod_regen 1 1; internal=1'
+    -zui_glib_rc_button "toggle2"  "${col2}Toggle 1${ZUI[FMT_END]}" '(( ZUI[my_toggle2]=1-ZUI[my_toggle2] )); -zui_glib_fly_mod_regen 1 1; internal=1'
+    -zui_glib_rc_button "toggle3"  "${col3}Toggle 2${ZUI[FMT_END]}" '(( ZUI[my_toggle3]=1-ZUI[my_toggle3] )); -zui_glib_fly_mod_regen 1 1; internal=1'
 
     # Content
     reply=( "${reply[1]}" "${reply[2]} ${reply[3]}" )
@@ -46,7 +46,7 @@ demo_generator_A() {
 ## Start application ##
 zui-event-loop 1:demo_generator_A
 
--zui_std_cleanup serialize
+-zui_glib_cleanup serialize
 
 return 0
 

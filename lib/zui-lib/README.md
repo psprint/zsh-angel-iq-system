@@ -25,12 +25,12 @@ A voiced [video tutorial](https://youtu.be/TfZ8b_RS_Bg) shows how to create an a
 ```zsh
 # Started from Zle or from command line
 
--zui_std_cleanup deserialize:"zui-demo-hello-world"
--zui_std_init app:"zui-demo-hello-world" app_name:"ZUI Hello World"
+-zui_glib_cleanup deserialize:"zui-demo-hello-world"
+-zui_glib_init app:"zui-demo-hello-world" app_name:"ZUI Hello World"
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
--zui_std_init2 # after emulate -LR
+-zui_glib_init2 # after emulate -LR
 
--zui_std_store_default_app_config b:border 1
+-zui_glib_store_default_app_config b:border 1
 
 demo_generator_A() {
     local mod="$1" ice="$2"
@@ -45,7 +45,7 @@ demo_generator_A() {
 ## Start application ##
 zui-event-loop 1:demo_generator_A
 
--zui_std_cleanup serialize
+-zui_glib_cleanup serialize
 ```
 
 ![Hello World screenshot](https://raw.githubusercontent.com/wiki/zdharma/zui/img/hello-world-fs8.png)

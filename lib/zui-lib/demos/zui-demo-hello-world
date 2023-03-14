@@ -1,11 +1,11 @@
 # Started from Zle or from command line
 
--zui_std_cleanup deserialize:"zui-demo-hello-world"
--zui_std_init app:"zui-demo-hello-world" app_name:"ZUI Hello World"
+-zui_glib_cleanup deserialize:"zui-demo-hello-world"
+-zui_glib_init app:"zui-demo-hello-world" app_name:"ZUI Hello World"
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
--zui_std_init2 # after emulate -LR
+-zui_glib_init2 # after emulate -LR
 
--zui_std_store_default_app_config b:border 1
+-zui_glib_store_default_app_config b:border 1
 
 # Generator for module 1
 demo_generator_A() {
@@ -21,7 +21,7 @@ demo_generator_A() {
 ## Start application ##
 zui-event-loop 1:demo_generator_A
 
--zui_std_cleanup serialize
+-zui_glib_cleanup serialize
 
 return 0
 
