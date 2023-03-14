@@ -23,9 +23,9 @@ iqopen_preview_file(){
     ZUI[VIEW_CHANGE]=1
     -zui_std_fly_mod_regen 2 1
     if ((ZUI[gen_B_idx]%2));then
-        ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_PVIEW_BKP]
+        ZUI[CURRENT_IDX_MAIN_BKP]=$ZUI[CURRENT_IDX]
     else
-        ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_MAIN_BKP]
+        ZUI[CURRENT_IDX_PVIEW_BKP]=$ZUI[CURRENT_IDX]
     fi
     __last_element=$#__list
 }
@@ -61,6 +61,7 @@ if [[ $1 != --refresh ]]; then
     -zui_std_store_default_app_config b:top_anchors 0
     local -a qfiles qlines GEN2_HOPS
     zui::bindkey F2 {iqopen_preview_file}
+    zui::bindkey F9 '{print current:$ZUI[CURRENT_IDX], PVIEW:$ZUI[CURRENT_IDX_PVIEW_BKP]}, main:$ZUI[CURRENT_IDX_MAIN_BKP];}'
 fi
 
 generator_A() {
@@ -89,11 +90,7 @@ generator_B(){
 
 generator_B_preview() {
     local QPATH=$__list[ZUI[CURRENT_IDX]] QTXT
-    ZUI[COLORING_PATTERN]="(#s)·*·(#e)"
-    if ((ZUI[VIEW_CHANGE]));then
-        ZUI[CURRENT_IDX_MAIN_BKP]=$ZUI[CURRENT_IDX]
-        ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_PVIEW_BKP]
-    fi
+    ZUI[QPATH]=$QPATH ZUI[COLORING_PATTERN]="(#s)·*·(#e)"
     reply=() qlines=()
     if [[ -n $QPATH ]];then
         QTXT="·Contents of: °$QPATH°·"
@@ -108,18 +105,15 @@ generator_B_preview() {
 }
 
 generator_B_tree() {
-    ZUI[COLORING_PATTERN]="((([^\/—])(#c2,))(#e))~*[·]*"
-    if ((ZUI[VIEW_CHANGE]));then
-        ZUI[CURRENT_IDX_PVIEW_BKP]=$ZUI[CURRENT_IDX]
-        ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_MAIN_BKP]
-    fi
+    ZUI[COLORING_PATTERN]="(((([^\/—])(#c2,))(#e))|*[·]*)"
+    ZUI[QPATH]= ZUI[QIDX]=0
     reply=()
-    -zui_std_special_text "·≈$PWD/≈·"
+    -zui_std_special_text "Showing files in: ·$PWD/·"
     qfiles=()
     separ
     qfiles+=(**/*~*~(.N))
-    reply=( "${reply[1]}" "$qfiles[@]" )
-    reply2=( )  reply3=( 1 $GEN2_HOPS )  reply4=( )
+    reply=( "$reply[1]" $REPLY $qfiles[@] )
+    reply2=( 1 2 )  reply3=( 1 $GEN2_HOPS )  reply4=( )
 }
 
 # Read & publish configure/make output
@@ -127,18 +121,21 @@ generator_B_tree() {
     ((ZUI[VIEW_CHANGE]))||return 0
     integer IN=ZUI[CURRENT_IDX]
 
+    # Preview
     if ((ZUI[gen_B_idx]%2));then
         ((ZUI[CURRENT_IDX]==ZUI[CURRENT_IDX_MAIN_BKP]))&&\
             ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_PVIEW_BKP]
+    # Tree
     else
         ((ZUI[CURRENT_IDX]==ZUI[CURRENT_IDX_PVIEW_BKP]))&&\
             ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_MAIN_BKP]
     fi
     if ((IN!=ZUI[CURRENT_IDX]));then
-        ZUI[redraw]=1
         -zui_list_verify_vars
+        ZUI[redraw]=1
         ZUI[VIEW_CHANGE]=0
     fi
+    return 0
 }
 
 typeset -ag toggle_cols=( $ZUI[BLUE] $ZUI[BG_YELLOW] )
@@ -150,18 +147,34 @@ fi
 
 ## Start application ##
 -zui_std_stalog "" "@@@ " "Welcome to " "IQ System " "open console!" " @@@";
+integer EC
 while (( 1 )); do
     command tput smcup
     zui-event-loop 1:generator_A 1:generator_B
     command tput rmcup
     [[ -z $REPLY ]]&&break
-    if [[ $REPLY != *(·|–|—)* ]];then
-        local QFILE=$REPLY
-        int/iq::get-editor||return 1
-        (
-            # Run the editor in $REPLY, first cd-ing into project's directory
-            $REPLY -- $QFILE
-        )
+    local QFILE=; integer QIDX=0
+    if ((ZUI[gen_B_idx]%2));then
+        QFILE=$ZUI[QPATH]
+        QIDX=ZUI[USER_CURRENT_IDX]
+    elif [[ $REPLY != *(·|–|—)* ]];then
+        QFILE=$REPLY
+    fi
+
+    if [[ -n $QFILE ]];then
+        if ! int/iq::get-editor;then
+            EC+=$?
+            -zui_std_stalog "" "" "" 'ERROR: Couldn''t find editor, tried '\
+                "\$VISUAL (=$VISUAL) " then "" " \$EDITOR (=$EDITOR)"
+            ZUI[SEARCH_MODE]=0
+        else
+            (
+                # Run the editor in $REPLY, first cd-ing into project's directory
+                int/iq::run-command -C $PWD \
+                    "$REPLY" ${${QIDX:#0}:++$QIDX} -- $QFILE
+            )
+        fi
+        EC+=$?
     fi
     zcurses clear main redraw
     zcurses clear status redraw

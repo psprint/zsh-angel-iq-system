@@ -24,7 +24,6 @@ zle -N iq::browse-symbol
 zle -N iq::browse-symbol-backwards iq::browse-symbol
 zle -N iq::browse-symbol-pbackwards iq::browse-symbol
 zle -N iq::browse-symbol-pforwards iq::browse-symbol
-
 () {
     local IQTMP
     zstyle -s ':iq:browse-symbol' key IQTMP||IQTMP='\ew'
@@ -34,7 +33,6 @@ zle -N iq::browse-symbol-pforwards iq::browse-symbol
 # A custom completion of plugin ids (alt-a) and of ice names (alt-c)
 zle -N iq::action-complete
 zle -N iq::action-complete-ice iq::action-complete
-
 () {
     local IQTMP
     # Alt-a for plugin IDs and Alt-c for ices are default.
