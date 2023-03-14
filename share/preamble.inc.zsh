@@ -1,12 +1,13 @@
+#!/usr/bin/env zsh
 # -*- mode: sh; sh-indentation: 4; indent-tabs-mode: nil; sh-basic-offset: 4;-*-
 
 # Copyright (c) 2023 Sebastian Gniazdowski
 
-# Exit code, 0 by default
-integer EC
+# Exit code, assign 0 by default (no silent option yet)
+integer EC=0
 
 # Parse any options given to this preamble.inc.zsh file
-local -A Opts
+local -A Opts=()
 builtin zparseopts \
     ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} \
         -D -E -A Opts -- -fun -script||return 18
@@ -21,19 +22,23 @@ builtin zparseopts \
 integer QIDX=${@[(i)(--|-)]}
 ((QIDX<=$#))&&builtin set -- "$@[1,QIDX-1]" "$@[QIDX+1,-1]"
 # Set $0 with a new trik - use of %x prompt expansion
-0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
+0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}
 
 # Unset helper function on exit
-builtin trap 'unset -f -m tmp/\* &>>$ZIQLOG' EXIT
+builtin trap 'builtin unset -f -m tmp/\*&>>|$ZIQNUL;
+            builtin unset IQHD&>>|$ZIQNUL' EXIT
+EC+=$?
 
 # Standard hash `Plugins` for plugins, to not pollute the namespace
 # ZIQ is a hash for iqmsg color theme and for the body of all aliases
 typeset -gA Plugins ZIQ
-Plugins[ANGEL_SYSTEM_DIR]="${0:h:h}"
+Plugins[ANGEL_IQ_SYSTEM_DIR]="${0:h:h}"
 export ZIQDIR="${0:h:h}" \
        ZIQAES="${0:h:h}"/aliases \
        ZIQLOG="${0:h:h}"/io.log \
        IQNICK=${IQNICK:-Angel-IQ} \
+       ZIQTXT="${0:h:h}/share/txt" \
+       \
        ZIQNUL=/dev/null
 
 # Standard work variables
@@ -48,9 +53,8 @@ then
 fi
 
 # fpath extending for a plugin.zsh sourcing
-if ((!$+Opts[--fun]))&&\
-        [[ $ZERO != */zsh-angel-iq-system.plugin.zsh &&\
-            -z ${fpath[(r)$ZIQDIR]} ]]
+if ((!$+Opts[--fun]&&!fpath[(I)$ZIQDIR]))&&\
+        [[ $ZERO != */zsh-angel-iq-system.plugin.zsh ]]
 then
     fpath+=("$ZIQDIR" "$ZIQDIR/functions")
 fi
@@ -59,12 +63,10 @@ fi
 if (($+Opts[--fun]));then
     local -Uxa fpath=($ZIQDIR/{bin,functions,libexec} $fpath) \
                 path=($ZIQDIR/{bin,functions,libexec} $path)
+elif [[ $ZERO == */zsh-angel-iq-system.plugin.zsh ]];then
+    # Unconditionally extend path for plugin source
+    fpath[1,0]=($ZIQDIR/{bin,functions,libexec})
 fi
-
-# Unconditionally extend path for either plugin source or
-# a func. Will be reverted when sourcing from Zinit (it
-# saves the fpath new dirs at autoload command)
-fpath[1,0]=($ZIQDIR/{bin,functions,libexec})
 
 # Uniquify paths
 typeset -gU fpath FPATH path PATH
@@ -75,15 +77,36 @@ autoload -z $ZIQDIR/functions/*~*~(.N:t) \
             $ZIQDIR/bin/*~*~(.N:t) \
             regexp-replace #zsweep:pass
 
+#
+# Simple, small support messaging system
+#
+
+# Header with (%)-expansion
+ZIQ[head-txt]="%F{41}%B[%b$IQNICK%B]"\
+"%F{27}[%b\${\${(%):-%x}:t}:\${(%):-%I}%B]%b: %B%F{203}Error:%b"
+local IQHD=$ZIQ[head-txt]
+
+#
+# Remaining tasks: aliases and vars reset
+#
 # Set up aliases
-iq::setup-aliases||\
-    {print -P Couldn\'t set up aliases, some %F{27}Zsh IQ%f\
-        components might not work…
-    EC=1;}
+if ! iq::setup-aliases;then
+    EC+=$?
+    builtin print -P -- $IQHD ${(%)ZIQ[Q1_ALIASES_NOT_SETUP]}
+fi
 
-int/iq::reset
+# Test autoload by resetting work vars
+if ! int/iq::reset;then
+    EC=EC+$?
+    builtin print -P -- $IQHD ${(%)ZIQ[Q3_AUTOLOAD_NOT_CORRECT]}
+fi
 
-# Restore fpath if it's ZINIT sourcing, it saves fpath internally
+#
+# Cleanup:
+#
+
+## - Restore fpath if it's ZINIT sourcing, it saves fpath internally
 (($+fpath_save))&&fpath=($fpath_save)
 
+## Return EC value
 return EC

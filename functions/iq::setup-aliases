@@ -25,15 +25,22 @@ if [[ ! -d $ZIQAES && ! -d $Opts[--path] ]];then
     return 1
 fi
 
-local DIR dirs=($Opts[--path](/N) $ZIQAES $ZIQAES/*(/N))
+local DIR dirs=($Opts[--path](/N) $ZIQAES $ZIQAES/*(/N) $ZIQTXT(/N))
 for DIR ($dirs);do
     # Set up aliases (global, suffix and the proper ones)
     [[ -f $DIR/*[^~](#qNY1.,@) ]]&&for REPLY in $DIR/*[^~](N.,@);do
-        REPLY="$REPLY:t=$(<$REPLY)"
-        local KEY=${(M)REPLY##[^=]##}
-        alias "${${REPLY#*=}%%:*}" "${(M)REPLY##[^=]##}=${REPLY#*:}"
-        ZIQ[$KEY]=${REPLY#*:}
-        [[ $KEY == SNIP_* ]]&&typeset -g $KEY="${REPLY#*:}"
+        if [[ $REPLY != $ZIQTXT/* ]];then
+            REPLY="$REPLY:t=$(<$REPLY)"
+            local KEY=${(M)REPLY##[^=]##}
+            alias "${${REPLY#*=}%%:*}" \
+                "${(M)REPLY##[^=]##}=${REPLY#*:}"
+            ZIQ[$KEY]=${REPLY#*:}
+            [[ $KEY == SNIP_* ]]&&typeset -g $KEY="${REPLY#*:}"
+        else
+            local QVAL=$REPLY:t
+            ZIQ[$QVAL]="$(<$REPLY)"
+            ZIQ[$QVAL]=${(%)ZIQ[$QVAL]}
+        fi
     done
 done
 int/iq::reset

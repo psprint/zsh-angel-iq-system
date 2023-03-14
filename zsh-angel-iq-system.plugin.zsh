@@ -2,13 +2,22 @@
 
 # Copyright (c) 2023 Sebastian Gniazdowski
 
+integer EC=0
+
 # According to the Zsh Plugin Standard:
 # https://zdharma-continuum.github.io/Zsh-100-Commits-Club/Zsh-Plugin-Standard
+0=${ZERO:-${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}}
+# Spread a simulated ZERO support over every plugin utils
+local ZERO=$0
 
-0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
+# Create dummy pattern aliases (eq to *) to detect lack of disk ones
+() {for REPLY ($0:h/aliases/str/*[A-Z](N.:t)){alias -g $REPLY='*'};}
 
 # Read the common setup code, to create the $ZIQ*… vars and aliases, etc.
-source $0:h/share/preamble.inc.zsh
+source $0:h/share/preamble.inc.zsh --script
+EC+=$?
+
+alias ao="noglob \\angel open"
 
 # Ctags symbol browser
 zle -N iq::browse-symbol
@@ -35,7 +44,16 @@ zle -N iq::action-complete-ice iq::action-complete
     [[ -n $IQTMP ]]&&bindkey $IQTMP iq::action-complete-ice
 }
 
-export TINFO
-: ${TINFO:=${XDG_CONFIG_HOME:-$HOME/.config}/tigsuite/features.reg}
-alias ao="noglob angel open"
+() {
+    export TINFO
+    [[ $TINFO == WRONGSTR ]]&&\
+        TINFO=${XDG_CONFIG_HOME:-$HOME/.config}/tigsuite/features.reg
+    if [[ ! -d $TINFO:h ]];then
+        builtin print -P -- $IQHD ${(%)ZIQ[Q7_NO_TINFO_DIR_EXISTS]}
+    elif [[ ! -f $TINFO ]];then
+        {builtin print -n >$TINFO;}||\
+        {EC+=$?;print -P -- $IQHD ${(%)ZIQ[Q4_NO_TINFO_CANT_CREATE]};}
+    fi
+}
+return EC
 # vim:ft=zsh:tw=80:sw=4:sts=4:et:foldmarker=[[[,]]]
