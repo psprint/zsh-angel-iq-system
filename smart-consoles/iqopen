@@ -12,11 +12,15 @@ eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
     0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}
 source $0:h:h/share/preamble.inc.zsh --script --fun
 
-int/iq::init-sm-con "$@"
-eval "$REPLY"
-
+local -A Opts;local -a opts
+int/iq::init-sm-con Opts opts "$@"||{print QE>>/tmp/reply;return 13}
 set -- "$reply[@]"
+eval "$REPLY"
 ZUI[SEARCH_BUFFER]=$*
+
+iqw(){
+    -zui_std_stalog "$@"
+}
 
 iqopen_preview_file(){
     ((ZUI[gen_B_idx]=1-ZUI[gen_B_idx]))
@@ -34,7 +38,7 @@ separ() {
     REPLY="$ZUI[YELLOW]${(l:COLUMNS*3::—:):-}$ZUI[FMT_END]";
 }
 
-if [[ $1 != --refresh ]]; then
+if ((!$+Opts[--refresh])); then
     ok/qnstr $PWD&&local APP=$REPLY
     -zui_std_cleanup deserialize:"iqopen_$APP"
     -zui_std_init app:"iqopen_$APP" app_name:"°Open° Console"
@@ -48,7 +52,7 @@ if [[ $1 != --refresh ]]; then
     ((${+commands[gstdbuf]}))&& \
         local -a stdbuf1=( gstdbuf -o0 -i0 ) stdbuf2=( gstdbuf -o0 -i0 )
 
-    ZUI[COLORING_MATCH_MULTIPLE]=0
+    ZUI[COLORING_MATCH_MULTIPLE]=1
     ZUI[COLORING_COLOR]=$ZUI[BOLD]$ZUI[YELLOW]
     ZUI[START_IN_SEARCH_MODE]=1
 
@@ -62,6 +66,8 @@ if [[ $1 != --refresh ]]; then
     local -a qfiles qlines GEN2_HOPS
     zui::bindkey F2 {iqopen_preview_file}
     zui::bindkey F9 '{print current:$ZUI[CURRENT_IDX], PVIEW:$ZUI[CURRENT_IDX_PVIEW_BKP]}, main:$ZUI[CURRENT_IDX_MAIN_BKP];}'
+    zui::bindkey F10 '{builtin source $ZIQ_CON_DIR/iqopen --refresh||\
+                        iqw "Reload finished with error: " $?;}'
 fi
 
 generator_A() {
@@ -90,10 +96,11 @@ generator_B(){
 
 generator_B_preview() {
     local QPATH=$__list[ZUI[CURRENT_IDX]] QTXT
-    ZUI[QPATH]=$QPATH ZUI[COLORING_PATTERN]="(#s)·*·(#e)"
+    ZUI[QPATH]=$QPATH ZUI[COLORING_PATTERN]="·[^·]##·"
     reply=() qlines=()
     if [[ -n $QPATH ]];then
-        QTXT="·Contents of: °$QPATH°·"
+        QTXT="Contents of file: ·$QPATH·"\
+" located at: ·${${${(M)QPATH##/*}:+$QPATH:h}:-$PWD}/·"
         qlines=("${(@f)"$(<$QPATH)"}")
     else
         QTXT="!NO FILE SELECTED, PRESS F2 TO SHOW FILE TREE!"
@@ -101,11 +108,11 @@ generator_B_preview() {
     -zui_std_special_text $QTXT
     separ
     reply=( "${reply[1]}" $REPLY "$qlines[@]" )
-    reply2=( )  reply3=( 1 $GEN2_HOPS )  reply4=( )
+    reply2=( 1 2 )  reply3=( 1 $GEN2_HOPS )  reply4=( )
 }
 
 generator_B_tree() {
-    ZUI[COLORING_PATTERN]="(((([^\/—])(#c2,))(#e))|*[·]*)"
+    ZUI[COLORING_PATTERN]="(((([^\/—])(#c2,))(#e))|·[^·]##·)"
     ZUI[QPATH]= ZUI[QIDX]=0
     reply=()
     -zui_std_special_text "Showing files in: ·$PWD/·"
@@ -138,11 +145,9 @@ generator_B_tree() {
     return 0
 }
 
-typeset -ag toggle_cols=( $ZUI[BLUE] $ZUI[BG_YELLOW] )
-ZUI[autscr_col]=$toggle_cols[ZUI[autscr]+1]
-
-if [[ $1 == --refresh ]]; then
-    return
+if (($+Opts[--refresh])); then
+    iqw "Reload went OK"
+    return 0
 fi
 
 ## Start application ##

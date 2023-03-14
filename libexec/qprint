@@ -6,17 +6,16 @@ qprint(){
         0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
     source $0:h:h/share/preamble.inc.zsh --fun
 
-    local -a __opts; local -A __Opts
-    int/iq::parse-opts "o: 1 e n p q c E" __Opts __opts "$@"||\
+    local -a __xopts; local -A __xOpts
+    int/iq::parse-opts "o: 1 e n p q c E" __xOpts __xopts "$@"||\
          {iqerr incorrect options given to {cmd}qprint{%}; return 7}
 
     set -- "$reply[@]"
-    local QNL=$ZIQNUL
-    (($+__Opts[-q]))&&__Opts[-q]=-q
-    if ((!$+__Opts[-p]));then
+    (($+__xOpts[-q]))&&__xOpts[-q]=-q
+    if ((!$+__xOpts[-p]));then
         local __QN
         for __QN ($@){
-            iqmsg -Q $__Opts[-q] {nl}{note}Notice:\
+            iqmsg -Q $__xOpts[-q] {nl}{note}Notice:\
                 {%}showing variable {var}$__QN{%}:
             int/@iq::str4var $__QN
         }
@@ -24,14 +23,14 @@ qprint(){
     fi
 
     local \
-        n=${(M)__opts:#-n} \
-        E=${${(M)__opts:#-E}:+-r} \
-        o=${${(M)__opts:#-o}:+-v $__Opts[-o]} \
-        l=${${(M)__opts:#-1}:+-l} \
-        c=${${(M)__opts:#-c}:+-C1}
+        n=${(M)__xopts:#-n} \
+        E=${${(M)__xopts:#-E}:+-r} \
+        o=${${(M)__xopts:#-o}:+-v $__xOpts[-o]} \
+        l=${${(M)__xopts:#-1}:+-l} \
+        c=${${(M)__xopts:#-c}:+-C1}
     local -a args
 
-    if (($+__Opts[-1]&&!$+__Opts[-c]));then
+    if (($+__xOpts[-1]&&!$+__xOpts[-c]));then
       args=(printf $=o ·%${${E:+s}:-b}${${n:+" "}:-\\n})
     else
       args=(print $c $n $E $=o)

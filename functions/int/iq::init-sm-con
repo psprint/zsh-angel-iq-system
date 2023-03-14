@@ -8,7 +8,7 @@ int/iq::init-sm-con() {
         0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
 
     integer EC;[[ -f $0 ]];EC+=$?
-    export ZIQ_CON_DIR=${0:h:h} ZIQ_ORIG_PWD=$PWD
+    export ZIQ_CON_DIR=${0:h:h:h}/smart-consoles ZIQ_ORIG_PWD=$PWD
 
     if ! builtin zmodload zsh/curses;then
         iqerr no {pid}zsh/curses{%} module found, it is requred to run any \
@@ -17,18 +17,20 @@ int/iq::init-sm-con() {
     fi
 
     # Options and arguments
-    local -A Opts; local -a opts
-    int/iq::parse-opts "C: -dir:" Opts opts "$@"||\
+    local -A __Opts; local -a __opts
+    int/iq::parse-opts "C: -dir: -refresh" __Opts __opts "$@"||\
         {iqerr incorrect options given to subcommand; return EC+17;}
     set -- "$reply[@]"
-    int/iq::opt-cascade Opts -C --dir
+    int/iq::opt-cascade __Opts -C --dir
     EC+=$?
     int/iq::reset
- 
+    local VAR_OPT=$2 VAR_OPTS=$1; shift 2
+    : ${(AP@)VAR_OPT::="$__opts[@]"}
+    : ${(AAP@)VAR_OPTS::="${(kv)__Opts[@]}"}
     # Change directory to the supplied one
-    if [[ -n $Opts[-C] ]];then
-        if ! cd -q -- $Opts[-C];then
-            iqerr couldn\'t change {var}CWD{%} to {path}$Opts[-C] \
+    if [[ -n $__Opts[-C] ]];then
+        if ! cd -q -- $__Opts[-C];then
+            iqerr couldn\'t change {var}CWD{%} to {path}$__Opts[-C] \
                 (exited with {num}${${EC::=EC+$?}:+$?}), trying to \
                 continue…
         fi
