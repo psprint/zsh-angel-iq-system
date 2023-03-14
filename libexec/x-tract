@@ -3,7 +3,7 @@
 x-tract() {
     eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
         0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
-    source $0:h:h/share/preamble.inc.zsh --func
+    source $0:h:h/share/preamble.inc.zsh --fun
 
     local -a opt_move opt_move2 opt_prune opt_auto opt_bkp opt_quiet
     eval "local qfopt=$SNIP_F_OPT_FOR_ZP_OPTS_VERSION"

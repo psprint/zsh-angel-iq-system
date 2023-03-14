@@ -9,7 +9,7 @@ hop() {
     # Preamble – emulate & 0=…
     eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
         0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
-    source $0:h:h/share/preamble.inc.zsh --func
+    source $0:h:h/share/preamble.inc.zsh --fun
 
     local -A Opts; local -a opts qopts
     int/iq::parse-opts "t: -timeout: i=qopts -zle-nt=qopts \

@@ -3,7 +3,7 @@
 swap() {
     eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
         0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
-    source $0:h:h/share/preamble.inc.zsh --func||return 3
+    source $0:h:h/share/preamble.inc.zsh --fun||return 3
 
     local Q
     if [[ -n ${Q::=first one:$1} && ! -e "$1" || -n ${Q::=second one:$2} && ! -e "$2" ]]

@@ -9,10 +9,11 @@ integer EC
 local -A Opts
 builtin zparseopts \
     ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} \
-        -D -E -A Opts -- -func -script||return 18
+        -D -E -A Opts -- -fun -script||return 18
 
 # Set options
-((!$+Opts[--func]))&&builtin emulate -L zsh -o extendedglob \
+(($+Opts[--fun]))&&builtin emulate -L zsh \
+                        -o extendedglob \
                         -o warncreateglobal -o typesetsilent \
                         -o noshortloops -o nopromptsubst \
                         -o rcquotes
@@ -39,22 +40,34 @@ export ZIQDIR="${0:h:h}" \
 typeset -g -a reply match mbegin mend
 typeset -g REPLY MATCH; integer MBEGIN MEND
 
+# fpath-saving for main script sourcing
+if (($+ZINIT&&!$+Opts[--fun]))&&\
+    [[ $ZERO == */zsh-angel-iq-system.plugin.zsh ]]
+then
+    local -Ua fpath_save=($fpath)
+fi
+
 # fpath extending for a plugin.zsh sourcing
-if [[ $+Opts[--func] == 0 &&
-    ${zsh_loaded_plugins[-1]} != */zsh-iq-system &&
-    -z ${fpath[(r)$ZIQDIR]}
-]];then
+if ((!$+Opts[--fun]))&&\
+        [[ $ZERO != */zsh-angel-iq-system.plugin.zsh &&\
+            -z ${fpath[(r)$ZIQDIR]} ]]
+then
     fpath+=("$ZIQDIR" "$ZIQDIR/functions")
 fi
 
-# fpath-localizing for from-func sourcing
-(($+ZINIT&&!$+Opts[--func]))&&local -Ua fpath_save=($fpath)
-(($+Opts[--func]))&&\
-    local -Ua fpath=($ZIQDIR/{,bin,functions,libexec} $fpath) \
-                path=($ZIQDIR/{,bin,functions,libexec} $path)
-fpath[1,0]=($ZIQDIR/{,bin,functions,libexec})
+# Localize path and fpath for procedures
+if (($+Opts[--fun]));then
+    local -Uxa fpath=($ZIQDIR/{bin,functions,libexec} $fpath) \
+                path=($ZIQDIR/{bin,functions,libexec} $path)
+fi
 
-typeset -xUg fpath FPATH path PATH
+# Unconditionally extend path for either plugin source or
+# a func. Will be reverted when sourcing from Zinit (it
+# saves the fpath new dirs at autoload command)
+fpath[1,0]=($ZIQDIR/{bin,functions,libexec})
+
+# Uniquify paths
+typeset -gU fpath FPATH path PATH
 
 # Autoload via fpath, not direct paths
 autoload -z $ZIQDIR/functions/*~*~(.N:t) \
