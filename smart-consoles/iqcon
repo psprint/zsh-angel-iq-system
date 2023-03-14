@@ -86,6 +86,7 @@ if [[ $1 != --refresh ]]; then
 
     local -a coproc_output GEN2_HOPS
     local cstarted=0 mstarted=0 astarted=0 istarted=0  # denote if configure/make is running
+    zui::bindkey F9 "{print dbg:}"
 fi
 
 generator_A() {
