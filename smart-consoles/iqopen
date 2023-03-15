@@ -133,15 +133,15 @@ generator_B_tree() {
     ZUI[COLORING_PATTERN]="(((([^\/—])(#c2,))(#e))|·[^·]##·)"
     ZUI[QIDX]=0
     reply=()
-    separ
     if ((ZUI[HAVE_0_INPUT]));then
         -zui_glib_special_text "·Below are entries read from input·"
         qitems=("$q0input[@]")
     else
-        -zui_glib_special_text "Showing files in: ·$PWD/·"
+        -zui_glib_special_text "Showing files in: ·$PWD·"
         qitems=(**/*~*~(N.,@))
     fi
     typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(2 1)
+    separ
     qitems=("$reply[1]" "$REPLY" "$qitems[@]")
 }
 
@@ -159,7 +159,10 @@ generator_B_tree() {
             fi
             q0input+=("$reply[@]")
             if ((ZUI[gen_B_idx]%2==0));then
-                qitems=("$q0input[@]")
+                reply=()
+                -zui_glib_special_text "·Below are entries read from input·"
+                separ
+                qitems=("$reply[1]" $REPLY "$q0input[@]")
                 -zui_glib_fly_array_refresh 1
             fi
         fi
