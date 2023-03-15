@@ -66,7 +66,16 @@ if ((!$+Opts[--refresh])); then
     -zui_glib_store_default_app_config s:mark "white MAGENTA reverse"
     -zui_glib_store_default_app_config s:text_mode off
     -zui_glib_store_default_app_config b:top_anchors 0
+
     local -a qitems
+    integer Q0_SAVE_PIPE
+    if read -k -t -u0; then
+        ZUI[FIRST_0_INPUT]=$REPLY
+        ZUI[HAVE_0_INPUT]=1
+        ZUI[cat_started]=1
+        ZUI[gen_B_idx]=0
+        exec {Q0_SAVE_PIPE}<&0
+    fi
 fi
 
 zui::bindkey F2 {iqopen_preview_file}
@@ -124,15 +133,38 @@ generator_B_tree() {
     ZUI[COLORING_PATTERN]="(((([^\/—])(#c2,))(#e))|·[^·]##·)"
     ZUI[QIDX]=0
     reply=()
-    -zui_glib_special_text "Showing files in: ·$PWD/·"
     separ
-    qitems=(**/*~*~(N.,@))
+    if ((ZUI[HAVE_0_INPUT]));then
+        -zui_glib_special_text "·Below are entries read from input·"
+        qitems=("$q0input[@]")
+    else
+        -zui_glib_special_text "Showing files in: ·$PWD/·"
+        qitems=(**/*~*~(N.,@))
+    fi
     typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(2 1)
     qitems=("$reply[1]" "$REPLY" "$qitems[@]")
 }
 
-# Read & publish configure/make output
+# Read & publish Configure/make output
 -zui-standard-timeout-callback() {
+    ((!ZUI[cat_started]&&!ZUI[VIEW_CHANGE]))&&return
+
+    if ((ZUI[cat_started]));then
+        if int/iq::read-all -u$Q0_SAVE_PIPE -t0 -x10;then
+            local ql had_read=0
+            integer q0idx=$#q0input+1
+            if ((!$#q0input));then
+                q0input[q0idx]=$ZUI[FIRST_0_INPUT]$reply[1]
+                shift reply
+            fi
+            q0input+=("$reply[@]")
+            if ((ZUI[gen_B_idx]%2==0));then
+                qitems=("$q0input[@]")
+                -zui_glib_fly_array_refresh 1
+            fi
+        fi
+    fi
+
     ((ZUI[VIEW_CHANGE]))||return 0
     integer IN=ZUI[PREV_CURRENT_IDX]
 

@@ -12,19 +12,19 @@ ok/qgethr() {
     integer EC;[[ -f $0 ]];EC+=$?
 
     # Options and arguments
-    local -A Opts; local -a opts
-    int/iq::parse-opts "o u: s -sys" Opts opts "$@"||\
+    local -A Opts; local -a opts tmoutop
+    int/iq::parse-opts "o u: s -sys t:=tmoutop -timeout:=tmoutop" Opts opts "$@"||\
         {iqerr incorrect options given to {func}$0:t{%} fun; return EC+17;}
     set -- "$reply[@]"
-    int/iq::opt-cascade Opts -s --sys
+    int/iq::opt-cascade Opts -s --sys -t --timeout
     EC+=$?
     int/iq::reset
     integer QU
     (($+Opts[-u]))&&QU=$Opts[-u]
     if (($+Opts[-s]));then
-        int/iq::read-all-sys -u$QU
+        int/iq::read-all-sys -u$QU $tmoutop
     else
-        int/iq::read-all -u$QU
+        int/iq::read-all -u$QU $tmoutop
     fi
     EC+=$?
     (($+Opts[-o]))&&print -r -- $REPLY

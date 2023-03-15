@@ -10,10 +10,10 @@ int/iq::read-all() {
         0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
 
     local -A Opts; local -a opts
-    int/iq::parse-opts "d: u: t:" Opts opts "$@"||return 7
+    int/iq::parse-opts "d: t: x: u:" Opts opts "$@"||return 7
     set -- "$reply[@]"
     int/iq::opt-cascade Opts
-    integer __I __RET
+    integer __I __RET __CX=${Opts[-x]:--1}
     local __out_var=${1:-REPLY}
 
     (($+Opts[-d]))&&[[ ! -f $Opts[-d] ]]&&
@@ -28,7 +28,7 @@ int/iq::read-all() {
     int/iq::reset
     local TXT
 
-    while IFS= read -t${Opts[-t]:-1} -r TXT <&$__I;do
+    while ((__CX--))&&IFS= read -t${Opts[-t]:-1} -r TXT <&$__I;do
         reply+=("$TXT")
     done
     __RET+=$?

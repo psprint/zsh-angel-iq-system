@@ -28,6 +28,7 @@ int/iq::read-all-sys() {
     local __QREPLY
     integer __ret=1 __repeat=${Opts[-r]:-3} __tmp_size
 
+    zmodload zsh/system||return 3
     while true;do
         builtin sysread -s65535 -t${Opts[-t]:-1} -i$__in_fd '__tmp[__tmp_size + 1]'
         (((__ret=$?) == 0))&&__tmp_size+=1
