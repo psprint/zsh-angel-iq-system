@@ -25,7 +25,7 @@ integer QIDX=${@[(i)(--|-)]}
 0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}
 
 # Unset helper function on exit
-builtin trap 'builtin unset -f -m tmp/\*&>>|$ZIQNUL;
+(($+Opts[--fun]))&&builtin trap 'builtin unset -f -m tmp/\*&>>|$ZIQNUL;
             builtin unset IQHD&>>|$ZIQNUL;
             print -n $terminfo[rmcup]$termcap[te]' EXIT
 EC+=$?

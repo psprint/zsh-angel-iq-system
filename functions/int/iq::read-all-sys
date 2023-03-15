@@ -9,35 +9,36 @@ int/iq::read-all-sys() {
         0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
 
     local -A Opts; local -a opts
-    int/iq::parse-opts "f -fix" Opts opts "$@"||return 1
+    int/iq::parse-opts "d: u: t:" Opts opts "$@"||return 1
     set -- "$reply[@]"
-    int/iq::opt-cascade Opts -f --fix
-
+    int/iq::opt-cascade Opts
     integer __in_fd
-    if [[ $1 != <-> && -f $1 ]];then
-        exec {__in_fd}<$1
-    elif [[ $1 != <-> && -n $1 ]];then
-        iqerr cannot open file: {file}$1
-        return 17
+    local __out_var=${1:-REPLY}
+
+    (($+Opts[-d]))&&[[ ! -r $Opts[-d] ]]&&
+           {iqerr File {file}$Opts[-d]{%} not found or bad permissions;return 1;}
+
+    if ((!$+Opts[-u]))&&[[ -f $Opts[-d] ]];then
+        exec {__in_fd}<$Opts[-d]||return 3
     else
-        __in_fd=${1:-0}; local __out_var=${2:-REPLY}
+        __in_fd=${Opts[-u]:-0};
     fi
 
     local -a __tmp
-    local QREPLY
+    local __QREPLY
     integer __ret=1 __repeat=10 __tmp_size=0
 
-    while sysread -s 65535 -i "$__in_fd" '__tmp[__tmp_size + 1]'; do
+    while sysread -s65535 -t${Opts[-t]:-1} -i$__in_fd '__tmp[__tmp_size + 1]'; do
         (( ( __ret=$? ) == 0 )) && (( ++ __tmp_size ))
         (( __ret == 5 )) && { __ret=0; (( --__repeat == 0 )) && break; }
     done
 
-    QREPLY="${(j::)__tmp}"
-    (($+Opts[-f]))&&QREPLY=${QREPLY/[[:INVALID:][:INCOMPLETE:]]/\?}
-    [[ -n $QREPLY ]]&&[[ $QREPLY != INVALIDSTR ]]
+    __QREPLY="${(j::)__tmp}"
+    [[ $__QREPLY != WRONGSTR ]]
     __ret+=$(($?))
-    [[ $1 != <-> ]]&&exec {__in_fd}<&-
-    : ${(P)__out_var::=$QREPLY}
+    [[ $__in_fd != ${Opts[-u]:-0} ]]&&exec {__in_fd}<&-
+    : ${(P)__out_var::=$__QREPLY}
+    reply=("${(@f)__QREPLY}")
     return __ret
 }
 int/iq::read-all-sys "$@"
