@@ -165,12 +165,12 @@ while (( 1 )); do
     builtin print -n $terminfo[rmcup]$termcap[te]
     [[ -z $REPLY ]]&&break
     local QFILE= REPLY_SAVE=$REPLY; integer QIDX=0
-    if ((!ZUI[IN_SEARCH]));then
+    if [[ -z $ZUI[SEARCH_BUFFER] ]];then
          if ((ZUI[gen_B_idx]%2));then
             QFILE=$ZUI[QPATH]
             QIDX=ZUI[USER_CURRENT_IDX]
-        elif [[ $REPLY != *(·|–|—)* ]];then
-            QFILE=$REPLY
+        elif [[ $REPLY_SAVE != *(·|–|—)* ]];then
+            QFILE=$REPLY_SAVE
         fi
     else
         repeat 1; do typeset +U -ga __slist=("$__qlist[@]");done
@@ -178,7 +178,7 @@ while (( 1 )); do
             iqw "Opening " $QFILE " scrolled to line: " "#$QIDX"
              if ((ZUI[gen_B_idx]%2));then
                 QFILE=$ZUI[QPATH]
-            elif [[ $REPLY != *(·|–|—)* ]];then
+            elif [[ $REPLY_SAVE != *(·|–|—)* ]];then
                 QFILE=$REPLY_SAVE
                 QIDX=0
             fi
