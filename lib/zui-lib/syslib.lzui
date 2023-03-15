@@ -275,19 +275,15 @@ function -zui_sys_get_match_line() {
     local __var_name=${1:-REPLY} __i
     local -a __nonse=($ZUILIST_NONSELECTABLE_ELEMENTS)
     integer __cnt=$#__nonse
-    [[ ${ZUI[UNIQ_MODE]} -eq 1 ]] &&typeset -gaU __slist|| typeset +U -ga __slist
-    local search_buffer=${ZUI[SEARCH_BUFFER]%% ##}
-    search_buffer=${search_buffer## ##}
-    search_buffer=${search_buffer//(#m)[][*?|#~^()><\\]/\\$MATCH}
-    if [[ -n $search_buffer ]]; then
-        # Base bit of this pattern is ((#s)[^$'\01']#THEWORD*|*$'\02'[^$'\01']#THEWORD*) - the word occuring not inside hyper link
-        # Pattern will be: BIT1~^BIT2...
-        local search_pattern=${search_buffer//(#b)([^ ]##)/\
-(#B)((#s)[^$'\01'$'\032'$'\034']#${match[1]}*|*[$'\02'][^$'\01'$'\032'$'\034']#${match[1]}*)~^}
-        search_pattern=${search_pattern// ##/}
-        search_pattern=${search_pattern%\~\^}
+    [[ ${ZUI[UNIQ_MODE]} -eq 1 ]] &&typeset -ga __slist|| typeset +U -ga __slist 
+    ((ZUI[UNIQ_MODE]||$#ZUI[SEARCH_BUFFER]))&&\
+        for __i in ${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}; do
+            __slist[__i]=()
+        done
 
-        search_pattern="(#b)(($search_pattern)|(*))"
+    local search_buffer=${ZUI[SEARCH_BUFFER]%%(+| )##}
+    if [[ -n $search_buffer ]]; then
+        local search_pattern="(#b)(($ZUI[SEARCH_PATTERN])|(*))"
         integer __line __correct __z
         local -a __slist2
         repeat 1; do
@@ -300,18 +296,16 @@ function -zui_sys_get_match_line() {
 
         # Use the same element but from line-number-only array
         __line=${__slist2[ZUI[CURRENT_IDX]]}
-
         # Correct for possible empty entries that weren't counted
         # because // substitution ignores empty elements, always
         integer __index=${__slist[(i)$__line]}
         local -a __empty
-        __empty=( ${(@M)__slist[1,__index]:#} )
+        __empty=(${(@M)__slist[1,__index]:#})
         __line+=${#__empty}
-
+        __line+=1
         : ${(P)__var_name::=$__line}
         return 0
     fi
-
     return 1
 } # }}}
 

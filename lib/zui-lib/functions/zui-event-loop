@@ -163,9 +163,7 @@ done
 ## Construction sub-loop
 ##
 
-typeset -ga ZUILIST_NONSELECTABLE_ELEMENTS ZUILIST_HOP_INDICES
-ZUILIST_NONSELECTABLE_ELEMENTS=()
-ZUILIST_HOP_INDICES=()
+typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS ZUILIST_HOP_INDICES
 
 ZUIEL_OUTPUT=( )
 ZUIEL_LINE_COUNT=0
@@ -281,6 +279,7 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
                     ZUIEL_OUTPUT+=( "" )
                     ZUIEL_LINE_COUNT+=1
                     # Possible + 1 for the anchors at top
+
                     ZUILIST_NONSELECTABLE_ELEMENTS+=( "$(( ZUIEL_LINE_COUNT + ZUI[top_anchors] ))" )
                 done
             fi

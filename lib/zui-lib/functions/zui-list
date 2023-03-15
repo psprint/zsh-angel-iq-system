@@ -1,3 +1,4 @@
+#!/usr/bin/env zsh
 # $1 - main window name
 # $2, $3 - width and height of the window
 # $4 - optional status window name
@@ -28,7 +29,8 @@ trap "REPLY=-2; reply=(); return 1" TERM INT QUIT
 -zui_list_status_msg() {
     integer indent=2 line=$ZUI[status_border]
 
-    zcurses clear "$__wname_status"
+    zcurses move "$__wname_status" $line $indent
+    zcurses clear "$__wname_status" eol
     zcurses move "$__wname_status" $line $indent
     zcurses attr "$__wname_status" +bold "magenta/${ZUI[status_colorpair]#*/}"
     zcurses string "$__wname_status" "$1"
@@ -463,9 +465,8 @@ local MARK_CODES MARK_END_CODES MARK2_CODES MARK2_END_CODES __actv_text
 [[ $ZUI[CURRENT_SEGMENT] != <-> ]] && ZUI[CURRENT_SEGMENT]=1
 ZUILIST_ACTIVE_SEGMENTS=()
 
-# This retains previous parameters, removes unique flag
-typeset -ga +U ZUILIST_NONSELECTABLE_ELEMENTS
-typeset -ga +U ZUILIST_HOP_INDICES
+typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS
+typeset -ga -U ZUILIST_HOP_INDICES
 
 # Zero - because it isn't known, unless we confirm that first element is selectable
 ZUI[USER_CURRENT_IDX]=0
@@ -529,8 +530,8 @@ while (( 1 )); do
                 __list=( "$@" )
             done
 
-            # Remove non-selectable elements
-            [[ "${#ZUILIST_NONSELECTABLE_ELEMENTS}" -gt 0 ]] && for i in "${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
+            ((ZUI[UNIQ_MODE]||$#ZUI[SEARCH_BUFFER]))&&\
+            for i in ${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}; do
                 __list[$i]=()
             done
 
@@ -540,7 +541,7 @@ while (( 1 )); do
             __last_element="${#__list}"
 
             # Next do the filtering
-            local search_buffer="${ZUI[SEARCH_BUFFER]%% ##}"
+            local search_buffer="${ZUI[SEARCH_BUFFER]%%(+| )##}"
             search_buffer="${search_buffer## ##}"
             search_buffer="${search_buffer//(#m)[][*?|#~^()><\\]/\\$MATCH}"
             local search_pattern=""
@@ -563,6 +564,8 @@ while (( 1 )); do
                 done
 
                 __last_element="${#__list}"
+            else
+                ZUI[SEARCH_PATTERN]=
             fi
 
             # Called after processing list
@@ -639,12 +642,12 @@ while (( 1 )); do
             # Take all elements, including duplicates and non-selectables
             typeset +U __list
             repeat 1; do
-                __list=( "$@" )
+                __list=("$@")
             done
 
             # Remove non-selectable elements only when in uniq mode
-            [[ $ZUI[UNIQ_MODE] -eq 1 ]] && [[ "${#ZUILIST_NONSELECTABLE_ELEMENTS}" -gt 0 ]] &&
-            for i in "${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
+            ((ZUI[UNIQ_MODE]||$#ZUI[SEARCH_BUFFER]))&&\
+            for i in ${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}; do
                 __list[$i]=()
             done
 
@@ -742,14 +745,14 @@ while (( 1 )); do
         (( tpe > 0 )) && -zui_sys_add_message "$tpe" "${EPOCHSECONDS:-0}" "${reply[@]}"
         (( ZUI[FIRST] && ${${ZUI[SEARCH_BUFFER]:+1}:-0} )) && -zui_sys_add_message 1 "${EPOCHSECONDS:-0}" "Search is " "" "active " "(\"${ZUI[SEARCH_BUFFER]}\")"
 
-        if [[ $ZUI[IN_SEARCH] = 0 ]]; then
             -zui-log "$__wname_status" "$__status_height" "$__status_width" $ZUI[status_border] $ZUI[status_colorpair] \
                     "$ZUILIST_GREP_STRING" $ZUI[UNIQ_MODE] $ZUI[IN_SEARCH] \
                     $ZUI[GENERATION_TIME] "$selectable" "${${ZUI[SEARCH_BUFFER]:+1}:-0}" \
                     $ZUI[USER_CURRENT_IDX] $ZUI[USER_LAST_ELEMENT]
 
             ZUI[GENERATION_TIME]=""
-        else
+
+        if [[ $ZUI[IN_SEARCH] = 1 ]]; then
             -zui_list_status_msg "[F1-Jump to] Filtering with: " "${ZUI[SEARCH_BUFFER]// /+}"
         fi
 
