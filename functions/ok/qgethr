@@ -1,0 +1,36 @@
+#!/usr/bin/env zsh
+# Copyright (c) 2023 Sebastian Gniazdowski
+#
+# ok/qgethr
+#
+
+ok/qgethr() {
+
+    eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
+        0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
+
+    integer EC;[[ -f $0 ]];EC+=$?
+
+    # Options and arguments
+    local -A Opts; local -a opts
+    int/iq::parse-opts "o u: s -sys" Opts opts "$@"||\
+        {iqerr incorrect options given to {func}$0:t{%} fun; return EC+17;}
+    set -- "$reply[@]"
+    int/iq::opt-cascade Opts -s --sys
+    EC+=$?
+    int/iq::reset
+    integer QU
+    (($+Opts[-u]))&&QU=$Opts[-u]
+    if (($+Opts[-s]));then
+        int/iq::read-all-sys -u$QU
+    else
+        int/iq::read-all -u$QU
+    fi
+    EC+=$?
+    (($+Opts[-o]))&&print -r -- $REPLY
+
+    [[ $REPLY != WRONGSTR ]]
+    EC+=$?
+    return EC
+}
+ok/qgethr "$@"
