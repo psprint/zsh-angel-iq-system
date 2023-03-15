@@ -61,11 +61,13 @@ if ((!$+Opts[--refresh])); then
 
     -zui_glib_store_default_app_config b:instant_search 1
     -zui_glib_store_default_app_config s:select_mode "quit"   # Quit event loop on text-selection
+    -zui_glib_store_default_app_config b:status_pointer 1
     -zui_glib_store_default_app_config b:text_select 1        # Allow selection of text
     -zui_glib_store_default_app_config s:timeout 25
     -zui_glib_store_default_app_config s:mark "white MAGENTA reverse"
     -zui_glib_store_default_app_config s:text_mode off
     -zui_glib_store_default_app_config b:top_anchors 0
+    ZUI[UNIQ_MODE]=0
 
     local -a qitems
     integer Q0_SAVE_PIPE
@@ -80,7 +82,7 @@ fi
 
 zui::bindkey F2 {iqopen_preview_file}
 #    zui::bindkey F3 "{print q:$ZUI[mark]}"
-zui::bindkey F9 '{print current:$ZUI[CURRENT_IDX], PVIEW:$ZUI[CURRENT_IDX_PVIEW_BKP], main:$ZUI[CURRENT_IDX_MAIN_BKP] qpath:$ZUI[QPATH];}'
+zui::bindkey F9 '{print current:$ZUI[CURRENT_IDX], PVIEW:$ZUI[CURRENT_IDX_PVIEW_BKP], main:$ZUI[CURRENT_IDX_MAIN_BKP] sptr:$ZUI[status_pointer];}'
 zui::bindkey F10 '{builtin source $ZIQ_CON_DIR/iqopen --refresh||\
                     iqw -r "Reload finished with error: " $?;}'
 
@@ -125,7 +127,7 @@ generator_B_preview() {
     fi
     -zui_glib_special_text $QTXT
     separ
-    typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(2 1)
+    typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(3 2 1)
     qitems=("$reply[1]" "$REPLY" "$qitems[@]")
 }
 
@@ -140,7 +142,7 @@ generator_B_tree() {
         -zui_glib_special_text "Showing files in: ·$PWD·"
         qitems=(**/*~*~(N.,@))
     fi
-    typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(2 1)
+    typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(3 2 1)
     separ
     qitems=("$reply[1]" "$REPLY" "$qitems[@]")
 }

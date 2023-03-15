@@ -530,7 +530,7 @@ while (( 1 )); do
                 __list=( "$@" )
             done
 
-            (($#ZUI[SEARCH_BUFFER]))&&\
+            (($#ZUI[SEARCH_BUFFER]||ZUI[UNIQ_MODE]))&&\
             for i in ${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}; do
                 __list[$i]=()
             done
@@ -646,7 +646,7 @@ while (( 1 )); do
             done
 
             # Remove non-selectable elements only when in uniq mode
-            (($#ZUI[SEARCH_BUFFER]))&&\
+            (($#ZUI[SEARCH_BUFFER]||ZUI[UNIQ_MODE]))&&\
             for i in ${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}; do
                 __list[$i]=()
             done
@@ -745,12 +745,12 @@ while (( 1 )); do
         (( tpe > 0 )) && -zui_sys_add_message "$tpe" "${EPOCHSECONDS:-0}" "${reply[@]}"
         (( ZUI[FIRST] && ${${ZUI[SEARCH_BUFFER]:+1}:-0} )) && -zui_sys_add_message 1 "${EPOCHSECONDS:-0}" "Search is " "" "active " "(\"${ZUI[SEARCH_BUFFER]}\")"
 
+            -zui_list_setup_user_vars $(((ZUI[UNIQ_MODE])||($#ZUI[SEARCH_BUFFER])))
+
             -zui-log "$__wname_status" "$__status_height" "$__status_width" $ZUI[status_border] $ZUI[status_colorpair] \
                     "$ZUILIST_GREP_STRING" $ZUI[UNIQ_MODE] $ZUI[IN_SEARCH] \
-                    $ZUI[GENERATION_TIME] "$selectable" "${${ZUI[SEARCH_BUFFER]:+1}:-0}" \
+                    "" "$selectable" "${${ZUI[SEARCH_BUFFER]:+1}:-0}" \
                     $ZUI[USER_CURRENT_IDX] $ZUI[USER_LAST_ELEMENT]
-
-            ZUI[GENERATION_TIME]=""
 
         if [[ $ZUI[IN_SEARCH] = 1 ]]; then
             -zui_list_status_msg "[F1-Jump to] Filtering with: " "${ZUI[SEARCH_BUFFER]// /+}"

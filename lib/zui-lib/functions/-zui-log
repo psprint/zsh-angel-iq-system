@@ -156,10 +156,7 @@ for entry in "${(@)ZUI_MESSAGES[start,last]}"; do
 done
 
 
-if [[ "${ZUI[status_pointer]}" = "1" ]]; then
-    if [[ "${ZUI[log_append]}" = "above" || $(( win_height - win_border - 1 )) -ge "$line" || "$REPLY" -ge $(( win_height - 2*win_border )) ]]; then
-        zcurses scroll "$window" -1
-    fi
+if (($ZUI[status_pointer])); then
 
     zcurses move "$window" "$win_border" 2
     zcurses clear "$window" eol
@@ -167,12 +164,9 @@ if [[ "${ZUI[status_pointer]}" = "1" ]]; then
     local track_len=0
     line=0
 
-    if [[ -n "$_gen" ]]; then
-        -zuilog_counted_msg "yellow" "$_gen " line 2 track_len
-    else
-        for txt in $_uniq $_text $_grep; do
-            -zuilog_counted_msg "" "$txt " line 2 track_len
-        done
-    fi
+    for txt in $_uniq $_text $_grep; do
+        -zuilog_counted_msg "" "$txt " line 2 track_len
+    done
+    zcurses refresh $window
 fi
 # vim:ft=zsh
