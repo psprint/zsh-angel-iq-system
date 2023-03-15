@@ -8,6 +8,7 @@ int/iq::get-prj-dir() {
     local -a opts; local -A Opts
     int/iq::parse-opts "q -quiet" Opts opts "$@"||return 7
     set -- "$reply[@]"
+    int/iq::opt-cascade Opts -q --quiet
     int/iq::reset
     integer retval
 
@@ -30,9 +31,7 @@ int/iq::get-prj-dir() {
 
     REPLY=$REPLY:h
     if [[ $PRJ == WRONGSTR ]]; then
-        iqwarn -Q $opts didn\'t find any main poject dir \
-                    uptree, was looking for: \
-                        {nl}{file}${(pj[{%},{nl}{file}])qt}{%}.
+        iqwarn -Q ${Opts[-q]+-q} $ZIQ[Q10_NO_PROJECT_DIR_FOUND]
         return 1
     fi
     return 0
