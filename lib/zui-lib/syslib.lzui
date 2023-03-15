@@ -276,7 +276,7 @@ function -zui_sys_get_match_line() {
     local -a __nonse=($ZUILIST_NONSELECTABLE_ELEMENTS)
     integer __cnt=$#__nonse
     [[ ${ZUI[UNIQ_MODE]} -eq 1 ]] &&typeset -ga __slist|| typeset +U -ga __slist 
-    ((ZUI[UNIQ_MODE]||$#ZUI[SEARCH_BUFFER]))&&\
+    (($#ZUI[SEARCH_BUFFER]))&&\
         for __i in ${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}; do
             __slist[__i]=()
         done

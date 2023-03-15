@@ -530,7 +530,7 @@ while (( 1 )); do
                 __list=( "$@" )
             done
 
-            ((ZUI[UNIQ_MODE]||$#ZUI[SEARCH_BUFFER]))&&\
+            (($#ZUI[SEARCH_BUFFER]))&&\
             for i in ${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}; do
                 __list[$i]=()
             done
@@ -646,7 +646,7 @@ while (( 1 )); do
             done
 
             # Remove non-selectable elements only when in uniq mode
-            ((ZUI[UNIQ_MODE]||$#ZUI[SEARCH_BUFFER]))&&\
+            (($#ZUI[SEARCH_BUFFER]))&&\
             for i in ${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}; do
                 __list[$i]=()
             done
