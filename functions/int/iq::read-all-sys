@@ -9,7 +9,7 @@ int/iq::read-all-sys() {
         0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
 
     local -A Opts; local -a opts
-    int/iq::parse-opts "d: u: t:" Opts opts "$@"||return 1
+    int/iq::parse-opts "r: t: d: u:" Opts opts "$@"||return 1
     set -- "$reply[@]"
     int/iq::opt-cascade Opts
     integer __in_fd
@@ -26,11 +26,13 @@ int/iq::read-all-sys() {
 
     local -a __tmp
     local __QREPLY
-    integer __ret=1 __repeat=10 __tmp_size=0
+    integer __ret=1 __repeat=${Opts[-r]:-3} __tmp_size
 
-    while sysread -s65535 -t${Opts[-t]:-1} -i$__in_fd '__tmp[__tmp_size + 1]'; do
-        (( ( __ret=$? ) == 0 )) && (( ++ __tmp_size ))
-        (( __ret == 5 )) && { __ret=0; (( --__repeat == 0 )) && break; }
+    while true;do
+        builtin sysread -s65535 -t${Opts[-t]:-1} -i$__in_fd '__tmp[__tmp_size + 1]'
+        (((__ret=$?) == 0))&&__tmp_size+=1
+        ((__ret==5||__ret==4)) && { __ret=0; ((--__repeat==0))&&break; }
+        ((__ret))&&break
     done
 
     __QREPLY="${(j::)__tmp}"

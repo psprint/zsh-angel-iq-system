@@ -31,10 +31,12 @@ int/iq::read-all() {
     while IFS= read -t${Opts[-t]:-1} -r TXT <&$__I;do
         reply+=("$TXT")
     done
+    __RET+=$?
     local __QREPLY=${(F)reply}$'\n'
     [[ $__QREPLY != WRONGSTR ]]
-    __RET+=$(($?))
-    [[ $__I != ${Opts[-u]:-0} ]]&&{exec {__I}<&-;__RET+=$(($?));}
+    __RET+=$?
+    [[ $__I != ${Opts[-u]:-0} ]]&&{exec {__I}<&-;__RET+=$?;}
     : ${(P)__out_var::=$__QREPLY}
+    __RET+=$?
     return __RET
 }
