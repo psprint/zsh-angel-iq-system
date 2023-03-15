@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 # Copyright (c) 2023 Sebastian Gniazdowski
 #
-# iqsn – zs…quote…braces
+# iq::opt-cascade
 #
 
 int/iq::opt-cascade() {

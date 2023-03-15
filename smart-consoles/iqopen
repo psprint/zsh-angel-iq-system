@@ -57,7 +57,7 @@ if ((!$+Opts[--refresh])); then
 
     ZUI[COLORING_MATCH_MULTIPLE]=1
     ZUI[COLORING_COLOR]=$ZUI[BOLD]$ZUI[YELLOW]
-    ZUI[START_IN_SEARCH_MODE]=1
+    ZUI[START_IN_SEARCH]=1
 
     -zui_glib_store_default_app_config b:instant_search 1
     -zui_glib_store_default_app_config s:select_mode "quit"   # Quit event loop on text-selection
@@ -160,25 +160,36 @@ fi
 -zui_glib_msg "" "@@@ " "Welcome to " "IQ System " "open console!" " @@@";
 integer EC
 while (( 1 )); do
-    command tput smcup
+    builtin print -n $terminfo[smcup]$termcap[ti]
     zui-event-loop 1:generator_A 1:generator_B
-    command tput rmcup
+    builtin print -n $terminfo[rmcup]$termcap[te]
     [[ -z $REPLY ]]&&break
-    local QFILE=; integer QIDX=0
-    print  $REPLY >>/tmp/reply
-    if ((ZUI[gen_B_idx]%2));then
-        QFILE=$ZUI[QPATH]
-        QIDX=ZUI[USER_CURRENT_IDX]
-    elif [[ $REPLY != *(·|–|—)* ]];then
-        QFILE=$REPLY
+    local QFILE= REPLY_SAVE=$REPLY; integer QIDX=0
+    if ((!ZUI[IN_SEARCH]));then
+         if ((ZUI[gen_B_idx]%2));then
+            QFILE=$ZUI[QPATH]
+            QIDX=ZUI[USER_CURRENT_IDX]
+        elif [[ $REPLY != *(·|–|—)* ]];then
+            QFILE=$REPLY
+        fi
+    else
+        repeat 1; do typeset +U -ga __slist=("$__qlist[@]");done
+        if -zui_sys_get_match_line 'QIDX'; then
+            iqw "Opening " $QFILE " scrolled to line: " "#$QIDX"
+             if ((ZUI[gen_B_idx]%2));then
+                QFILE=$ZUI[QPATH]
+            elif [[ $REPLY != *(·|–|—)* ]];then
+                QFILE=$REPLY_SAVE
+                QIDX=0
+            fi
+        fi
     fi
-
     if [[ -n $QFILE ]];then
         if ! int/iq::get-editor;then
             EC+=$?
             -zui_glib_msg "" "" "" 'ERROR: Couldn''t find editor, tried '\
                 "\$VISUAL (=$VISUAL) " then "" " \$EDITOR (=$EDITOR)"
-            ZUI[SEARCH_MODE]=0
+            ZUI[IN_SEARCH]=0
         else
             (
                 # Run the editor in $REPLY, first cd-ing into project's directory
@@ -193,7 +204,7 @@ while (( 1 )); do
 done
 
 -zui_glib_cleanup serialize
-command tput rmcup
+builtin print -n $terminfo[rmcup]$termcap[te]
 return 0
 
 }

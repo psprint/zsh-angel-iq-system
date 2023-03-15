@@ -26,7 +26,8 @@ integer QIDX=${@[(i)(--|-)]}
 
 # Unset helper function on exit
 builtin trap 'builtin unset -f -m tmp/\*&>>|$ZIQNUL;
-            builtin unset IQHD&>>|$ZIQNUL' EXIT
+            builtin unset IQHD&>>|$ZIQNUL;
+            print -n $terminfo[rmcup]$termcap[te]' EXIT
 EC+=$?
 
 # Standard hash `Plugins` for plugins, to not pollute the namespace

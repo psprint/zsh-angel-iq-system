@@ -1,3 +1,4 @@
+#!/usr/bin/env zsh
 #
 # Library file (*.lzui)
 #
@@ -1268,7 +1269,7 @@ function -zui_glib_submit_lanchors() {
 function -zui_glib_msg() {
     integer t=1
     [[ $1 == -r ]]&&{t=3;shift;}
-    -zui_sys_add_message $tpe ${EPOCHSECONDS:-0} "$@"
+    -zui_sys_add_message $t ${EPOCHSECONDS:-0} "$@"
 } # }}}
 
 # vim:ft=zsh

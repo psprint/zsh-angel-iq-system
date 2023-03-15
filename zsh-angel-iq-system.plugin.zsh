@@ -17,7 +17,7 @@ local ZERO=$0
 source $0:h/share/preamble.inc.zsh --script
 EC+=$?
 
-alias ao="noglob \\angel open"
+alias aop="noglob \\angel open"
 
 # Ctags symbol browser
 zle -N iq::browse-symbol
@@ -33,7 +33,7 @@ zle -N iq::browse-symbol-pforwards iq::browse-symbol
 # A custom completion of plugin ids (alt-a) and of ice names (alt-c)
 zle -N iq::action-complete
 zle -N iq::action-complete-ice iq::action-complete
-() {
+(){
     local IQTMP
     # Alt-a for plugin IDs and Alt-c for ices are default.
     zstyle -s ":iq:action-complete:plugin-id" key IQTMP||IQTMP='\ea'

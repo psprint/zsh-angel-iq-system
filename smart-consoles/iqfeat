@@ -34,7 +34,7 @@ if [[ $1 != --refresh ]]; then
 
     ZUI[COLORING_PATTERN]="((([^\/—])(#c2,))(#e))~*[·]*" ZUI[COLORING_MATCH_MULTIPLE]=0
     ZUI[COLORING_COLOR]=$ZUI[BOLD]$ZUI[YELLOW]       
-    ZUI[START_IN_SEARCH_MODE]=0
+    ZUI[START_IN_SEARCH]=0
 
     -zui_glib_store_default_app_config s:select_mode "quit"   # Quit event loop on text-selection
     -zui_glib_store_default_app_config b:text_select 1        # Allow selection of text
