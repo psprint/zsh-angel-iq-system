@@ -17,7 +17,7 @@ local ZERO=$0
 source $0:h/share/preamble.inc.zsh --script
 EC+=$?
 
-alias aop="noglob \\angel open"
+alias apo="noglob \\angel open"
 
 # Ctags symbol browser
 zle -N iq::browse-symbol

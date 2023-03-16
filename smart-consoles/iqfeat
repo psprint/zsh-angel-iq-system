@@ -10,10 +10,13 @@ iqfeat()
 # Preamble – emulate & 0=…
 eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
     0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}
-source $0:h:h/share/preamble.inc.zsh --script
+source $0:h:h/share/preamble.inc.zsh --script --fun
 
-int/iq::init-sm-con "$@"
+local -A Opts;local -a opts
+int/iq::init-sm-con Opts opts "$@"||{print init failed, ec:{num}$?;return 13;}
+set -- "$reply[@]"
 eval "$REPLY"
+ZUI[SEARCH_BUFFER]=$*
 
 separ()
 {

@@ -8,15 +8,13 @@ int/iq::opt-cascade() {
     # Preamble – emulate & 0=…
     eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
         0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
-    local VARNAME=$1 VARSTRQ VARSTRP
+    local VARNAME=$1 VARSTRQ VARSTRP Q P VALQ VALP
     shift
     integer EC
     (($#%2))&&\
         {iqerr incorrect \# of options passed to {func}iq::opt-cascade;EC=1;}
 
     # Cascade options to short ones
-    local Q P VALQ VALP
-
     for Q P in $@;do
         VARSTRQ="${VARNAME}[$Q]" VARSTRP="${VARNAME}[$P]"
         VALQ=${(P)VARSTRQ} VALP=${(P)VARSTRP}
