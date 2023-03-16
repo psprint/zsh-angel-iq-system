@@ -6,9 +6,9 @@ int/iq::get-file-type() {
         0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
 
     local -a opts; local -A Opts
-    int/iq::parse-opts "s -scan" Opts opts "$@"||return 7
+    int/iq::parse-opts "s -scan q -quit" Opts opts "$@"||return 7
     set -- "$reply[@]"
-    int/iq::opt-cascade Opts -s --scan
+    int/iq::opt-cascade Opts -s --scan -q --quit
     int/iq::reset
     integer EC
     local QPATH=$1
@@ -28,7 +28,7 @@ int/iq::get-file-type() {
     fi
  
     if [[ $REPLY == WRONGSTR ]]; then
-        iqwarn -Q ${Opts[-q]+-q} $ZIQ[Q27_FILETYPE_UNRECOGNIZED]
+        iqwarn -Q ${+Opts[-q]+-q} ${Opts[-q]+-q} $ZIQ[Q27_FILETYPE_UNRECOGNIZED]
         return 1
     fi
     return 0

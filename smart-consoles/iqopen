@@ -22,9 +22,17 @@ iqw(){
     -zui_glib_msg "$@"
 }
 
+iqopen_synh_switch(){
+    ((ZUI[SRC_HIGHLIGHT]=1-ZUI[SRC_HIGHLIGHT]))
+    ZUI[SRC_HIGHLIGHT_SWITCHED]=1
+    generator_B
+    ((ZUI[SRC_HIGHLIGHT]))&&local txt=" ON"||local txt=" OFF"
+    iqw "Syntax highlighting switched" $txt
+}
+
 iqopen_preview_file(){
-    ((ZUI[gen_B_idx]=1-ZUI[gen_B_idx]))
     ZUI[VIEW_CHANGE]=1
+    ((ZUI[gen_B_idx]=1-ZUI[gen_B_idx]))
     if ((ZUI[gen_B_idx]%2));then
         ZUI[CURRENT_IDX_MAIN_BKP]=$ZUI[CURRENT_IDX]
         #ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_PVIEW_BKP]
@@ -46,7 +54,7 @@ if ((!$+Opts[--refresh])); then
     -zui_glib_cleanup deserialize:"iqopen_$APP"
     -zui_glib_init app:"iqopen_$APP" app_name:"°Open° Console"
     emulate -L zsh -o extendedglob -o typesetsilent -o warncreateglobal -o combiningchars -o rcquotes
-     -zui_glib_init2 # after emulate
+    -zui_glib_init2 # after emulate
     ZUI[gen_B_idx]=0
 
     # Needed for immediate output from coprocesses (disables buffering).
@@ -80,11 +88,12 @@ if ((!$+Opts[--refresh])); then
     fi
 fi
 
-zui::bindkey F2 {iqopen_preview_file}
+zui::bindkey F2 '{iqopen_preview_file;}'
 #    zui::bindkey F3 "{print q:$ZUI[mark]}"
 zui::bindkey F9 '{print current:$ZUI[CURRENT_IDX], PVIEW:$ZUI[CURRENT_IDX_PVIEW_BKP], main:$ZUI[CURRENT_IDX_MAIN_BKP] sptr:$ZUI[status_pointer];}'
 zui::bindkey F10 '{builtin source $ZIQ_CON_DIR/iqopen --refresh||\
                     iqw -r "Reload finished with error: " $?;}'
+zui::bindkey F7 '{iqopen_synh_switch;}'
 
 generator_A() {
     local mod="$1" ice="$2"
@@ -113,19 +122,28 @@ generator_B(){
 
 generator_B_preview() {
     local QPATH QTXT
-    ((ZUI[CURRENT_IDX]>0))&&\
+    ((ZUI[CURRENT_IDX]>0&&ZUI[SRC_HIGHLIGHT_SWITCHED]==0))&&\
         {QPATH=$__list[ZUI[CURRENT_IDX]];ZUI[QPATH]=$QPATH;}||\
         QPATH=$ZUI[QPATH]
-    ZUI[COLORING_PATTERN]="·[^·]##·"
-    reply=() qitems=()
+    ZUI[COLORING_PATTERN]="·[^·]##·" ZUI[SRC_HIGHLIGHT_SWITCHED]=0
+    qitems=()
     if [[ -n $QPATH ]];then
         QTXT="Contents of file: ·$QPATH·"\
 " located at: ·${${${(M)QPATH##/*}:+$QPATH:h}:-$PWD}/·"
-        qitems=("${(@f)$(<$QPATH)}")
+        if ((ZUI[SRC_HIGHLIGHT]));then
+            if int/iq::get-file-type -s -q $QPATH;then
+                local -a qcmd=(source-highlight -f esc -o STDOUT -s $REPLY \
+                                -i "$QPATH")
+                qitems=("${(@f)$($qcmd[@])}")
+            else
+                iqw "Unknown file type, syntax highlighting is unavailable"
+            fi
+        fi
+        (($#qitems))||qitems=("${(@f)$(<$QPATH)}")
     else
         QTXT="!NO FILE SELECTED, PRESS F2 TO SHOW FILE TREE!"
     fi
-    -zui_glib_special_text $QTXT
+    reply=(); -zui_glib_special_text $QTXT
     separ
     typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(3 2 1)
     qitems=("$reply[1]" "$REPLY" "$qitems[@]")
@@ -133,7 +151,7 @@ generator_B_preview() {
 
 generator_B_tree() {
     ZUI[COLORING_PATTERN]="(((([^\/—])(#c2,))(#e))|·[^·]##·)"
-    ZUI[QIDX]=0
+    ZUI[QIDX]=0 ZUI[SRC_HIGHLIGHT_SWITCHED]=0
     reply=()
     if ((ZUI[HAVE_0_INPUT]));then
         -zui_glib_special_text "·Below are entries read from input·"
