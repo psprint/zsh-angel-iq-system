@@ -9,13 +9,12 @@ iq::read-theme() {
 # Set options
 builtin emulate -L zsh -o extendedglob -o noshortloops \
                         -o warncreateglobal -o typesetsilent \
-                        -o nopromptsubst
+                        -o nopromptsubst -o rcquotes
 
-# Recognize and save info on run as `#!/usr/bin/env zsh` script
-[[ $0 != iqmsg || -n $ZSH_SCRIPT ]]&&integer bescript=1
+# Preamble – emulate & 0=…
+eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
+    0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
 
-# Set $0 with a new trik - use of %x prompt expansion
-0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
 # The color theme → customize via theme file or ZIQ global, first testing it
 (
     {local -A ZIQ=("${(kv@)ZIQ}")} &>>!$ZIQLOG
@@ -25,13 +24,13 @@ builtin emulate -L zsh -o extendedglob -o noshortloops \
 
 local ZIQTHEME=$ZIQTHEME
 if [[ -f $ZIQDIR/themes/$ZIQTHEME:t:r.xzt(#qN) || -f ${ZIQTHEME::=$ZIQDIR/themes/default.xzt} ]]; then
-    local -a q=($ZIQDIR/themes/$ZIQTHEME(.xzt|)(N) $ZIQTHEME(N))
-    eval "ZIQ+=(${(@z)"$(<$q[1])"})" &>>!$ZIQLOG ||\
-        builtin print -u2 iqmsgi:$LINENO Couldn\'t read theme \
-            file $ZIQTHEME
+    local -a q=($ZIQDIR/themes/$ZIQTHEME(.xzt|)(N) $ZIQTHEME(.xzt|)(N))
+    eval "ZIQ+=(${(qqq@)${(@z)"$(<$q[1])"}})" &>>!$ZIQLOG ||\
+        builtin print -u2 -P -r ${${(%):-%x}:t}:%I: Couldn\'t read theme \
+            file: %F{41}$ZIQTHEME%f
 else
-     builtin print -u2 Iqmsgi:$LINENO Couldn\'t read default \
-        theme \($ZIQTHEME\)
+     builtin print -u2 -P -r ${${(%):-%x}:t}:%I: Couldn\'t read default \
+        theme \(%F{41}$ZIQTHEME%f\)
 fi
 
 # Return theme

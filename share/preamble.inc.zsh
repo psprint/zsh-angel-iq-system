@@ -10,7 +10,7 @@ integer EC=0
 local -A Opts=()
 builtin zparseopts \
     ${${(M)ZSH_VERSION:#(5.[8-9]|6.[0-9])}:+-F} \
-        -D -E -A Opts -- -fun -script||return 18
+        -D -E -A Opts -- -fun -script -cleanup||return 18
 
 # Set options
 (($+Opts[--fun]))&&builtin emulate -L zsh \
@@ -24,10 +24,12 @@ integer QIDX=${@[(i)(--|-)]}
 # Set $0 with a new trik - use of %x prompt expansion
 0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}
 
+zmodload zsh/terminfo zsh/termcap zsh/system
+local QC
+(($+Opts[--cleanup]))&&QC="print -n $terminfo[rmcup]$termcap[te]"
 # Unset helper function on exit
 (($+Opts[--fun]))&&builtin trap 'builtin unset -f -m tmp/\*&>>|$ZIQNUL;
-            builtin unset IQHD&>>|$ZIQNUL;
-            print -n $terminfo[rmcup]$termcap[te]' EXIT
+            builtin unset IQHD&>>|$ZIQNUL;'$QC EXIT
 EC+=$?
 
 # Standard hash `Plugins` for plugins, to not pollute the namespace
