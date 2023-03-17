@@ -52,6 +52,7 @@ separ() {
 
 if ((!$+Opts[--refresh])); then
     ok/qnstr $PWD&&local APP=$REPLY
+    ZUI[SRC_HIGHLIGHT]=1
     -zui_glib_cleanup deserialize:"iqopen_$APP"
     -zui_glib_init app:"iqopen_$APP" app_name:"°Open° Console"
     emulate -L zsh -o extendedglob -o typesetsilent -o warncreateglobal -o combiningchars -o rcquotes
@@ -70,6 +71,7 @@ if ((!$+Opts[--refresh])); then
 
     -zui_glib_store_default_app_config b:instant_search 1
     -zui_glib_store_default_app_config s:select_mode "quit"   # Quit event loop on text-selection
+    -zui_glib_store_default_app_config b:status_size 5
     -zui_glib_store_default_app_config b:status_pointer 1
     -zui_glib_store_default_app_config b:text_select 1        # Allow selection of text
     -zui_glib_store_default_app_config s:timeout 25
@@ -146,8 +148,10 @@ generator_B_preview() {
             QTXT="!NO FILE SELECTED, PRESS F2 TO SHOW FILE TREE!"
         fi
     } always {
-        ZUI[SRC_HIGHLIGHT]=$((!!$#qitems))
-        (($#qitems))||qitems=("${(@f)$(<$QPATH)}")
+        if [[ $qitems == $~galiases[WRONGSTR] ]];then
+            ZUI[SRC_HIGHLIGHT]=0
+            qitems=("${(@f)$(<$QPATH)}")
+        fi
         reply=(); -zui_glib_special_text $QTXT
         separ
         typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(3 2 1)
