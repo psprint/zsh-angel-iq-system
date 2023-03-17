@@ -6,9 +6,9 @@ int/iq::get-file-type() {
         0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
 
     local -a opts; local -A Opts
-    int/iq::parse-opts "s -scan q -quit" Opts opts "$@"||return 7
+    int/iq::parse-opts "s -scan q -quiet" Opts opts "$@"||return 15
     set -- "$reply[@]"
-    int/iq::opt-cascade Opts -s --scan -q --quit
+    int/iq::opt-cascade Opts -s --scan -q --quiet
     int/iq::reset
     integer EC
     local QPATH=$1

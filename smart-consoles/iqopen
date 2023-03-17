@@ -25,9 +25,10 @@ iqw(){
 iqopen_synh_switch(){
     ((ZUI[SRC_HIGHLIGHT]=1-ZUI[SRC_HIGHLIGHT]))
     ZUI[SRC_HIGHLIGHT_SWITCHED]=1
-    generator_B
-    ((ZUI[SRC_HIGHLIGHT]))&&local txt=" ON"||local txt=" OFF"
-    iqw "Syntax highlighting switched" $txt
+    if generator_B;then
+        ((ZUI[SRC_HIGHLIGHT]))&&local txt=" ON"||local txt=" OFF"
+        iqw "Syntax highlighting switched" $txt
+    fi
 }
 
 iqopen_preview_file(){
@@ -115,9 +116,12 @@ generator_A() {
 }
 
 generator_B(){
+    integer EC
     local -a gener=(generator_B_tree generator_B_preview)
     $gener[1+(ZUI[gen_B_idx]%2)]
+    EC=$?
     (($3))||{-zui_glib_fly_array_refresh 1;}
+    return EC
 }
 
 generator_B_preview() {
@@ -127,26 +131,28 @@ generator_B_preview() {
         QPATH=$ZUI[QPATH]
     ZUI[COLORING_PATTERN]="·[^·]##·" ZUI[SRC_HIGHLIGHT_SWITCHED]=0
     qitems=()
-    if [[ -n $QPATH ]];then
-        QTXT="Contents of file: ·$QPATH·"\
+    {
+        if [[ -f $QPATH ]];then
+            QTXT="Contents of file: ·$QPATH·"\
 " located at: ·${${${(M)QPATH##/*}:+$QPATH:h}:-$PWD}/·"
-        if ((ZUI[SRC_HIGHLIGHT]));then
-            if int/iq::get-file-type -s -q $QPATH;then
-                local -a qcmd=(source-highlight -f esc -o STDOUT -s $REPLY \
-                                -i "$QPATH")
-                qitems=("${(@f)$($qcmd[@])}")
-            else
-                iqw "Unknown file type, syntax highlighting is unavailable"
-            fi
+            ((ZUI[SRC_HIGHLIGHT]))||return 0
+            int/iq::get-file-type -s -q $QPATH||\
+                {iqw "Unknown file type, no syntax highlighting";return 1;}
+            int/iq::get-stx-cmd -q $REPLY||\
+                {iqw "Error: no highlighter command found";return 1;}
+            local -a qcmd=("$reply[@]" "$QPATH")
+            qitems=("${(@f)$($qcmd[@])}")
+        else
+            QTXT="!NO FILE SELECTED, PRESS F2 TO SHOW FILE TREE!"
         fi
+    } always {
+        ZUI[SRC_HIGHLIGHT]=$((!!$#qitems))
         (($#qitems))||qitems=("${(@f)$(<$QPATH)}")
-    else
-        QTXT="!NO FILE SELECTED, PRESS F2 TO SHOW FILE TREE!"
-    fi
-    reply=(); -zui_glib_special_text $QTXT
-    separ
-    typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(3 2 1)
-    qitems=("$reply[1]" "$REPLY" "$qitems[@]")
+        reply=(); -zui_glib_special_text $QTXT
+        separ
+        typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(3 2 1)
+        qitems=("$reply[1]" "$REPLY" "$qitems[@]")
+    }
 }
 
 generator_B_tree() {
