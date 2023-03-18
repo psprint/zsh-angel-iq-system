@@ -44,7 +44,7 @@ zle -N iq::action-complete-ice iq::action-complete
 
 () {
     export TINFO
-    [[ $TINFO == WRONGSTR ]]&&\
+    [[ $TINFO == $~galiases[WRONGSTR] ]]&&\
         TINFO=${XDG_CONFIG_HOME:-$HOME/.config}/tigsuite/features.reg
     if [[ ! -d $TINFO:h ]];then
         builtin print -P -- $IQHD ${(%)ZIQ[Q7_NO_TINFO_DIR_EXISTS]}
