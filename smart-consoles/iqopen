@@ -33,11 +33,12 @@ iqopen_synh_switch(){
 iqopen_preview_file(){
     ZUI[VIEW_CHANGE]=1
     ((ZUI[gen_B_idx]=1-ZUI[gen_B_idx]))
+    local QPATH=${ZUI[QPATH]:+_$ZUI[QPATH]}
     if ((ZUI[gen_B_idx]%2));then
         ZUI[CURRENT_IDX_MAIN_BKP]=$ZUI[CURRENT_IDX]
         #ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_PVIEW_BKP]
     else
-        ZUI[CURRENT_IDX_PVIEW_BKP]=$ZUI[CURRENT_IDX]
+        ZUI[CURRENT_IDX_PVIEW_BKP$QPATH]=$ZUI[CURRENT_IDX]
         #ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_MAIN_BKP]
     fi
     ZUI[PREV_CURRENT_IDX]=$ZUI[CURRENT_IDX]
@@ -93,7 +94,7 @@ fi
 
 zui::bindkey F2 '{iqopen_preview_file;}'
 #    zui::bindkey F3 "{print q:$ZUI[mark]}"
-zui::bindkey F9 '{print current:$ZUI[CURRENT_IDX], PVIEW:$ZUI[CURRENT_IDX_PVIEW_BKP], main:$ZUI[CURRENT_IDX_MAIN_BKP] sptr:$ZUI[status_pointer];}'
+zui::bindkey F9 '{print current:$ZUI[CURRENT_IDX], PVIEW_Q:$ZUI[CURRENT_IDX_PVIEW_BKP_$ZUI[QPATH]], PVIEW:$ZUI[CURRENT_IDX_PVIEW_BKP], main:$ZUI[CURRENT_IDX_MAIN_BKP] sptr:$ZUI[status_pointer];}'
 zui::bindkey F10 '{builtin source $ZIQ_CON_DIR/iqopen --refresh||\
                     iqw -r "Reload finished with error: " $?;}'
 zui::bindkey F7 '{iqopen_synh_switch;}'
@@ -200,14 +201,14 @@ generator_B_tree() {
 
     ((ZUI[VIEW_CHANGE]))||return 0
     integer IN=ZUI[PREV_CURRENT_IDX]
-
+    local QPATH=${ZUI[QPATH]:+_$ZUI[QPATH]}
      # Preview
     if ((ZUI[gen_B_idx]%2));then
         ((ZUI[PREV_CURRENT_IDX]==ZUI[CURRENT_IDX_MAIN_BKP]))&&\
-            ZUI[PREV_CURRENT_IDX]=$ZUI[CURRENT_IDX_PVIEW_BKP]
+            ZUI[PREV_CURRENT_IDX]=${${ZUI[CURRENT_IDX_PVIEW_BKP$QPATH]:#0#}:-4}
     # Tree
     else
-        ((ZUI[PREV_CURRENT_IDX]==ZUI[CURRENT_IDX_PVIEW_BKP]))&&\
+        ((ZUI[PREV_CURRENT_IDX]==ZUI[CURRENT_IDX_PVIEW_BKP$QPATH]))&&\
             ZUI[PREV_CURRENT_IDX]=$ZUI[CURRENT_IDX_MAIN_BKP]
     fi
     if ((IN!=ZUI[PREV_CURRENT_IDX]));then
