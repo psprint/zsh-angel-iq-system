@@ -47,7 +47,8 @@ if [[ $1 != --refresh ]]; then
     local cstarted=0 mstarted=0 astarted=0 istarted=0  # denote if configure/make is running
 
     [[ $1 == feat ]]&&shift
-    [[ -n $* ]]&&ZUI[SEARCH_BUFFER]=$* ZUI[START_IN_SEARCH]=1
+    [[ -n $* ]]&&ZUI[SEARCH_BUFFER]=$*
+    ZUI[START_IN_SEARCH]=1
 fi
 
 generator_A() {

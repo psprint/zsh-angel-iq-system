@@ -94,7 +94,8 @@ if ((!$+Opts[--refresh])); then
     -zui_glib_store_default_app_config b:top_anchors 0
     ZUI[UNIQ_MODE]=0
     [[ $1 == open ]]&&shift
-    [[ -n $* ]]&&ZUI[SEARCH_BUFFER]=$* ZUI[START_IN_SEARCH]=1
+    [[ -n $* ]]&&ZUI[SEARCH_BUFFER]=$*
+    ZUI[START_IN_SEARCH]=1
 
     local -a qitems
     integer Q0_SAVE_PIPE
@@ -253,15 +254,16 @@ while (( 1 )); do
          if ((ZUI[gen_B_idx]%2));then
             QFILE=$ZUI[QPATH]
             QIDX=ZUI[USER_CURRENT_IDX]
+            iqw "Opening " $QFILE " scrolled to line: " "#$QIDX"
         elif [[ $REPLY_SAVE != *(·|–|—)* ]];then
             QFILE=$REPLY_SAVE
         fi
     else
         repeat 1; do typeset +U -ga __slist=("$__qlist[@]");done
         if -zui_sys_get_match_line 'QIDX'; then
-            iqw "Opening " $QFILE " scrolled to line: " "#$QIDX"
              if ((ZUI[gen_B_idx]%2));then
                 QFILE=$ZUI[QPATH]
+                iqw "Opening " $QFILE " scrolled to line: " "#$QIDX"
             elif [[ $REPLY_SAVE != *(·|–|—)* ]];then
                 QFILE=$REPLY_SAVE
                 QIDX=0
