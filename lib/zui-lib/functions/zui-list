@@ -881,7 +881,7 @@ while (( 1 )); do
                     ZUI[PREV_SIDX]=$ZUI[CURRENT_IDX]
                     if -zui_sys_get_match_line 'ZUI[CURRENT_IDX]'; then
                         -zui_glib_msg "Search: \`${ZUI[SEARCH_BUFFER]}' jumped to line " "#${ZUI[CURRENT_IDX]}" " Restore search via F1"
-                        ZUI[SEARCH_BUFFER]=""
+                        #ZUI[SEARCH_BUFFER]=""
                         ZUI[IN_SEARCH]=0
                         ZUI[highlight_once]="italic"
                     fi

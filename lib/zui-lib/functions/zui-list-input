@@ -628,7 +628,8 @@ case "$key" in
         reply=( -1 "$key" )
         ;;
     ($'\E')
-        buffer=""
+        search=0
+        -zui_list_cursor_visibility "status" 0
         ;;
     (o|$'\C-O')
         uniq_mode=1-uniq_mode
@@ -652,8 +653,8 @@ case "$key" in
             zui-list-input $current_idx $current_segment \
                             $from_what_idx_list_is_shown \
                             $page_height $page_width $last_element \
-                            $nseg $hscroll ENTER 0 \
-                            $buffer $uniq_mode $disable_search \
+                            "$nseg" "$hscroll" ENTER 0 \
+                            "$buffer" "$uniq_mode" "$disable_search" \
             return $?
         else
             search=0
@@ -847,7 +848,6 @@ case "$key" in
         buffer=""
         ;;
     ($'\E')
-        buffer=""
         search=0
         -zui_list_cursor_visibility "status" 0
         ;;
