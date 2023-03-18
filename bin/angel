@@ -42,7 +42,7 @@
     [[ $CMD == (feat|open|con) ]]&&{set -- $CMD "$@";CMD=console;}
     if [[ -s $ZIQDIR/libexec/$CMD ]];then
         local FBKP=$functions[$CMD]
-        builtin unset -f $CMD IQIO
+        builtin unset -f $CMD&>>!$ZIQNUL
         builtin autoload -z $ZIQDIR/libexec/$CMD #zsweep:pass
 
         # Edit source?
@@ -59,7 +59,7 @@
         fi
         EC+=$?
 
-        [[ -n $FBKP ]]&&functions[$CMD]=$FBKP||builtin unfunction $CMD IQIO
+        [[ -n $FBKP ]]&&functions[$CMD]=$FBKP||builtin unfunction $CMD&>>|$ZIQNUL
     else
         iqmsgi $0:t\:$LINENO {err}Error:{txt} \
             no such subcommand %B{quot}·{cmd}${(U)CMD}{%}%B{quot}·{%},\
