@@ -16,7 +16,6 @@ local -A Opts;local -a opts
 int/iq::init-sm-con Opts opts "$@"||{print QE>>/tmp/reply;return 13}
 set -- "$reply[@]"
 eval "$REPLY"
-ZUI[SEARCH_BUFFER]=$*
 
 iqw(){
     -zui_glib_msg "$@"
@@ -67,7 +66,6 @@ if ((!$+Opts[--refresh])); then
 
     ZUI[COLORING_MATCH_MULTIPLE]=1
     ZUI[COLORING_COLOR]=$ZUI[BOLD]$ZUI[YELLOW]
-    ZUI[START_IN_SEARCH]=1
 
     -zui_glib_store_default_app_config b:instant_search 1
     -zui_glib_store_default_app_config s:select_mode "quit"   # Quit event loop on text-selection
@@ -79,6 +77,8 @@ if ((!$+Opts[--refresh])); then
     -zui_glib_store_default_app_config s:text_mode off
     -zui_glib_store_default_app_config b:top_anchors 0
     ZUI[UNIQ_MODE]=0
+    [[ $1 == open ]]&&shift
+    [[ -n $* ]]&&ZUI[SEARCH_BUFFER]=$* ZUI[START_IN_SEARCH]=1
 
     local -a qitems
     integer Q0_SAVE_PIPE

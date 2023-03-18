@@ -16,7 +16,6 @@ local -A Opts;local -a opts
 int/iq::init-sm-con Opts opts "$@"||{print init failed, ec:{num}$?;return 13;}
 set -- "$reply[@]"
 eval "$REPLY"
-ZUI[SEARCH_BUFFER]=$*
 
 separ()
 {
@@ -37,7 +36,6 @@ if [[ $1 != --refresh ]]; then
 
     ZUI[COLORING_PATTERN]="((([^\/—])(#c2,))(#e))~*[·]*" ZUI[COLORING_MATCH_MULTIPLE]=0
     ZUI[COLORING_COLOR]=$ZUI[BOLD]$ZUI[YELLOW]       
-    ZUI[START_IN_SEARCH]=0
 
     -zui_glib_store_default_app_config s:select_mode "quit"   # Quit event loop on text-selection
     -zui_glib_store_default_app_config b:text_select 1        # Allow selection of text
@@ -47,6 +45,9 @@ if [[ $1 != --refresh ]]; then
     -zui_glib_store_default_app_config b:top_anchors 0
     local -a features GEN2_HOPS
     local cstarted=0 mstarted=0 astarted=0 istarted=0  # denote if configure/make is running
+
+    [[ $1 == feat ]]&&shift
+    [[ -n $* ]]&&ZUI[SEARCH_BUFFER]=$* ZUI[START_IN_SEARCH]=1
 fi
 
 generator_A() {
