@@ -19,7 +19,7 @@ int/iq::get-file-type() {
 
     if (($+Opts[-s]));then
         qc=(${(f)"$(<$QPATH)"})
-        qc=(${qc/((#s)?(#c0,2)[[:space:]]#vim*(:|)(ft|filetype)=(#b)([^:[:space:]]##)(#B)*|(#s)?(#c0,2)[[:space:]]#"-*- mode:"[[:space:]]#(#b)([^\;]##)(#B)*|*)/$match[1]$match[2]})
+        qc=(${qc/((#s)?(#c0,2)[[:space:]]#vim*(:|)(ft|filetype)=(#b)([^:[:space:]]##)(#B)*|(#s)?(#c0,2)[[:space:]]#"-*- mode:"[[:space:]]#(#b)([^\;]##)(#B)*|(#s)\#\!([^\/]#[\/])#(env[[:space:]]##|)(#b)([^\/]##)|*)/$match[1]$match[2]$match[3]})
         reply=($qc $QPATH:e)
         reply=(${(uon)reply})
         REPLY=$reply[1]
