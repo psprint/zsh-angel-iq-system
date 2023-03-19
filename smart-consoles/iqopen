@@ -185,7 +185,11 @@ generator_B_tree() {
         qitems=("$q0input[@]")
     else
         -zui_glib_special_text "Showing files in: ·$PWD·"
-        qitems=(**/*~*~(N.,@))
+        if [[ -n $ANGEL_OPEN_DEFAULT_COMMAND ]];then
+            qitems=("${(@f)$($=ANGEL_OPEN_DEFAULT_COMMAND)}")
+        else
+            qitems=(**/*~*~(N.,@))
+        fi
         (($+Opts[-s]))&&qitems=("${(@on)qitems}")
         (($+Opts[-R]))&&qitems=("${(a@nO)qitems}")
     fi
