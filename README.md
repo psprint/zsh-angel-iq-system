@@ -5,7 +5,7 @@
 - [Zsh Angel IQ System](#zsh-angel-iq-system)
   - [Build console](#build-console)
   - [Ctags browser](#ctags-browser)
-  - [Usage information](#usage-information)
+  - [Angel usage information](#angel-usage-information)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -17,26 +17,11 @@ A bunch of intelligent extensions to Zsh. Features:
    and open editor on exact locations of reported errors.
 2. In-shell Ctags browser – list all symbols in `TAGS` index created
    with Universal Ctags and open editor on their source locations.
-3. Angel Swiss Knife – a utility allowing:
-   - quick Ctags generation,
-   - variable contents dumping,
-   - swapping 2 files' locations,
-   - repository creating on GitHub,
-   - hopping – spawning blocks of code to call back in command line after
-     specified time,
-   - escape codes (for colors, etc.) filter – works either on stdin or
-     on commandline arguments,
-   - `try-ng` – takes string and a pattern and returns the result. NON-GREEDY mode"
-   - `tries-ng` – takes strings and a pattern and returns the strings each after pat applied. NON-GREEDY mode
-   - `try` – the same as `try-ng`, but greedy
-   - `tries` — the same as `tries-ng`, but greedy
-   - `x-tract` — extracts any archive, recognizes many types
- 
-
-3. An extension to Zinit plugin manager – *action complete* – press
+3. [Angel Swiss Knife](#angel-usage-information)
+4. An extension to Zinit plugin manager – *action complete* – press
    `Alt-a` to complete a name of plugin and `Alt-c` to complete
    a name of ice modifier.
-4. A set of global aliases in the form `NAME…STR` allowing clever
+5. A set of global aliases in the form `NAME…STR` allowing clever
    tests of variable contents. The strings are:
    - `EMPTYSTR` – `[:space:][:INCOMPLETE:][:INVALID:]$'\e']#` – any
      number of spaces, incomplete chars or invalid chars –
@@ -82,9 +67,10 @@ A in-shell Ctags symbol browser, under the prompt (`alt-w` to activate):
 
 ![symbrowse](https://raw.githubusercontent.com/psprint/zsh-angel-system/master/share/img/symbolbrowse.png)
 **
-## Usage information
+## Angel usage information
 Below are subcommands of the command `angel`, i,e,L `angel {subcommand} …`
 
+- **open** : a fzf-like TUI app that opens selected file and can be used in pipe,
 - **tags** : generate Ctags for current directory,
 - **con** : open smart console for current directory,
 - **gh-create** : create a repository at GitHub,
