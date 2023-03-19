@@ -18,10 +18,10 @@ int/iq::init-sm-con() {
 
     # Options and arguments
     local -A __Opts; local -a __opts
-    int/iq::parse-opts "C: -dir: -refresh" __Opts __opts "$@"||\
+    int/iq::parse-opts "s -sort C: -dir: R -reverse -refresh" __Opts __opts "$@"||\
         {iqerr incorrect options given to subcommand; return EC+17;}
     set -- "$reply[@]"
-    int/iq::opt-cascade __Opts -C --dir
+    int/iq::opt-cascade __Opts -C --dir -s --sort -R --reverse
     EC+=$?
     int/iq::reset
     local VAR_OPT=$2 VAR_OPTS=$1; shift 2
@@ -44,7 +44,7 @@ int/iq::init-sm-con() {
         trap "return 1" INT TERM QUIT HUP
         trap "cd -q -- ${(qqq)ZIQ_ORIG_PWD}" EXIT
         local -Ua fpath=($ZIQ_CON_DIR $fpath) path=($ZIQ_CON_DIR $path)
-        fpath[1,0]=(${${:-$ZIQ_CON_DIR/../lib/zui-lib/functions}:a})'
+        fpath[1,0]=(${${:-$ZIQ_CON_DIR/../lib/zui-lib/functions}:A})'
     reply=("$@")
     return EC
 }

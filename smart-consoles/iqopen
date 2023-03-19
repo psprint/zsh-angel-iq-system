@@ -98,7 +98,7 @@ if ((!$+Opts[--refresh])); then
     [[ -n $* ]]&&ZUI[SEARCH_BUFFER]=$*
     ZUI[START_IN_SEARCH]=1
 
-    local -a qitems
+    local -a qitems q0input q0inputp
     integer Q0_SAVE_PIPE
     if read -k -t -u0; then
         ZUI[FIRST_0_INPUT]=$REPLY
@@ -186,6 +186,8 @@ generator_B_tree() {
     else
         -zui_glib_special_text "Showing files in: ·$PWD·"
         qitems=(**/*~*~(N.,@))
+        (($+Opts[-s]))&&qitems=("${(@on)qitems}")
+        (($+Opts[-R]))&&qitems=("${(a@nO)qitems}")
     fi
     typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(3 2 1)
     separ
@@ -205,11 +207,14 @@ generator_B_tree() {
                 shift reply
             fi
             q0input+=("$reply[@]")
+            q0inputp=("$q0input[@]")
+            (($+Opts[-s]))&&q0inputp=("${(@on)q0inputp}")
+            (($+Opts[-R]))&&q0inputp=("${(a@nO)q0inputp}")
             if ((ZUI[gen_B_idx]%2==0));then
                 reply=()
                 -zui_glib_special_text "·Below are entries read from input·"
                 separ
-                qitems=("$reply[1]" $REPLY "$q0input[@]")
+                qitems=("$reply[1]" $REPLY "$q0inputp[@]")
                 -zui_glib_fly_array_refresh 1
             fi
         fi
