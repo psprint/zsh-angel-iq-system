@@ -14,7 +14,7 @@ builtin emulate -L zsh -o extendedglob -o warncreateglobal \
 # Run as script? Or as a function?
 integer BESCRIPT=${${${(M)0:#$ZSH_ARGZERO:t}:+1}:-0}
 # Set $0 to the script file
-0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
+0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:A}
 
 if ((BESCRIPT)); then
     # Such global variable is expected to be typeset'd in plugin.zsh.

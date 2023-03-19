@@ -6,7 +6,7 @@ integer EC=0
 
 # According to the Zsh Plugin Standard:
 # https://zdharma-continuum.github.io/Zsh-100-Commits-Club/Zsh-Plugin-Standard
-0=${ZERO:-${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}}
+0=${ZERO:-${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:A}}
 # Spread a simulated ZERO support over every plugin utils
 local ZERO=$0
 

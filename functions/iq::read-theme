@@ -13,7 +13,7 @@ builtin emulate -L zsh -o extendedglob -o noshortloops \
 
 # Preamble – emulate & 0=…
 eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
-    0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
+    0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:A}
 
 # The color theme → customize via theme file or ZIQ global, first testing it
 (

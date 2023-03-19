@@ -9,7 +9,8 @@ iqopen()
 {
 # Preamble – emulate & 0=…
 eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
-    0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}
+    0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:A}
+
 source $0:h:h/share/preamble.inc.zsh --script --fun
 
 local -A Opts;local -a opts
@@ -108,7 +109,7 @@ if ((!$+Opts[--refresh])); then
     fi
 fi
 
-zui::bindkey F2 '{iqopen_preview_file;}'
+zui::bindkey F2 '{iqopen_preview_file&>>/tmp/reply;}'
 #    zui::bindkey F3 "{print q:$ZUI[mark]}"
 zui::bindkey F9 '{print view:$ZUI[SEARCH_BUFFER_PREVIEW], gl:$ZUI[SEARCH_BUFFER_GLOBAL], sbuff:$ZUI[SEARCH_BUFFER], current:$ZUI[CURRENT_IDX], PVIEW_Q:$ZUI[CURRENT_IDX_PVIEW_BKP_$ZUI[QPATH]], PVIEW:$ZUI[CURRENT_IDX_PVIEW_BKP], main:$ZUI[CURRENT_IDX_MAIN_BKP] sptr:$ZUI[status_pointer]|tee -a /tmp/reply;}'
 zui::bindkey F10 '{builtin source $ZIQ_CON_DIR/iqopen --refresh||\

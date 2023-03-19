@@ -8,7 +8,7 @@
 iq::action-complete() {
     # Preamble – emulate & 0=…
     eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
-        0=${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}
+        0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:A}
     # The index of the match that's inserted in cmd line
     integer -g ziac_midx
     typeset -ga ziac_matches ziac_wids

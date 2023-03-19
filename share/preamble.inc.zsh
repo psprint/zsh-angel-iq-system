@@ -22,7 +22,7 @@ builtin zparseopts \
 integer QIDX=${@[(i)(--|-)]}
 ((QIDX<=$#))&&builtin set -- "$@[1,QIDX-1]" "$@[QIDX+1,-1]"
 # Set $0 with a new trik - use of %x prompt expansion
-0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:a}
+0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:A}
 
 zmodload zsh/terminfo zsh/termcap zsh/system
 local QC
