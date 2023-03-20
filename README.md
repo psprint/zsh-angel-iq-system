@@ -68,7 +68,7 @@ A in-shell Ctags symbol browser, under the prompt (`alt-w` to activate):
 ![symbrowse](https://raw.githubusercontent.com/psprint/zsh-angel-system/master/share/img/symbolbrowse.png)
 **
 ## Angel usage information
-Below are subcommands of the command `angel`, i,e,L `angel {subcommand} …`
+Below are subcommands of the command `angel`, i.e.: `angel {subcommand} …`
 
 - **open** : a fzf-like TUI app that opens selected file and can be used in pipe,
 - **tags** : generate Ctags for current directory,
