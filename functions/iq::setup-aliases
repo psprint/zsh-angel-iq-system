@@ -35,7 +35,7 @@ for DIR ($dirs);do
             alias "${${REPLY#*=}%%:*}" \
                 "${(M)REPLY##[^=]##}=${REPLY#*:}"
             ZIQ[$KEY]=${REPLY#*:}
-            [[ $KEY == SNIP_* ]]&&typeset -g $KEY="${REPLY#*:}"
+            [[ $KEY == SNIP_* ]]&&typeset -gx $KEY="${REPLY#*:}"
         else
             local QVAL=$REPLY:t
             ZIQ[$QVAL]="$(<$REPLY)"
