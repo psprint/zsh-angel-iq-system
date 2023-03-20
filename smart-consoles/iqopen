@@ -159,7 +159,8 @@ generator_B_preview() {
             int/iq::get-file-type -s -q $QPATH||\
                 {iqw "Unknown file type, no syntax highlighting";return 1;}
             int/iq::get-stx-cmd -q $REPLY||\
-                {iqw "Error: no highlighter command found";return 1;}
+                {iqw "Error: no highlighter command found (e.g.: bat, highlight)"
+                return 1;}
             local -a qcmd=("$reply[@]" "$QPATH")
             qitems=("${(@f)$($qcmd[@])}")
         else
