@@ -244,6 +244,7 @@ generator_B_tree() {
     fi
     if ((!ZUI[UNIQ_MODE]&&!$#ZUI[SEARCH_BUFFER]&&\
             ZUI[CURRENT_IDX]<=$#ZUILIST_NONSELECTABLE_ELEMENTS));then
+        # FIXME
         ZUI[CURRENT_IDX]=$(($#ZUILIST_NONSELECTABLE_ELEMENTS+1))
         ZUI[redraw]=1
     fi
@@ -257,7 +258,7 @@ if (($+Opts[--refresh])); then
 fi
 
 ## Start application ##
--zui_glib_msg "" "@@@ " "Welcome to " "IQ System " "open console!" " @@@";
+-zui_glib_msg "" "@@@ " "Welcome to " "IQ System " "°open° console!" " @@@";
 integer EC
 generator_B 1 1 1
 while (( 1 )); do
@@ -297,7 +298,7 @@ while (( 1 )); do
             (
                 # Run the editor in $REPLY, first cd-ing into project's directory
                 int/iq::run-command -C $PWD \
-                    "$REPLY" ${${QIDX:#0}:++$QIDX} -- $QFILE
+                    "$REPLY" ${${QIDX:#0##}:++$QIDX} -- $QFILE
             )
         fi
         EC+=$?
@@ -310,9 +311,7 @@ done
 -zui_glib_cleanup serialize
 builtin print -n $terminfo[rmcup]$termcap[te]
 return 0
-
 }
-
 iqopen "$@"
 
 # vim:ft=zsh:tw=80:sw=4:sts=4:et:foldmarker=[[[,]]]
