@@ -799,6 +799,8 @@ while (( 1 )); do
 
         if [[ -n "$__final_key" && "$__final_key" != "<timeout>" ]]; then
             integer track_cur_idx=$ZUI[CURRENT_IDX]
+            [[ -z $ZUI[SEARCH_BUFFER] ]]&&\
+                ZUI[PREV_IDX_NO_SEARCH]=$ZUI[CURRENT_IDX]
             zui-list-input "$ZUI[CURRENT_IDX]" "$ZUI[CURRENT_SEGMENT]" "$ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]" \
                             "$__page_height" "$__page_width" "$__last_element" "$__nseg" "$ZUI[TEXT_OFFSET]" \
                             "$__final_key" "$ZUI[IN_SEARCH]" "$ZUI[SEARCH_BUFFER]" \
@@ -811,6 +813,8 @@ while (( 1 )); do
             ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]="$reply[5]"
             ZUI[TEXT_OFFSET]="$reply[6]"
             ZUI[IN_SEARCH]="$reply[7]"
+            [[ -z $reply[8] && -n $ZUI[SEARCH_BUFFER] ]]&&\
+                ZUI[CURRENT_IDX]=$ZUI[PREV_IDX_NO_SEARCH]
             ZUI[SEARCH_BUFFER]="$reply[8]"
             ZUI[UNIQ_MODE]="$reply[9]"
 
