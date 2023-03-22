@@ -256,9 +256,9 @@ fi
 integer EC
 generator_B 1 1 1
 while (( 1 )); do
-    builtin print -n $terminfo[smcup]$termcap[ti]
+    builtin print -rn -- $terminfo[smcup]$termcap[ti]
     zui-event-loop a:qitems
-    builtin print -n $terminfo[rmcup]$termcap[te]
+    builtin print -rn -- $terminfo[rmcup]$termcap[te]
     [[ -z $REPLY ]]&&break
     local QFILE= REPLY_SAVE=$REPLY; integer QIDX=0
     if [[ -z $ZUI[SEARCH_BUFFER] ]];then
