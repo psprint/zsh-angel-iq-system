@@ -204,24 +204,25 @@ generator_B_tree() {
     ((!ZUI[cat_started]&&!ZUI[VIEW_CHANGE]))&&return
 
     if ((ZUI[cat_started]));then
-        if int/iq::read-all -u$Q0_SAVE_PIPE -t0 -x10;then
-            local ql had_read=0
-            integer q0idx=$#q0input+1
-            if ((!$#q0input));then
-                q0input[q0idx]=$ZUI[FIRST_0_INPUT]$reply[1]
-                shift reply
-            fi
-            q0input+=("$reply[@]")
-            q0inputp=("$q0input[@]")
-            (($+Opts[-s]))&&q0inputp=("${(@on)q0inputp}")
-            (($+Opts[-R]))&&q0inputp=("${(a@nO)q0inputp}")
-            if ((ZUI[gen_B_idx]%2==0));then
-                reply=()
-                -zui_glib_special_text "·Below are entries read from input·"
-                separ
-                qitems=("$reply[1]" $REPLY "$q0inputp[@]")
-                -zui_glib_fly_array_refresh 1
-            fi
+        int/iq::read-all -u$Q0_SAVE_PIPE -t0 -x10
+        local ql had_read=0
+        integer q0idx=$#q0input+1
+        if ((!$#q0input));then
+            q0input[q0idx]=$ZUI[FIRST_0_INPUT]$reply[1]
+            shift reply
+        fi
+        q0input+=("$reply[@]")
+        q0inputp=("$q0input[@]")
+        (($+Opts[-s]))&&q0inputp=("${(@on)q0inputp}")
+        (($+Opts[-R]))&&q0inputp=("${(a@nO)q0inputp}")
+        if ((ZUI[gen_B_idx]%2==0));then
+            reply=()
+            -zui_glib_special_text "·Below are entries read from input·"
+            separ
+            local q0items=("$qitems[@]")
+            qitems=("$reply[1]" $REPLY "$q0inputp[@]")
+
+            [[ -n ${qitems:|q0items} ]]&&-zui_glib_fly_array_refresh 1
         fi
     fi
 
