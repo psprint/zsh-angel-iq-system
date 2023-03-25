@@ -274,7 +274,7 @@ iqopen_fill_or_set_view_git() {
     ((!ZUI[HAVE_0_INPUT]&&!ZUI[VIEW_CHANGE]))&&return
 
     if ((ZUI[HAVE_0_INPUT]));then
-        int/iq::read-all -u$Q0_SAVE_PIPE -t0 -x10
+        int/iq::read-all -u$Q0_SAVE_PIPE -t0 -x100
         local ql had_read=0
         integer q0idx=$#q0input+1
         if ((!$#q0input));then
