@@ -11,7 +11,7 @@ iqopen()
 eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
     0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:A}
 
-source $0:h:h/share/preamble.inc.zsh --script --fun
+source $0:h:h/share/preamble.inc.zsh --script --fun --cleanup
 
 local -A Opts;local -a opts
 int/iq::init-sm-con Opts opts "$@"||{print QE>>/tmp/reply;return 13}
@@ -22,44 +22,95 @@ iqw(){
     -zui_glib_msg "$@"
 }
 
-iqopen_synh_switch(){
+iqopen_util_swap4(){
+    local Q=$1 Q0=$2
+    shift 0+2
+    local -a vars=("$@")
+
+    : ${(P)vars[Q0+1]::=${(P)vars[4]}}
+    : ${(P)vars[4]::=${(P)vars[Q+1]}}
+}
+
+iqopen_util_set_current_idx(){
+    integer IN=ZUI[PREV_CURRENT_IDX]
+    local QPATH=${ZUI[QPATH]:+_$ZUI[QPATH]}
+    # Tree
+    if ((ZUI[GEN_B_IDX]==0));then
+       ((ZUI[PREV_CURRENT_IDX]==ZUI[CURRENT_IDX_PVIEW_BKP$QPATH]||\
+         ZUI[PREV_CURRENT_IDX]==ZUI[CURRENT_IDX_GIT_BKP]))&&\
+            ZUI[PREV_CURRENT_IDX]=${ZUI[CURRENT_IDX_MAIN_BKP]:-5}
+    # Preview
+    elif ((ZUI[GEN_B_IDX]==1));then
+        ((ZUI[PREV_CURRENT_IDX]==ZUI[CURRENT_IDX_MAIN_BKP]||\
+          ZUI[PREV_CURRENT_IDX]==ZUI[CURRENT_IDX_GIT_BKP]))&&\
+            ZUI[PREV_CURRENT_IDX]=${${ZUI[CURRENT_IDX_PVIEW_BKP$QPATH]:#0#}:-5}
+    elif ((ZUI[GEN_B_IDX]==0+2));then
+        ((ZUI[PREV_CURRENT_IDX]==ZUI[CURRENT_IDX_PVIEW_BKP$QPATH]||\
+          ZUI[PREV_CURRENT_IDX]==ZUI[CURRENT_IDX_MAIN_BKP]))&&\
+            ZUI[PREV_CURRENT_IDX]=${${ZUI[CURRENT_IDX_GIT_BKP]:#0#}:-5}
+    fi
+    if ((IN!=ZUI[PREV_CURRENT_IDX]));then
+        ZUI[CURRENT_IDX]=$ZUI[PREV_CURRENT_IDX]
+        -zui_list_verify_vars
+        ZUI[redraw]=1
+    fi
+    if ((!ZUI[UNIQ_MODE]&&!$#ZUI[SEARCH_BUFFER]&&\
+            ZUI[CURRENT_IDX]<=${${(On)ZUILIST_NONSELECTABLE_ELEMENTS}[1]}));then
+        ZUI[CURRENT_IDX]=${${(On)ZUILIST_NONSELECTABLE_ELEMENTS}[1]}
+        ZUI[redraw]=1
+    fi
+}
+
+iqopen_cmd_synh_switch(){
     ((ZUI[SRC_HIGHLIGHT]=1-ZUI[SRC_HIGHLIGHT]))
     ZUI[SRC_HIGHLIGHT_SWITCHED]=1
-    if generator_B;then
+    if iqopen_hub;then
         ((ZUI[SRC_HIGHLIGHT]))&&local txt=" ON"||local txt=" OFF"
         iqw "Syntax highlighting switched" $txt
     fi
 }
-iqopen_swap3(){
-    local Q=$1 VAR1=$2 VAR2=$3 VAR3=$4
-    if ((Q));then
-        : ${(P)VAR1::=${(P)VAR2}} ${(P)VAR2::=${(P)VAR3}}
+
+iqopen_cmd_next(){
+    integer q=${1##<->/} qq=${1%%/<->} in=$ZUI[GEN_B_IDX]
+
+    # Three kind of args, first: num0/num1
+    if ((q!=qq));then
+        ((ZUI[GEN_B_IDX]==q))&&ZUI[GEN_B_IDX]=$qq||\
+            {((ZUI[GEN_B_IDX]==qq))&&ZUI[GEN_B_IDX]=$q||ZUI[GEN_B_IDX]=0;}
+    # Second: num
+    elif (($#1));then
+        ZUI[GEN_B_IDX]=$q
+    # Third: no-arg
     else
-        : ${(P)VAR3::=${(P)VAR2}} ${(P)VAR2::=${(P)VAR1}}
+        ((ZUI[GEN_B_IDX]=(1+ZUI[GEN_B_IDX])%3))
     fi
+    iqopen_view_switch $in $ZUI[GEN_B_IDX]
+    iqopen_hub
 }
 
-iqopen_preview_file(){
+iqopen_view_switch(){
+    integer in=$2 in0=$1
     ZUI[VIEW_CHANGE]=1
     local QPATH=${ZUI[QPATH]:+_$ZUI[QPATH]} QTXT
 
-    noglob iqopen_swap3 $((ZUI[gen_B_idx]%2)) ZUI[SEARCH_BUFFER_PREVIEW] \
-            ZUI[SEARCH_BUFFER] ZUI[SEARCH_BUFFER_GLOBAL]
-    local -a qt=(·preview·\  ·file·\ )
-    ((ZUI[IN_SEARCH]))&&iqw "Restored previous " $qt[ZUI[gen_B_idx]+1] "search"
+    noglob iqopen_util_swap4 $in $in0 \
+        ZUI[SEARCH_BUFFER_GLOBAL] \
+        ZUI[SEARCH_BUFFER_PREVIEW]\
+        ZUI[SEARCH_BUFFER_GIT]\
+        ZUI[SEARCH_BUFFER]
+
+    local -a qt=(·preview·\  ·file·\  ·git·\ )
+    ((ZUI[IN_SEARCH]))&&iqw "Restored previous " $qt[ZUI[GEN_B_IDX]+1] "search"
 
     buffer=$ZUI[SEARCH_BUFFER]
-    if ((ZUI[gen_B_idx]%2));then
+    if ((in0==1));then
         ZUI[CURRENT_IDX_PVIEW_BKP$QPATH]=$ZUI[CURRENT_IDX]
-        #ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_MAIN_BKP]
-    else
+    elif ((in0==2));then
+        ZUI[CURRENT_IDX_GIT_BKP]=$ZUI[CURRENT_IDX]
+    elif ((in0==0));then
         ZUI[CURRENT_IDX_MAIN_BKP]=$ZUI[CURRENT_IDX]
-        #ZUI[CURRENT_IDX]=$ZUI[CURRENT_IDX_PVIEW_BKP]
     fi
-    ((ZUI[gen_B_idx]=1-ZUI[gen_B_idx]))
     ZUI[PREV_CURRENT_IDX]=$ZUI[CURRENT_IDX]
-    generator_B
-    #__last_element=$#__list
 }
 
 separ() {
@@ -73,7 +124,7 @@ if ((!$+Opts[--refresh])); then
     -zui_glib_init app:"iqopen_$APP" app_name:"°Open° Console"
     emulate -L zsh -o extendedglob -o typesetsilent -o warncreateglobal -o combiningchars -o rcquotes
     -zui_glib_init2 # after emulate
-    ZUI[gen_B_idx]=0
+    ZUI[GEN_B_IDX]=0
 
     # Needed for immediate output from coprocesses (disables buffering).
     ((${+commands[stdbuf]}))&& \
@@ -98,112 +149,125 @@ if ((!$+Opts[--refresh])); then
     [[ -n $* ]]&&ZUI[SEARCH_BUFFER]=$*
     ZUI[START_IN_SEARCH]=1
 
-    local -a qitems q0input q0inputp
+    local -a qitems iq0items q0input q0inputp
     integer Q0_SAVE_PIPE
     if read -k -t -u0; then
         ZUI[FIRST_0_INPUT]=$REPLY
         ZUI[HAVE_0_INPUT]=1
-        ZUI[cat_started]=1
-        ZUI[gen_B_idx]=0
+        ZUI[GEN_B_IDX]=0
         exec {Q0_SAVE_PIPE}<&0
     fi
 fi
 
-zui::bindkey F2 '{iqopen_preview_file&>>/tmp/reply;}'
+zui::bindkey F2 '{iqopen_cmd_next 0/1;}'
+zui::bindkey F3 '{iqopen_cmd_next 2;}'
+
 #    zui::bindkey F3 "{print q:$ZUI[mark]}"
 zui::bindkey F9 '{print view:$ZUI[SEARCH_BUFFER_PREVIEW], gl:$ZUI[SEARCH_BUFFER_GLOBAL], sbuff:$ZUI[SEARCH_BUFFER], current:$ZUI[CURRENT_IDX], PVIEW_Q:$ZUI[CURRENT_IDX_PVIEW_BKP_$ZUI[QPATH]], PVIEW:$ZUI[CURRENT_IDX_PVIEW_BKP], main:$ZUI[CURRENT_IDX_MAIN_BKP] sptr:$ZUI[status_pointer]|tee -a /tmp/reply;}'
 zui::bindkey F10 '{builtin source $ZIQ_CON_DIR/iqopen --refresh||\
                     iqw -r "Reload finished with error: " $?;}'
-zui::bindkey F7 '{iqopen_synh_switch;}'
+zui::bindkey F7 '{iqopen_cmd_synh_switch;}'
 
-generator_A() {
-    local mod="$1" ice="$2"
-
-    local -a group1
-    reply=()
-
-    # First Group
-    : -zui_glib_rc_button "button17" "·New feature·" \
-        'reply=( ",all," ); new_feature'
-    group1=( $reply ) reply=()
-
-    # Content
-    reply=( "$group1[@]" )
-
-    # Non-selectable lines  Hops to jump with [ and ]   Local anchors
-    reply2=( )              reply3=( 3 )                reply4=( )
-
-}
-
-generator_B(){
+iqopen_hub(){
     integer EC
-    local -a gener=(generator_B_tree generator_B_preview)
-    $gener[1+(ZUI[gen_B_idx]%2)]
+    local -a gener=(iqopen_fill_view_tree iqopen_fill_view_preview iqopen_fill_or_set_view_git)
+    $gener[1+(ZUI[GEN_B_IDX]%3)]
     EC=$?
-    (($3))||{-zui_glib_fly_array_refresh 1;}
+    ((${3:-0}))||{-zui_glib_fly_array_refresh 1;}
+
     return EC
 }
 
-generator_B_preview() {
+iqopen_fill_view_preview() {
     local QPATH QTXT
-    ((ZUI[CURRENT_IDX]>0&&ZUI[SRC_HIGHLIGHT_SWITCHED]==0))&&\
-        {QPATH=$__list[ZUI[CURRENT_IDX]];ZUI[QPATH]=$QPATH;}||\
-        QPATH=$ZUI[QPATH]
     ZUI[COLORING_PATTERN]="·[^·]##·" ZUI[SRC_HIGHLIGHT_SWITCHED]=0
-    qitems=()
+    ZUI[COLORING_MATCH_MULTIPLE]=1
+    ZUI[COLORING_COLOR]=$ZUI[BOLD]$ZUI[YELLOW]
+    if ((ZUI[CURRENT_IDX]>0&&ZUI[SRC_HIGHLIGHT_SWITCHED]==0&&ZUI[GEN_B_IDX]==1));then
+        QPATH=$__list[ZUI[CURRENT_IDX]]
+        ZUI[QPATH]=$QPATH
+    else
+        QPATH=$ZUI[QPATH]
+    fi
     {
+        qitems=() iq0items=()
         if [[ -f $QPATH ]];then
             QTXT="Contents of file: ·$QPATH·"\
 " located at: ·${${${(M)QPATH##/*}:+$QPATH:h}:-$PWD}/·"
             ((ZUI[SRC_HIGHLIGHT]))||return 0
             int/iq::get-file-type -s -q $QPATH||\
-                {iqw "Unknown file type, no syntax highlighting";return 1;}
+                {iqw "Unknown file type, no syntax highlighting";throw NoTool}
             int/iq::get-stx-cmd -q $REPLY||\
                 {iqw "Error: no highlighter command found (e.g.: bat, highlight)"
-                return 1;}
+                throw NoType;}
             local -a qcmd=("$reply[@]" "$QPATH")
-            qitems=("${(@f)$($qcmd[@])}")
+            iq0items=("${(@f)$($qcmd[@])}")
         else
             QTXT="!NO FILE SELECTED, PRESS F2 TO SHOW FILE TREE!"
         fi
     } always {
-        [[ $qitems == $~galiases[WRONGSTR] ]]&&\
-            qitems=("${(@f)$(<$QPATH)}")
+        if catch \* || [[ $iq0items == $~galiases[WRONGSTR] ]];then
+            [[ -f $QPATH ]]&&iq0items=("${(@f)$(<$QPATH)}")
+        fi
+        if [[ $iq0items != $~galiases[WRONGSTR] ]];then
+            qitems=("$iq0items[@]")
+        else
+            qitems=("No such file")
+        fi
 
-        reply=(); -zui_glib_special_text $QTXT
+        reply=()
+        -zui_glib_special_text $QTXT
         separ
-        typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(3 2 1)
-        qitems=("$reply[1]" "$REPLY" "$qitems[@]")
+        typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(4 3 2 1)
+        qitems=("$REPLY" "$reply[1]" "$REPLY" "$qitems[@]")
     }
 }
 
-generator_B_tree() {
+iqopen_fill_view_tree() {
     ZUI[COLORING_PATTERN]="(((([^\/—])(#c2,))(#e))|·[^·]##·)"
+    ZUI[COLORING_MATCH_MULTIPLE]=1
+    ZUI[COLORING_COLOR]=$ZUI[BOLD]$ZUI[YELLOW]
     ZUI[QIDX]=0 ZUI[SRC_HIGHLIGHT_SWITCHED]=0
     reply=()
-    if ((ZUI[HAVE_0_INPUT]));then
-        -zui_glib_special_text "·Below are entries read from input·"
-        qitems=("$q0input[@]")
+    if [[ -n $ANGEL_OPEN_DEFAULT_COMMAND ]];then
+        -zui_glib_special_text "Output of cmd: ·$ANGEL_OPEN_DEFAULT_COMMAND·"
+        iq0items=("${(@f)$(eval $=ANGEL_OPEN_DEFAULT_COMMAND)}")
     else
         -zui_glib_special_text "Showing files in: ·$PWD·"
-        if [[ -n $ANGEL_OPEN_DEFAULT_COMMAND ]];then
-            qitems=("${(@f)$(eval $=ANGEL_OPEN_DEFAULT_COMMAND)}")
-        else
-            qitems=(**/*~*~(N.,@))
-        fi
-        (($+Opts[-s]))&&qitems=("${(@on)qitems}")
-        (($+Opts[-R]))&&qitems=("${(a@nO)qitems}")
+        iq0items=(**/*~*~(N.,@))
     fi
-    typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(3 2 1)
+    (($+Opts[-s]))&&qitems=("${(@on)qitems}")
+    (($+Opts[-R]))&&qitems=("${(a@nO)qitems}")
+
+    typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(4 3 2 1)
     separ
-    qitems=("$reply[1]" "$REPLY" "$qitems[@]")
+    qitems=("$REPLY" "$reply[1]" "$REPLY" "$iq0items[@]")
+}
+
+iqopen_fill_or_set_view_git() {
+    local col=$ZUI[WHITE]
+    ZUI[COLORING_PATTERN]="(#s)[^+-]*" ZUI[COLORING_COLOR]=$col
+    ZUI[COLORING_MATCH_MULTIPLE]=1
+    ((!ZUI[GIT_DIFF]))&&iqw "Git diff detected"
+    (($1))&&ZUI[GEN_B_IDX]=2
+    ZUI[GIT_DIFF]=1
+
+    if ((!ZUI[HAVE_0_INPUT]));then
+        iq0items=("${(@f)$(command git diff --color=always)}")
+    fi
+    typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(4 3 2 1)
+    separ
+    reply=()
+    -zui_glib_special_text "Git diff output"
+     qitems=("$REPLY" "$reply[1]" "$REPLY" "$iq0items[@]")
 }
 
 # Read & publish Configure/make output
 -zui-standard-timeout-callback() {
-    ((!ZUI[cat_started]&&!ZUI[VIEW_CHANGE]))&&return
+    typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(4 3 2 1)
+    ((!ZUI[HAVE_0_INPUT]&&!ZUI[VIEW_CHANGE]))&&return
 
-    if ((ZUI[cat_started]));then
+    if ((ZUI[HAVE_0_INPUT]));then
         int/iq::read-all -u$Q0_SAVE_PIPE -t0 -x10
         local ql had_read=0
         integer q0idx=$#q0input+1
@@ -215,40 +279,20 @@ generator_B_tree() {
         q0inputp=("$q0input[@]")
         (($+Opts[-s]))&&q0inputp=("${(@on)q0inputp}")
         (($+Opts[-R]))&&q0inputp=("${(a@nO)q0inputp}")
-        if ((ZUI[gen_B_idx]%2==0));then
+        if ((ZUI[GEN_B_IDX]%3==0||ZUI[GEN_B_IDX]%3==2));then
             reply=()
             -zui_glib_special_text "·Below are entries read from input·"
             separ
-            local q0items=("$qitems[@]")
-            qitems=("$reply[1]" $REPLY "$q0inputp[@]")
-
-            [[ -n ${qitems:|q0items} ]]&&-zui_glib_fly_array_refresh 1
+            local -a q0items=("$qitems[@]")
+            qitems=($REPLY "$reply[1]" $REPLY "$q0inputp[@]")
+            [[ -n ${qitems:|q0items} ]] && -zui_glib_fly_array_refresh 1
         fi
     fi
+    # Input is a diff?
+    ((!ZUI[GIT_DIFF]))&&[[ -n ${(M)qitems[1,15]:#*diff[[:space:]]##--git*} ]]&&iqopen_fill_or_set_view_git 1
 
     ((ZUI[VIEW_CHANGE]))||return 0
-    integer IN=ZUI[PREV_CURRENT_IDX]
-    local QPATH=${ZUI[QPATH]:+_$ZUI[QPATH]}
-     # Preview
-    if ((ZUI[gen_B_idx]%2));then
-        ((ZUI[PREV_CURRENT_IDX]==ZUI[CURRENT_IDX_MAIN_BKP]))&&\
-            ZUI[PREV_CURRENT_IDX]=${${ZUI[CURRENT_IDX_PVIEW_BKP$QPATH]:#0#}:-4}
-    # Tree
-    else
-        ((ZUI[PREV_CURRENT_IDX]==ZUI[CURRENT_IDX_PVIEW_BKP$QPATH]))&&\
-            ZUI[PREV_CURRENT_IDX]=$ZUI[CURRENT_IDX_MAIN_BKP]
-    fi
-    if ((IN!=ZUI[PREV_CURRENT_IDX]));then
-        ZUI[CURRENT_IDX]=$ZUI[PREV_CURRENT_IDX]
-        -zui_list_verify_vars
-        ZUI[redraw]=1
-    fi
-    if ((!ZUI[UNIQ_MODE]&&!$#ZUI[SEARCH_BUFFER]&&\
-            ZUI[CURRENT_IDX]<=$#ZUILIST_NONSELECTABLE_ELEMENTS));then
-        # FIXME
-        ZUI[CURRENT_IDX]=$(($#ZUILIST_NONSELECTABLE_ELEMENTS+1))
-        ZUI[redraw]=1
-    fi
+    iqopen_util_set_current_idx
     ZUI[VIEW_CHANGE]=0
     return 0
 }
@@ -261,7 +305,7 @@ fi
 ## Start application ##
 -zui_glib_msg "" "@@@ " "Welcome to " "IQ System " "°open° console!" " @@@";
 integer EC
-generator_B 1 1 1
+iqopen_hub 1 1 1
 while (( 1 )); do
     ZUI[VIEW_CHANGE]=1
     builtin print -rn -- $terminfo[smcup]$termcap[ti]
@@ -270,19 +314,23 @@ while (( 1 )); do
     [[ -z $REPLY ]]&&break
     local QFILE= REPLY_SAVE=$REPLY; integer QIDX=0
     if [[ -z $ZUI[SEARCH_BUFFER] ]];then
-         if ((ZUI[gen_B_idx]%2));then
+         if ((ZUI[GEN_B_IDX]%3==1));then
             QFILE=$ZUI[QPATH]
             QIDX=ZUI[USER_CURRENT_IDX]
             iqw "Opening " $QFILE " scrolled to line: " "#$QIDX"
+        elif ((ZUI[GEN_B_IDX]%3==2));then
+            : ??? FIXME
         elif [[ $REPLY_SAVE != *(·|–|—)* ]];then
             QFILE=$REPLY_SAVE
         fi
     else
         repeat 1; do typeset +U -ga __slist=("$__qlist[@]");done
         if -zui_sys_get_match_line 'QIDX'; then
-             if ((ZUI[gen_B_idx]%2));then
+            if ((ZUI[GEN_B_IDX]%3==1));then
                 QFILE=$ZUI[QPATH]
                 iqw "Opening " $QFILE " scrolled to line: " "#$QIDX"
+            elif ((ZUI[GEN_B_IDX]%3==2));then
+                : ??? FIXME
             elif [[ $REPLY_SAVE != *(·|–|—)* ]];then
                 QFILE=$REPLY_SAVE
                 QIDX=0

@@ -78,7 +78,7 @@ typeset -gU fpath FPATH path PATH
 autoload -z $ZIQDIR/functions/*~*~(.N:t) \
             $ZIQDIR/functions/*/*~*~(.N:t2) \
             $ZIQDIR/bin/*~*~(.N:t) \
-            regexp-replace #zsweep:pass
+            throw catch #zsweep:pass
 
 #
 # Simple, small support messaging system
