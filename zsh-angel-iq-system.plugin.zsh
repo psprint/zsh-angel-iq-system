@@ -3,18 +3,14 @@
 # Copyright (c) 2023 Sebastian Gniazdowski
 
 integer EC=0
-
-# According to the Zsh Plugin Standard:
-# https://zdharma-continuum.github.io/Zsh-100-Commits-Club/Zsh-Plugin-Standard
-0=${ZERO:-${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:A}}
-# Spread a simulated ZERO support over every plugin utils
-local ZERO=$0
+0="${ZERO:-${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:A}}"
+local ZERO="$0"
 
 # Create dummy pattern aliases (eq to *) to detect lack of disk ones
-() {for REPLY ($0:h/aliases/str/*[A-Z](N.:t)){alias -g $REPLY='*'};}
+() {for REPLY ($0:h/aliases/str/*[A-Z](N.:t)){alias -g $REPLY='*'};} 2>/dev/null
 
 # Read the common setup code, to create the $ZIQ*… vars and aliases, etc.
-source $0:h/share/preamble.inc.zsh --script
+builtin source $0:h/share/preamble.inc.zsh --script
 EC+=$?
 
 alias apo="noglob \\angel open"
@@ -43,7 +39,7 @@ zle -N iq::action-complete-ice iq::action-complete
 }
 
 () {
-    export TINFO
+    builtin export TINFO
     [[ $TINFO == $~galiases[WRONGSTR] ]]&&\
         TINFO=${XDG_CONFIG_HOME:-$HOME/.config}/tigsuite/features.reg
     if [[ ! -d $TINFO:h ]];then
@@ -53,5 +49,7 @@ zle -N iq::action-complete-ice iq::action-complete
         {EC+=$?;print -P -- $IQHD ${(%)ZIQ[Q4_NO_TINFO_CANT_CREATE]};}
     fi
 }
+
+builtin unset ZERO IQHD
 return EC
 # vim:ft=zsh:tw=80:sw=4:sts=4:et:foldmarker=[[[,]]]

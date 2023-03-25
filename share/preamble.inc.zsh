@@ -24,12 +24,13 @@ integer QIDX=${@[(i)(--|-)]}
 # Set $0 with a new trik - use of %x prompt expansion
 0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:A}
 
-zmodload zsh/terminfo zsh/termcap zsh/system
+zmodload zsh/terminfo zsh/termcap zsh/system zsh/datetime
 local QC
 (($+Opts[--cleanup]))&&QC="print -n $terminfo[rmcup]$termcap[te]"
 # Unset helper function on exit
 (($+Opts[--fun]))&&builtin trap 'builtin unset -f -m tmp/\*&>>|$ZIQNUL;
             builtin unset IQHD&>>|$ZIQNUL;'$QC EXIT
+
 EC+=$?
 
 # Standard hash `Plugins` for plugins, to not pollute the namespace
