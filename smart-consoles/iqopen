@@ -338,20 +338,22 @@ while (( 1 )); do
         fi
     fi
     if [[ -n $QFILE ]];then
-        if ! int/iq::get-editor;then
+        REPLY=
+        if [[ -n $ANGEL_OPEN_CMD ]];then
+            REPLY=$ANGEL_OPEN_CMD
+        elif ! int/iq::get-editor;then
             EC+=$?
-            -zui_glib_msg "" "" "" 'ERROR: Couldn''t find editor, tried '\
+            iqw "" "" "" 'ERROR: Couldn''t find editor, tried '\
                 "\$VISUAL (=$VISUAL) " then "" " \$EDITOR (=$EDITOR)"
             ZUI[IN_SEARCH]=0
-        else
+        fi
+        [[ -n $REPLY ]]&&\
             (
                 # Run the editor in $REPLY, first cd-ing into project's directory
                 int/iq::run-command -C $PWD \
                     "$REPLY" ${${QIDX:#0##}:++$QIDX} -- $QFILE
             )
-        fi
         EC+=$?
-
     fi
     zcurses clear main redraw
     zcurses clear status redraw
