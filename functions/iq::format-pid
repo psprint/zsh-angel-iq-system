@@ -41,3 +41,4 @@ iq::format-pid() {
     [[ -n $REPLY ]]
 }
 iq::format-pid "$@"
+# vim:ft=zsh

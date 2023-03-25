@@ -32,11 +32,8 @@ else
      builtin print -u2 -P -r ${${(%):-%x}:t}:%I: Couldn\'t read default \
         theme \(%F{41}$ZIQTHEME%f\)
 fi
-
 # Return theme
 reply=("${(kv@)ZIQ}")
-
 return !$#reply
-
-# vim:ft=zsh:sw=4:sts=4:et
 }
+# vim:ft=zsh:sw=4:sts=4:et

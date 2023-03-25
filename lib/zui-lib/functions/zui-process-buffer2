@@ -1,3 +1,4 @@
+#!/usr/bin/env zsh
 # Input:
 # $1 - optional buffer to process (default is $BUFFER)
 #

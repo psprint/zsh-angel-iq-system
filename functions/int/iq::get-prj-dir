@@ -36,3 +36,4 @@ int/iq::get-prj-dir() {
     fi
     return 0
 }
+# vim:ft=zsh

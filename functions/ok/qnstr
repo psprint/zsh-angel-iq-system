@@ -28,3 +28,4 @@ ok/qnstr() {
     return $?+EC
 }
 ok/qnstr "$@"
+# vim:ft=zsh

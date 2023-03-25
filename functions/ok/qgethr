@@ -34,3 +34,4 @@ ok/qgethr() {
     return EC
 }
 ok/qgethr "$@"
+# vim:ft=zsh

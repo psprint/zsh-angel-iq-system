@@ -177,3 +177,4 @@ int/iq::git-proc-out() {
 
 }
 int/iq::git-proc-out "$@"
+# vim:ft=zsh

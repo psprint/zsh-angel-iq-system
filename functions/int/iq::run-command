@@ -50,3 +50,4 @@ int/iq::run-command() {
     REPLY=$QREPLY reply=("$qout[@]")
     return EC
 }
+# vim:ft=zsh

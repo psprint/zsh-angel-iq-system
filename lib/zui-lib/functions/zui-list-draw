@@ -1,4 +1,5 @@
-emulate -L zsh
+#!/usr/bin/env zsh
+builtin emulate -L zsh
 
 zmodload zsh/curses
 
@@ -163,6 +164,5 @@ for text; do
 done
 
 (( end_idx < max_idx )) && { zcurses move "$win" "$y_offset" "$x_offset"; zcurses clear "$win" eol; }
-
 zcurses attr "$win" "${ZUI[colorpair]}"
-# vim: set filetype=zsh:
+# vim:ft=zsh

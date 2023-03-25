@@ -40,3 +40,5 @@ int/iq::read-all() {
     __RET+=$?
     return __RET
 }
+
+# vim:ft=zsh

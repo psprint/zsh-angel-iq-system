@@ -127,3 +127,4 @@ iq::action-complete() {
     CURSOR=$newcursor
 }
 
+# vim:ft=zsh

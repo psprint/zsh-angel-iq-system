@@ -24,3 +24,4 @@ int/iq::get-editor() {
     REPLY=$QED
     [[ -n $REPLY ]]
 }
+#vim:ft=zsh

@@ -46,4 +46,4 @@ int/iq::read-all-sys() {
     return __ret
 }
 int/iq::read-all-sys "$@"
-# vim: ft=zsh:et:sw=4:sts=4
+# vim:ft=zsh:et:sw=4:sts=4

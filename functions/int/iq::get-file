@@ -49,3 +49,4 @@ int/iq::get-file() {
     fi
     return $?
 }
+# vim:ft=zsh

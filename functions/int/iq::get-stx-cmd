@@ -25,3 +25,5 @@ int/iq::get-stx-cmd() {
     fi
     return 0
 }
+
+# vim:ft=zsh

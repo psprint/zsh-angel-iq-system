@@ -79,5 +79,4 @@ int/@iq::str4var() {
 
     return 0
 }
-
 # vim:ft=zsh:sw=4:sts=4:et

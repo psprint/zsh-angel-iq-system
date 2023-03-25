@@ -1,4 +1,5 @@
-emulate -LR zsh
+#!/usr/bin/env zsh
+builtin emulate -LR zsh
 setopt extendedglob warncreateglobal
 
 local _zui_wrapper_has_terminfo=0
@@ -136,5 +137,4 @@ if [[ "$REPLY" != "-1" && "$REPLY" = -(#c0,1)[0-9]## ]]; then
 else
     ZUILIST_WRAPPER_BIT="" ZUILIST_WRAPPER_LINE=""
 fi
-
 # vim:ft=zsh

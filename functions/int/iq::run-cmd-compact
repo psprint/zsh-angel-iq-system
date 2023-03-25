@@ -1,16 +1,13 @@
 #!/usr/bin/env zsh
-
 # Copyright (c) 2023 Sebastian Gniazdowski
 int/iq::run-cmd-compact() {
     eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
         0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:A}
-
     # Input/options
     local -A Opts;local -a opts
     int/iq::parse-opts "-ex p o E s 0: 2: 1:" Opts opts "$@"||return 7
     set -- "$reply[@]"
     integer EC
-
     tmp/iqrun() {
         setopt localoptions
         local -a qcmd=("$@")
@@ -19,7 +16,6 @@ int/iq::run-cmd-compact() {
         [[ -n $Opts[-0] ]]&&exec {IN}<$Opts[-0]
         [[ -n $Opts[-1] ]]&&exec {OUT}>$Opts[-1]
         [[ -n $Opts[-2] ]]&&exec {ERR}>$Opts[-2]
-
         if ((EOPT==2));then
             "$qcmd[@]" 0<&$IN 2>&$ERR 1>&$OUT
         elif ((ERR==2));then
@@ -56,3 +52,4 @@ int/iq::run-cmd-compact() {
     fi
     return $?
 }
+# vim:ft=zsh

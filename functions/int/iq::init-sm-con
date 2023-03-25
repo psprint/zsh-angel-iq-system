@@ -49,3 +49,4 @@ int/iq::init-sm-con() {
     return EC
 }
 int/iq::init-sm-con "$@"
+# vim:ft=zsh

@@ -43,6 +43,9 @@ for DIR ($dirs);do
         fi
     done
 done
+
 int/iq::reset
 
 }
+
+# vim:ft=zsh

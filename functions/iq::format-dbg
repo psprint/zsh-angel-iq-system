@@ -37,3 +37,4 @@ iq::format-dbg() {
     [[ -n $REPLY ]]
 }
 iq::format-dbg "$@"
+# vim:ft=zsh

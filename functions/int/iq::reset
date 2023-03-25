@@ -7,3 +7,4 @@ int/iq::reset() {
     typeset -gi MBEGIN= MEND=
     typeset -g -a reply=() match=() mbegin=() mend=()
 }
+# vim:ft=zsh

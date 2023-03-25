@@ -22,3 +22,5 @@ int/iq::prune-esc() {
     [[ $REPLY != INVALIDSTR ]]
 }
 int/iq::prune-esc "$@"
+
+# vim:ft=zsh

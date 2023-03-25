@@ -1,4 +1,5 @@
-emulate -L zsh
+#!/usr/bin/env zsh
+builtin emulate -L zsh
 
 zmodload zsh/curses
 
@@ -882,4 +883,5 @@ reply[9]="$uniq_mode"
 
 return EC
 
-# vim: set filetype=zsh:
+# vim:ft=zsh
+

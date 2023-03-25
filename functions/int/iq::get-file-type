@@ -35,3 +35,4 @@ int/iq::get-file-type() {
     fi
     return 0
 }
+# vim:ft=zsh

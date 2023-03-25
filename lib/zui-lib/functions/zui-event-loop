@@ -1,3 +1,4 @@
+#!/usr/bin/env zsh
 #
 # Started from zle or from command line
 #
@@ -480,5 +481,4 @@ fi
 done
 
 return 0
-
 # vim:ft=zsh

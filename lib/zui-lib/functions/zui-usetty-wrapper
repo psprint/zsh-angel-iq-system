@@ -1,3 +1,4 @@
+#!/usr/bin/env zsh
 emulate -L zsh
 
 zmodload zsh/curses
@@ -36,5 +37,4 @@ fi
 # Restore FD state
 (( restore == 1 )) && exec <&-
 (( restore == 2 )) && exec <&$FD && exec {FD}<&-
-
-# vim: set filetype=zsh:
+# vim:ft=zsh

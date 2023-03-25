@@ -25,3 +25,5 @@ int/iq::opt-cascade() {
     done
     return EC
 }
+
+# vim:ft=zsh

@@ -1,8 +1,6 @@
 #!/usr/bin/env zsh
 # -*- mode: sh; sh-indentation: 4; indent-tabs-mode: nil; sh-basic-offset: 4;-*-
-
 # Copyright (c) 2023 Sebastian Gniazdowski
-
 int/iq::parse-opts() {
     # Preamble – emulate & 0=…
     eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
@@ -29,3 +27,4 @@ int/iq::parse-opts() {
     REPLY="${(j| |)${(@)qe:|reply}}"
     return 0
 }
+# vim:ft=zsh
