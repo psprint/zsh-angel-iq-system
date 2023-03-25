@@ -26,7 +26,7 @@ int/iq::get-prj-dir() {
     local -a qt=(.git TAGS tags CMakeLists.txt configure)
     # Iterate over special files/dirs
     for FILEDIR ($qt); do
-        tmp/iq::up-find-dir $FILEDIR&&PRJ=$REPLY&&break
+        tmp/iq::up-find-dir $FILEDIR&&PRJ=$REPLY&&(($#REPLY))&&break
     done
 
     REPLY=$REPLY:h
