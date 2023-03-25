@@ -6,12 +6,17 @@ int/iq::prune-esc() {
 
     # Input/options
     local -A Opts;local -a opts
-    int/iq::parse-opts "T -no-trim s -jspace" Opts opts "$@"||return 7
+    int/iq::parse-opts "T -no-trim s -jspace b -bold" Opts opts "$@"||return 7
     set -- "$reply[@]"
-    int/iq::opt-cascade Opts -T --no-trim -s --jspace
+    int/iq::opt-cascade Opts -T --no-trim -s --jspace -b --bold
     int/iq::reset
     REPLY=$*
-    REPLY=${REPLY//$'\x1b'\[[0-9\;]#m}
+    local qe=$'\x1b'
+    if (($+Opts[-b]));then
+        REPLY=${REPLY//(#m)$qe\[/${MATCH}1\;}
+    else
+        REPLY=${REPLY//$qe\[[0-9\;]#m}
+    fi
     (($+Opts[-T]))||REPLY=${REPLY//((#s)[[:space:]]##|[[:space:]]##(#e))}
     (($+Opts[-s]))&&REPLY=${REPLY//(#b)([[:space:]]##)/${match[1][1]}}
     [[ $REPLY != INVALIDSTR ]]

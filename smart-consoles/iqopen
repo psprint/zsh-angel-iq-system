@@ -124,7 +124,7 @@ if ((!$+Opts[--refresh])); then
     -zui_glib_init app:"iqopen_$APP" app_name:"°Open° Console"
     emulate -L zsh -o extendedglob -o typesetsilent -o warncreateglobal -o combiningchars -o rcquotes
     -zui_glib_init2 # after emulate
-    ZUI[GEN_B_IDX]=0
+    ZUI[GEN_B_IDX]=0 ZUI[GIT_DIFF]=0
 
     # Needed for immediate output from coprocesses (disables buffering).
     ((${+commands[stdbuf]}))&& \
@@ -254,6 +254,12 @@ iqopen_fill_or_set_view_git() {
 
     if ((!ZUI[HAVE_0_INPUT]));then
         iq0items=("${(@f)$(command git diff --color=always)}")
+        local -a qreply=()
+        foreach QE ("$iq0items[@]")
+            int/iq::prune-esc -b $QE
+            qreply+=("$REPLY")
+        end
+        iq0items=("$qreply[@]")
     fi
     typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(4 3 2 1)
     separ
@@ -275,7 +281,12 @@ iqopen_fill_or_set_view_git() {
             q0input[q0idx]=$ZUI[FIRST_0_INPUT]$reply[1]
             shift reply
         fi
-        q0input+=("$reply[@]")
+        local -a qreply=()
+        foreach QE ("$reply[@]")
+            int/iq::prune-esc -b $QE
+            qreply+=("$REPLY")
+        end
+        q0input+=("$qreply[@]")
         q0inputp=("$q0input[@]")
         (($+Opts[-s]))&&q0inputp=("${(@on)q0inputp}")
         (($+Opts[-R]))&&q0inputp=("${(a@nO)q0inputp}")
