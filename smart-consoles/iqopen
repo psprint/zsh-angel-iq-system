@@ -162,7 +162,7 @@ fi
 
 zui::bindkey F2 '{iqopen_cmd_next 0/1;}'
 zui::bindkey F3 '{iqopen_cmd_next 2;}'
-zui::bindkey F4 '{command tig;ZUI[redraw]=1;}'
+zui::bindkey F4 '{tput reset;command tig;zcurses end;zcurses refresh;ZUI[redraw]=1;}'
 zui::bindkey F5 '{tput reset;command git commit;read -k 1</dev/tty;zcurses end;zcurses refresh;ZUI[redraw]=1;}'
 
 #    zui::bindkey F3 "{print q:$ZUI[mark]}"
