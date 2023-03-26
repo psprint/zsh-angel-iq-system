@@ -170,4 +170,12 @@ if (($ZUI[status_pointer])); then
     done
     zcurses refresh $window
 fi
+if [[ -n $ZUI[text_bar] ]];then
+    zcurses move "$window" $((ZUI[status_size]-1)) $((win_border+2))
+    zcurses clear "$window" eol
+    line=$ZUI[status_size]-1
+    -zuilog_counted_msg $zui_log_colors[3] $ZUI[text_bar] line 2 track_len
+
+
+fi
 # vim:ft=zsh

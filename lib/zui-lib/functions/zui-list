@@ -418,6 +418,8 @@ local backuptheme stbackuptheme
 -zui_glib_load_config s:border_cp "yellow/black" 2 'ZUI[border_cp]'
 -zui_glib_load_config b:bold 0 2 'ZUI[bold]'
 
+-zui_glib_load_config s:status_size 5 2 'ZUI[status_size]'
+-zui_glib_load_config s:text_bar "" 2 'ZUI[text_bar]'
 -zui_glib_load_config s:status_colorpair "white/black" 2 'ZUI[status_colorpair]'
 -zui_glib_load_config b:status_border 0 2 'ZUI[status_border]'
 -zui_glib_load_config s:status_border_cp "green/black" 2 'ZUI[status_border_cp]'

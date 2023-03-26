@@ -19,7 +19,7 @@
 --_tabledef-zsh3=equal
 
 # Feature: Zsh variable detection
---_mtable-regex-zsh3=main/^\s*(local|typeset|declare|integer|float|readonly)\s+(-\w+\s+)*///{tenter=vardef}
+--_mtable-regex-zsh3=main/^\s*(export|local|typeset|declare|integer|float|readonly)\s+(-\w+\s+)*///{tenter=vardef}
 # Feature: Zsh function name detection
 --_mtable-regex-zsh3=main/^\s*(function\s+|)([[:alnum:]:@∞.+-]+)\(\s*\)\s*([\{]|[\n]+[\{])/\2/f/
 --_mtable-regex-zsh3=main/^\s*[\#][^\n]*///{tenter=comment}
