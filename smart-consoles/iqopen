@@ -162,7 +162,7 @@ fi
 
 zui::bindkey F2 '{iqopen_cmd_next 0/1;}'
 zui::bindkey F3 '{iqopen_cmd_next 2;}'
-zui::bindkey F4 '{tput reset;command tig;-zui-glib-refresh;}'
+zui::bindkey F4 '{tput reset;command tig;-zui_glib_refresh;}'
 zui::bindkey F5 '{tput reset;command git commit;read -k 1;-zui_glib_refresh;}'
 zui::bindkey F6 '{tput reset;command git push;read -k 1;-zui_glib_refresh;}'
 zui::bindkey F7 '{tput reset;command git pull;read -k 1;-zui_glib_refresh;}'
