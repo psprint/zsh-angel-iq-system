@@ -68,6 +68,12 @@ ZUI[MARK]=$'\035'           # octal value, decimal 29 - Group separator
 ZUI[MARK2]=$'\036'          # octal value, decimal 30 - Record separator
 ZUI[MARK_E]=$ZUI[FMT_END]
 
+function -zui_glib_refresh(){
+    zcurses end
+    zcurses refresh
+    ZUI[redraw]=1
+}
+
 # FUNCTION: -zui_glib_init {{{
 # Initializes ZUI application. To be called before any emulate -L
 # Can take two arguments, prefixed with app: or app_name:, to set
@@ -836,6 +842,7 @@ function -zui_glib_cleanup() {
            HAVE_0_INPUT cat_started FIRST_0_INPUT START_IN_SEARCH
            app app_name
            # Configuration keys
+           text_bar text_bar_ts_
            text_mode text_mode_ts_
            timeout timeout_ts_
            colorpair colorpair_ts_

@@ -137,7 +137,7 @@ if ((!$+Opts[--refresh])); then
 
     -zui_glib_store_default_app_config b:instant_search 1
     -zui_glib_store_default_app_config s:select_mode "quit"   # Quit event loop on text-selection
-    -zui_glib_store_default_app_config b:text_bar "[F1 jump/srch res.][F2 preview][F3 diff][F4 Tig][F5 git commit]"
+    -zui_glib_store_default_app_config b:text_bar "[F1 jump/res.][F2 view][F3 diff][F4 Tig][F5 commit][F6 push][F7 pull][F8 SynH]"
     -zui_glib_store_default_app_config b:status_size 5
     -zui_glib_store_default_app_config b:status_pointer 1
     -zui_glib_store_default_app_config b:text_select 1        # Allow selection of text
@@ -162,14 +162,16 @@ fi
 
 zui::bindkey F2 '{iqopen_cmd_next 0/1;}'
 zui::bindkey F3 '{iqopen_cmd_next 2;}'
-zui::bindkey F4 '{tput reset;command tig;zcurses end;zcurses refresh;ZUI[redraw]=1;}'
-zui::bindkey F5 '{tput reset;command git commit;read -k 1</dev/tty;zcurses end;zcurses refresh;ZUI[redraw]=1;}'
+zui::bindkey F4 '{tput reset;command tig;-zui-glib-refresh;}'
+zui::bindkey F5 '{tput reset;command git commit;read -k 1;-zui_glib_refresh;}'
+zui::bindkey F6 '{tput reset;command git push;read -k 1;-zui_glib_refresh;}'
+zui::bindkey F7 '{tput reset;command git pull;read -k 1;-zui_glib_refresh;}'
 
 #    zui::bindkey F3 "{print q:$ZUI[mark]}"
 zui::bindkey F9 '{print view:$ZUI[SEARCH_BUFFER_PREVIEW], gl:$ZUI[SEARCH_BUFFER_GLOBAL], sbuff:$ZUI[SEARCH_BUFFER], current:$ZUI[CURRENT_IDX], PVIEW_Q:$ZUI[CURRENT_IDX_PVIEW_BKP_$ZUI[QPATH]], PVIEW:$ZUI[CURRENT_IDX_PVIEW_BKP], main:$ZUI[CURRENT_IDX_MAIN_BKP] sptr:$ZUI[status_pointer]|tee -a /tmp/reply;}'
 zui::bindkey F10 '{builtin source $ZIQ_CON_DIR/iqopen --refresh||\
                     iqw -r "Reload finished with error: " $?;}'
-zui::bindkey F7 '{iqopen_cmd_synh_switch;}'
+zui::bindkey F8 '{iqopen_cmd_synh_switch;}'
 
 iqopen_hub(){
     integer EC
@@ -183,7 +185,7 @@ iqopen_hub(){
 
 iqopen_fill_view_preview() {
     local QPATH QTXT
-    ZUI[COLORING_PATTERN]="·[^·]##·" ZUI[SRC_HIGHLIGHT_SWITCHED]=0
+    ZUI[COLORING_PATTERN]="·[^·]##·"
     ZUI[COLORING_MATCH_MULTIPLE]=1
     ZUI[COLORING_COLOR]=$ZUI[BOLD]$ZUI[YELLOW]
     if ((ZUI[CURRENT_IDX]>0&&ZUI[SRC_HIGHLIGHT_SWITCHED]==0&&ZUI[GEN_B_IDX]==1));then
