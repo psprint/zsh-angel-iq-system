@@ -8,8 +8,10 @@
 ZUI[utillib_sourced]="1"
 
 function zui::bindkey() {
-    local QSEQ=$1 QC=$2
-    ZUI[bindkey_$QSEQ]=$QC
+    builtin emulate -L zsh -o extendedglob
+    local QSEQ=$1
+    shift
+    ZUI[bindkey_$QSEQ]=$*
     [[ -n $QSEQ ]]
 }
 

@@ -11,7 +11,7 @@ iqopen()
 eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
     0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:A}
 
-source $0:h:h/share/preamble.inc.zsh --script --fun --cleanup
+source $0:h:h/share/preamble.inc.zsh --script --fun
 
 local -A Opts;local -a opts
 int/iq::init-sm-con Opts opts "$@"||{print QE>>/tmp/reply;return 13}
@@ -163,17 +163,12 @@ fi
 cmd-synh-switch() {iqopen_cmd_synh_switch;}
 cmd-toggle-view() {iqopen_cmd_next 0/1;}
 cmd-open-diff-view() {iqopen_cmd_next 2;}
-cmd-open-tig() {zcurses end;command tig;-zui_glib_refresh;}
-cmd-commit() {zcurses end;command git commit;read -k 1;-zui_glib_refresh;}
-cmd-push() {zcurses end;command git push;read -k 1;-zui_glib_refresh;}
-cmd-pull() {zcurses end;command git pull;read -k 1;-zui_glib_refresh;}
-zui::bindkey F2 cmd-toggle-view
-zui::bindkey F3 cmd-open-diff-view
-zui::bindkey F4 cmd-open-tig
-zui::bindkey F5 cmd-commit
-zui::bindkey F6 cmd-push
-zui::bindkey F7 cmd-pull
-zui::bindkey F8 cmd-synh-switch
+cmd-open-tig() {zcurses end;command tig "$@";-zui_glib_refresh;}
+cmd-commit() {zcurses end;command git commit "$@";read -k 1;-zui_glib_refresh;}
+cmd-push() {zcurses end;command git push "$@";read -k 1;-zui_glib_refresh;}
+cmd-pull() {zcurses end;command git pull "$@";read -k 1;-zui_glib_refresh;}
+
+builtin source -- $ZIQCFG
 
 #    zui::bindkey F3 "{print q:$ZUI[mark]}"
 zui::bindkey F9 '{print view:$ZUI[SEARCH_BUFFER_PREVIEW], gl:$ZUI[SEARCH_BUFFER_GLOBAL], sbuff:$ZUI[SEARCH_BUFFER], current:$ZUI[CURRENT_IDX], PVIEW_Q:$ZUI[CURRENT_IDX_PVIEW_BKP_$ZUI[QPATH]], PVIEW:$ZUI[CURRENT_IDX_PVIEW_BKP], main:$ZUI[CURRENT_IDX_MAIN_BKP] sptr:$ZUI[status_pointer]|tee -a /tmp/reply;}'
