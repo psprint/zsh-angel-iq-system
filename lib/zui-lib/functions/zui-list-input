@@ -371,7 +371,7 @@ for QKEY in ${ZUI[(I)bindkey_*]##bindkey_}; do
     [[ $QKEY == $key ]]&&{eval $ZUI[bindkey_$QKEY]; EC=$?; FOUND=1; break;}
 done
 
-((!found))&&\
+((!FOUND))&&\
 case "$key" in
     (UP|k)
         # Are there any elements before the current one?
@@ -646,7 +646,7 @@ for QKEY in ${ZUI[(I)bindkey_*]##bindkey_}; do
     [[ $QKEY == $key ]]&&{eval $ZUI[bindkey_$QKEY]; EC=$?; FOUND=1; break;}
 done
 
-((!found))&&\
+((!FOUND))&&\
 case "$key" in
     ($'\n'|ENTER)
         if ((ZUI[instant_select]));then

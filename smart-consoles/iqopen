@@ -161,7 +161,7 @@ if ((!$+Opts[--refresh])); then
 fi
 
 cmd-synh-switch() {iqopen_cmd_synh_switch;}
-cmd-toggle-view() {iqopen_cmd_next 0/1;}
+cmd-toggle-view() {[[ $1 == view ]]&&local Q=1||local Q=0/1;iqopen_cmd_next $Q;}
 cmd-open-diff-view() {iqopen_cmd_next 2;}
 cmd-open-tig() {zcurses end;command tig "$@";-zui_glib_refresh;}
 cmd-commit() {zcurses end;command git commit "$@";read -k 1;-zui_glib_refresh;}
