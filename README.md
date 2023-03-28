@@ -6,6 +6,7 @@
   - [Build console](#build-console)
   - [Ctags browser](#ctags-browser)
   - [Angel usage information](#angel-usage-information)
+  - [Angel open console](#angel-open-console)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
