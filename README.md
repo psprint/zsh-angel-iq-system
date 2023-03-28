@@ -90,3 +90,33 @@ Below are subcommands of the command `angel`, i.e.: `angel {subcommand} …`
 - **try** : the same as try-ng, but greedy,
 - **x-tract** : extracts any archive, recognizes many types,
 - **countdown** : a graphical countdown, waits for `ARGUMENT` seconds.
+
+## Angel open console
+
+After entering `angel open` (aliased to `apo`) a `fzf`-like TUI opens. It shows
+all files in current directory by default (configure by `ANGEL_DEFAULT_COMMAND`)
+or the lines read at standard input, if it'll be detected:
+
+![angel-open](https://raw.githubusercontent.com/psprint/zsh-angel-system/master/share/img/open-default.png)
+
+After pressing `F2`, the currently selected file will be open, with syntax
+highlighting (requires `highlight`, `source-highlight` or `bat`):
+
+![preview](https://raw.githubusercontent.com/psprint/zsh-angel-system/master/share/img/open-preview.png)
+
+Pressing `ENTER` on any line will open `$VISUAL`/`$EDITOR`/`$PAGER` scrolled to
+that line.
+
+Pressing `F3` will open `Git Diff` view.
+
+![diff](https://raw.githubusercontent.com/psprint/zsh-angel-system/master/share/img/open-diff.png)
+
+Pressing `ENTER` on any line will open `$VISUAL`/`$EDITOR`/`$PAGER` scrolled to
+that line.
+
+Any view can be greped – `angel open` starts with search prompt active, so you
+can enter the search-keyword to have either files, file preview contents or
+git diff lines filtered with it. Multiple keywords are allowed. Below is a
+file preview grepped:
+
+![preview-grep](https://raw.githubusercontent.com/psprint/zsh-angel-system/master/share/img/open-preview-grep.png)
