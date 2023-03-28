@@ -6,7 +6,8 @@ int/iq::prune-esc() {
 
     # Input/options
     local -A Opts;local -a opts
-    int/iq::parse-opts "T -no-trim s -jspace b -bold" Opts opts "$@"||return 7
+    int/iq::parse-opts "T -no-trim s -jspace b -bold" Opts opts "$@"||\
+        {iqerr bad option given to: {func}iq::prune-esc: $@;return 7;}
     set -- "$reply[@]"
     int/iq::opt-cascade Opts -T --no-trim -s --jspace -b --bold
     int/iq::reset
