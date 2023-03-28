@@ -878,7 +878,7 @@ reply[4]="$current_segment"
 reply[5]="$from_what_idx_list_is_shown"
 reply[6]="$hscroll"
 reply[7]="$search"
-reply[8]="$buffer"
+reply[8]="${buffer##[[:space:]]##}"
 reply[9]="$uniq_mode"
 
 return EC
