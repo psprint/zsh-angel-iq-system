@@ -329,27 +329,37 @@ while (( 1 )); do
     builtin print -rn -- $terminfo[smcup]$termcap[ti]
     zui-event-loop a:qitems
     builtin print -rn -- $terminfo[rmcup]$termcap[te]
+    # exit?
     [[ -z $REPLY ]]&&break
     local QFILE= REPLY_SAVE=$REPLY; integer QIDX=0
-    if [[ -z $ZUI[SEARCH_BUFFER] ]];then
-         if ((ZUI[GEN_B_IDX]%3==1));then
+    # no search selection?
+    # …from diff?
+    if ((ZUI[GEN_B_IDX]%3==2));then
+        if zui::get_diff_line "$__qlist[@]";then
+            QIDX=$reply[1] QFILE=$reply[2]
+        fi
+    elif [[ -z $ZUI[SEARCH_BUFFER] ]];then
+        # …from preview?
+        if ((ZUI[GEN_B_IDX]%3==1));then
             QFILE=$ZUI[QPATH]
             QIDX=ZUI[USER_CURRENT_IDX]
             iqw "Opening " $QFILE " scrolled to line: " "#$QIDX"
-        elif ((ZUI[GEN_B_IDX]%3==2));then
-            : ??? FIXME
-        elif [[ $REPLY_SAVE != *(·|–|—)* ]];then
+        # …tree?
+        elif ((ZUI[GEN_B_IDX]%3==0))&&[[ $REPLY_SAVE != *(·|–|—)* ]];then
             QFILE=$REPLY_SAVE
         fi
+    # search selection?
     else
+        # prepare the list var that's needed by -zui_sys_get_match_line
         repeat 1; do typeset +U -ga __slist=("$__qlist[@]");done
-        if -zui_sys_get_match_line 'QIDX'; then
+        if -zui_sys_get_match_line QIDX; then
+            # preview?
             if ((ZUI[GEN_B_IDX]%3==1));then
                 QFILE=$ZUI[QPATH]
-                iqw "Opening " $QFILE " scrolled to line: " "#$QIDX"
-            elif ((ZUI[GEN_B_IDX]%3==2));then
-                : ??? FIXME
-            elif [[ $REPLY_SAVE != *(·|–|—)* ]];then
+                iqw "Opening " "${QFILE:-error ↔ not found}"\
+                        " scrolled to line: " "#$QIDX"
+            # or normal?
+            elif ((ZUI[GEN_B_IDX]%3==0))&&[[ $REPLY_SAVE != *(·|–|—)* ]];then
                 QFILE=$REPLY_SAVE
                 QIDX=0
             fi

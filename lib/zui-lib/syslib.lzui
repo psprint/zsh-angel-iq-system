@@ -260,8 +260,40 @@ function -zui_sys_add_message() {
     (( ++ ZUI[message_count] ))
 
     # House-keeping
-    (( ${#ZUI_MESSAGES} >= ZUI[log_size] + 10 )) && { ZUI_MESSAGES=( "${(@)ZUI_MESSAGES[1+10,-1]}" ); }
+    (( ${#ZUI_MESSAGES} >= ZUI[log_size] + 10 ))&&\
+        { ZUI_MESSAGES=( "${(@)ZUI_MESSAGES[1+10,-1]}" ); }
 } # }}}
+
+
+function zui::get_diff_line() {
+    integer QFLAG QI QLINE QW QC=$#ZUILIST_NONSELECTABLE_ELEMENTS
+    local LINE FILE
+    if [[ -n $ZUI[SEARCH_BUFFER] ]];then
+        repeat 1; do typeset +U -ga __slist=("$__qlist[@]");done
+        -zui_sys_get_match_line QI||return 13
+        QLINE=QI
+    else
+        QLINE=${ZUI[CURRENT_IDX]}
+    fi
+    QLINE+=QC
+    for ((QI=QLINE-1;QI>QC;--QI));do
+        LINE=$__qlist[QI]
+        int/iq::prune-esc $LINE
+        if ((!QFLAG))&&[[ $REPLY == (#b)@@\ -<->,<->\ +(<->),<->\ @@?* ]];then
+            QW+=match[1] QFLAG=1
+        elif [[ $REPLY == (#b)+++[[:space:]]##[ba]/(*) ]];then
+            FILE=$match[1]
+        elif ((!QFLAG))&&[[ $REPLY[1] != - ]];then
+            QW+=1
+        fi
+        (($#FILE&&QFLAG))&&break
+    done
+    ((QI==QC))&&return 7
+    reply[2]=$FILE
+    reply[1]=$((QW-($#ZUI[SEARCH_BUFFER]==0?QC:0)))
+    [[ -n $FILE ]]
+    return $?
+}
 
 # FUNCTION: -zui_sys_get_match_line {{{
 # Returns at which index in $__list the search
@@ -304,8 +336,12 @@ function -zui_sys_get_match_line() {
         __line+=${#__empty}
         : ${(P)__var_name::=$__line}
         return 0
+    else
+        : ${(P)__var_name::=$ZUI[CURRENT_IDX]}
+        ((ZUI[CURRENT_IDX]>0&&\
+            ZUI[CURRENT_IDX]>${${(On)ZUILIST_NONSELECTABLE_ELEMENTS}[1]}))
+        return $?
     fi
-    return 1
 } # }}}
 
 # vim:ft=zsh
