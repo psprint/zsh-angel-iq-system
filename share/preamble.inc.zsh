@@ -42,9 +42,10 @@ export ZIQDIR="${0:h:h}" \
        ZIQLOG="${0:h:h}"/io.log \
        IQNICK=${IQNICK:-Angel-IQ} \
        ZIQTXT="${0:h:h}/share/txt" \
-       ZIQCFG="${XDG_CONFIG_HOME:-$HOME/.config/angel}/angel.cfg"
+       ZIQCFG="${XDG_CONFIG_HOME:-$HOME/.config/angel}/angel.cfg" \
        \
-       ZIQNUL=/dev/null
+       ZIQNUL=/dev/null \
+       ZIQDBG=/tmp/reply
 
 [[ ! -f $ZIQCFG ]]&&\
     {command mkdir -p -- $ZIQCFG:h;cp -vf -- "$ZIQDIR/angel.cfg" "$ZIQCFG";}

@@ -274,7 +274,7 @@ iqopen_fill_or_set_view_git() {
         iq0items=("${(@f)$(command git diff --color=always)}")
         local -a qreply=()
         foreach QE ("$iq0items[@]")
-            int/iq::prune-esc -b -- $QE
+            int/iq::prune-esc -T -b -- $QE
             qreply+=("$REPLY")
         end
         iq0items=("$qreply[@]")
@@ -301,7 +301,7 @@ iqopen_fill_or_set_view_git() {
         fi
         local -a qreply=()
         foreach QE ("$reply[@]")
-            int/iq::prune-esc -b -- $QE
+            int/iq::prune-esc -T -b -- $QE
             qreply+=("$REPLY")
         end
         q0input+=("$qreply[@]")

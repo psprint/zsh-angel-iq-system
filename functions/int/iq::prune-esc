@@ -6,21 +6,22 @@ int/iq::prune-esc() {
 
     # Input/options
     local -A Opts;local -a opts
-    int/iq::parse-opts "T -no-trim s -jspace b -bold" Opts opts "$@"||\
+    int/iq::parse-opts "T -no-trim s -jspace b -bold v: -var:" Opts opts "$@"||\
         {iqerr bad option given to: {func}iq::prune-esc: $@;return 7;}
     set -- "$reply[@]"
-    int/iq::opt-cascade Opts -T --no-trim -s --jspace -b --bold
+    int/iq::opt-cascade Opts -T --no-trim -s --jspace -b --bold -v --var
     int/iq::reset
-    REPLY=$*
-    local qe=$'\x1b'
+    local qe=$'\x1b' __VAR_NAME=${Opts[-v]:-REPLY} __REPLY
+    __REPLY=$*
     if (($+Opts[-b]));then
-        REPLY=${REPLY//(#m)$qe\[/${MATCH}1\;}
+        __REPLY=${__REPLY//(#m)$qe\[/${MATCH}1\;}
     else
-        REPLY=${REPLY//$qe\[[0-9\;]#m}
+        __REPLY=${__REPLY//$qe\[[0-9\;]#m}
     fi
-    (($+Opts[-T]))||REPLY=${REPLY//((#s)[[:space:]]##|[[:space:]]##(#e))}
-    (($+Opts[-s]))&&REPLY=${REPLY//(#b)([[:space:]]##)/${match[1][1]}}
-    [[ $REPLY != INVALIDSTR ]]
+    (($+Opts[-T]))||__REPLY=${__REPLY//((#s)[[:space:]]##|[[:space:]]##(#e))}
+    (($+Opts[-s]))&&__REPLY=${__REPLY//(#b)([[:space:]]##)/${match[1][1]}}
+    : ${(P)__VAR_NAME::=$__REPLY}
+    [[ $__REPLY != WRONGSTR ]]
 }
 int/iq::prune-esc "$@"
 

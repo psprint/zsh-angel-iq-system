@@ -15,11 +15,14 @@ int/iq::init-sm-con() {
                 smart-consoles, exiting…
         return EC+3
     fi
-
-    # Options and arguments
-    local -A __Opts; local -a __opts
-    int/iq::parse-opts "s -sort C: -dir: R -reverse -refresh" __Opts __opts "$@"||\
-        {iqerr incorrect options given to subcommand; return EC+17;}
+    {
+        # Options and arguments
+        local -A __Opts; local -a __opts
+        int/iq::parse-opts "s -sort C: -dir: R -reverse -refresh" __Opts __opts "$@"||throw BadOpts
+    } always {
+        ((TRY_BLOCK_ERROR))&&\
+            iqw "Bad options given to console"
+    }
     set -- "$reply[@]"
     int/iq::opt-cascade __Opts -C --dir -s --sort -R --reverse
     EC+=$?
