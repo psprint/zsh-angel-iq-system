@@ -807,8 +807,7 @@ while (( 1 )); do
                             "$__page_height" "$__page_width" "$__last_element" "$__nseg" "$ZUI[TEXT_OFFSET]" \
                             "$__final_key" "$ZUI[IN_SEARCH]" "$ZUI[SEARCH_BUFFER]" \
                             "$ZUI[UNIQ_MODE]" "$ZUILIST_DISABLE_SEARCH" "__list"
-
-            __selection="$reply[1]"
+            [[ $reply[1] == <-> ]]&&__selection="$reply[1]"
             __action="$reply[2]"
             ZUI[CURRENT_IDX]="$reply[3]"
             ZUI[CURRENT_SEGMENT]="$reply[4]"
