@@ -322,7 +322,7 @@ iqopen_fill_or_set_view_git() {
     local col=$ZUI[WHITE]
     ZUI[COLORING_PATTERN]="(#s)[^+-]*" ZUI[COLORING_COLOR]=$col
     ZUI[COLORING_MATCH_MULTIPLE]=1
-    ((!ZUI[GIT_DIFF]))&&iqw "Git diff input," " Shift-F2" \
+    ((!ZUI[GIT_DIFF]))&&iqw "Git diff input," " Shift-F3" \
         " stages selected " "1-line"
     (($1))&&ZUI[GEN_B_IDX]=2
     ZUI[GIT_DIFF]=1
