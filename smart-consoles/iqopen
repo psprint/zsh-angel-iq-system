@@ -114,35 +114,40 @@ iqopen_view_switch(){
 }
 
 iqopen_stage_line(){
-    integer QI QCNT=$#__qlist QIDX QOFF1 QOFF0
+    integer QI QCNT=$#__qlist QIDX QOFF1 QOFF0 QLINE
     local LINE FIRSTC
     ok/qlocal
     local reply=() REPLY
-    if zui::get_diff_line "$__qlist[@]";then
+    {
+        zui::get_diff_line "$__qlist[@]"||\
+            THROW "Internal error, cannot stage"
         QIDX=$reply[1] QFILE=$reply[2]
-    else
-        iqw "Internal error" ", " "cannot stage"
-        return 1
-    fi
+    } always {
+        CATCH *&&iqw $CAUGHT
+    }
 
-    for ((QI=ZUI[CURRENT_IDX]-1;QI>0;QI--));do
+    repeat 1;do typeset +U -ag __slist=("$__qlist[@]");done
+    -zui_sys_get_match_line QLINE
+    (($#ZUI[SEARCH_BUFFER]))&&QLINE+=$#ZUILIST_NONSELECTABLE_ELEMENTS
+
+    for ((QI=QLINE-1;QI>0;QI--));do
         int/iq::prune-esc -T -- $__qlist[QI]
         [[ $REPLY[1] != [+] ]]&&\
-                QOFF0+=-ZUI[CURRENT_IDX]+QI&&break
+                QOFF0+=-QLINE+QI&&break
         [[ $REPLY[1] == [-] ]]&&\
                 QOFF0+=1
     done
 
-    for ((QI=ZUI[CURRENT_IDX]+1;QI<=QCNT;QI++));do
+    for ((QI=QLINE+1;QI<=QCNT;QI++));do
         int/iq::prune-esc -T -- $__qlist[QI]
         [[ $REPLY[1] != [+] ]]&&\
-                QOFF1+=-ZUI[CURRENT_IDX]+QI&&break
+                QOFF1+=-QLINE+QI&&break
         [[ $REPLY[1] == [-] ]]&&\
                 QOFF1=QOFF1-1
     done
     ((QOFF0&&QOFF1))||{iqw "Problems gathering lines, cannot stage"
                         return 3;}
-    LINE=$__qlist[ZUI[CURRENT_IDX]]
+    LINE=$__qlist[QLINE]
     int/iq::prune-esc -T -- $LINE
 
     FIRSTC=$REPLY[1] LINE=$REPLY
@@ -156,8 +161,8 @@ iqopen_stage_line(){
     local LEFT=$((QIDX-1))${${:-,$((QLEFT?3:2))}:#,0} \
             RIGHT=$((QIDX-1))${${:-,$((QRIGHT?3:2))}:#,0}
     local PATCH=$(mktemp) ALINE ULINE
-    int/iq::prune-esc -T -v ALINE -- $__qlist[ZUI[CURRENT_IDX]+QOFF0]
-    int/iq::prune-esc -T -v ULINE -- $__qlist[ZUI[CURRENT_IDX]+QOFF1]
+    int/iq::prune-esc -T -v ALINE -- $__qlist[QLINE+QOFF0]
+    int/iq::prune-esc -T -v ULINE -- $__qlist[QLINE+QOFF1]
     ALINE[1]=" " ULINE[1]=" "
     cat >|$PATCH >>/tmp/reply <<END
 diff --git a/$QFILE b/$QFILE
