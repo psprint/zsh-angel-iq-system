@@ -5,10 +5,14 @@
 #
 
 iqmsgi() {
+local OBKP=$REPLY obkp=("$reply[@]")
+
+tmp/restore-state(){
+  (($+Opts[-Q]))&&{REPLY=$OBKP;reply=("$obkp[@]");}||REPLY=1
+}
 
 eval "${SNIP_EMULATE_OPTIONS_ZERO:-false}"||\
         0=${${${(M)${0::=${(%):-%x}}:#/*}:-$PWD/$0}:A}
-local OBKP=$REPLY obkp=("$reply[@]")
 source $0:h:h/share/preamble.inc.zsh --fun
 
 # -h - origin tag
@@ -21,6 +25,7 @@ int/iq::parse-opts "h p q -quiet e n Q" Opts opts "$@"||return 13
 set -- "$reply[@]"
 # Quiet mode? → no printing if so
 (($+Opts[-q]==1&&$+Opts[-p]!=1))&&return
+(($+functions[iqw]))&&{iqw "$*";tmp/restore-state;return;}
 
 local TMP
 iq::read-theme||return 17
@@ -96,7 +101,7 @@ builtin print -r $n $err -P -- "${REPLY//$q/$qn}" "%k%f%b%u"
 
 # Mark that iqmsg has run, to use in [[…]]&&iqmsg … cascades
 int/iq::reset
-(($+Opts[-Q]))&&{REPLY=$OBKP;reply=("$obkp[@]");}||REPLY=1
+tmp/restore-state
 }
 iqmsgi "$@"
 # vim:ft=zsh:sw=4:sts=4:et
