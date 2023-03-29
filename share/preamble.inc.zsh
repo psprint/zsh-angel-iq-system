@@ -81,12 +81,11 @@ fi
 typeset -gU fpath FPATH path PATH
 
 # Autoload via fpath, not direct paths
-autoload -z $ZIQDIR/functions/*~*~(.N:t) \
+autoload -z $ZIQDIR/functions/*~(*~|*/THROW|*/CATCH)(.N:t) \
             $ZIQDIR/functions/*/*~(*~|*/ok/qlocal)(.N:t2) \
-            $ZIQDIR/bin/*~*~(.N:t) \
-            THROW CATCH #zsweep:pass
+            $ZIQDIR/bin/*~*~(.N:t)
 
-builtin autoload +zX ok/qlocal
+builtin autoload +zX ok/qlocal THROW CATCH
 
 #
 # Simple, small support messaging system
