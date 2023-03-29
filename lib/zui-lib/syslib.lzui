@@ -270,28 +270,30 @@ function zui::get_diff_line() {
         QC=$(($#ZUI[SEARCH_BUFFER]?$#ZUILIST_NONSELECTABLE_ELEMENTS:0))
     local LINE FILE
     if [[ -n $ZUI[SEARCH_BUFFER] ]];then
-        repeat 1; do typeset +U -ga __slist=("$__qlist[@]");done
-        -zui_sys_get_match_line QI||return 13
+        repeat 1; do typeset +U -ga __slist=("$@[@]");done
+        -zui_sys_get_match_line QI||THROW "cannot resolve search"
         QLINE=QI+QC
     else
         QLINE=${ZUI[CURRENT_IDX]}
     fi
+    ((QLINE>$#))&&THROW "Cursor $QLINE > $# (max element)"
     for ((QI=QLINE-1;QI>QC;--QI));do
         LINE=$__qlist[QI]
-        int/iq::prune-esc -- $LINE
-        if ((!QFLAG))&&[[ $REPLY == (#b)@@\ -<->,<->\ +(<->),<->\ @@?* ]];then
+        LINE=$@[QI]
+        int/iq::prune-esc -T -- $LINE
+        if ((!QFLAG))&&[[ $REPLY == (#b)(#s)@@\ -<->,<->\ +(<->),<->\ @@* ]];then
             QW+=match[1] QFLAG=1
-        elif [[ $REPLY == (#b)+++[[:space:]]##[ba]/(*) ]];then
+        elif [[ $REPLY == (#b)(#s)+++[[:space:]]##[ba]/(*) ]];then
             FILE=$match[1]
         elif ((!QFLAG))&&[[ $REPLY[1] != - || $REPLY[2] != ([[:space:]]|) ]];then
             QW+=1
         fi
         (($#FILE&&QFLAG))&&break
     done
-    ((QI==QC))&&return 7
+    ((QI==QC))&&THROW "No diff header found"
     reply[2]=$FILE
     reply[1]=$QW
-    [[ -n $FILE ]]
+    [[ -n $FILE ]]||THROW "No such file: ·$FILE·"
     return $?
 }
 

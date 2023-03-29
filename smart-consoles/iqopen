@@ -114,15 +114,70 @@ iqopen_view_switch(){
 }
 
 iqopen_stage_line(){
-    integer QIDX
+    integer QI QCNT=$#__qlist QIDX QOFF1 QOFF0
+    local LINE FIRSTC
     ok/qlocal
     local reply=() REPLY
     if zui::get_diff_line "$__qlist[@]";then
         QIDX=$reply[1] QFILE=$reply[2]
+    else
+        iqw "Internal error" ", " "cannot stage"
+        return 1
     fi
-    int/iq::read-all-sys -t0 -d$QFILE||\
-        {iqw "Internal error, cannot read file $QFILE:t";return 13;}
-    LINE=$reply[QIDX]
+
+    for ((QI=ZUI[CURRENT_IDX]-1;QI>0;QI--));do
+        int/iq::prune-esc -T -- $__qlist[QI]
+        [[ $REPLY[1] != [+] ]]&&\
+                QOFF0+=-ZUI[CURRENT_IDX]+QI&&break
+        [[ $REPLY[1] == [-] ]]&&\
+                QOFF0+=1
+    done
+
+    for ((QI=ZUI[CURRENT_IDX]+1;QI<=QCNT;QI++));do
+        int/iq::prune-esc -T -- $__qlist[QI]
+        [[ $REPLY[1] != [+] ]]&&\
+                QOFF1+=-ZUI[CURRENT_IDX]+QI&&break
+        [[ $REPLY[1] == [-] ]]&&\
+                QOFF1=QOFF1-1
+    done
+    ((QOFF0&&QOFF1))||{iqw "Problems gathering lines, cannot stage"
+                        return 3;}
+    LINE=$__qlist[ZUI[CURRENT_IDX]]
+    int/iq::prune-esc -T -- $LINE
+
+    FIRSTC=$REPLY[1] LINE=$REPLY
+    [[ $FIRSTC == [+-] ]]||return 1
+    {
+        int/iq::read-all-sys -t0 -d$QFILE||throw FileError
+    } always {
+        CATCH *&&iqw "Error on read of file:" " «$QFILE:t»"
+    }
+    integer QLEFT=${${${(M)FIRSTC:#-}:+1}:-0} QRIGHT=${${${(M)FIRSTC:#+}:+1}:-0}
+    local LEFT=$((QIDX-1))${${:-,$((QLEFT?3:2))}:#,0} \
+            RIGHT=$((QIDX-1))${${:-,$((QRIGHT?3:2))}:#,0}
+    local PATCH=$(mktemp) ALINE ULINE
+    int/iq::prune-esc -T -v ALINE -- $__qlist[ZUI[CURRENT_IDX]+QOFF0]
+    int/iq::prune-esc -T -v ULINE -- $__qlist[ZUI[CURRENT_IDX]+QOFF1]
+    ALINE[1]=" " ULINE[1]=" "
+    cat >|$PATCH >>/tmp/reply <<END
+diff --git a/$QFILE b/$QFILE
+--- a/$QFILE
++++ b/$QFILE
+@@ -$LEFT +$RIGHT @@ dummy text
+$ALINE
+$LINE
+$ULINE
+END
+    command git apply --ignore-whitespace --cached --recount&>>!$ZIQNUL -- $PATCH
+    if (($?));then
+        iqw "Stage of " "1-line no. " $QIDX " ✗ FAILED"
+    else
+        iqw "Stage of " "1-line no. " $QIDX " ✓ correct"
+    fi
+    iqopen_hub
+    command rm -f "$PATCH"
+}
+
 separ() {
     REPLY="$ZUI[YELLOW]${(l:COLUMNS*3::—:):-}$ZUI[FMT_END]";
 }
@@ -174,7 +229,7 @@ cmd-synh-switch() {iqopen_cmd_synh_switch;}
 cmd-toggle-view() {[[ $1 == view ]]&&local Q=1||local Q=0/1;iqopen_cmd_next $Q;}
 cmd-open-diff-view() {iqopen_cmd_next 2;}
 cmd-open-tig() {zcurses end;command tig "$@";-zui_glib_refresh;}
-cmd-commit() {zcurses end;command git commit "$@";read -k 1;-zui_glib_refresh;}
+cmd-commit() {zcurses end;command git commit -v "$@";read -k 1;-zui_glib_refresh;}
 cmd-push() {zcurses end;command git push "$@";read -k 1;-zui_glib_refresh;}
 cmd-pull() {zcurses end;command git pull "$@";read -k 1;-zui_glib_refresh;}
 cmd-stage-line() {iqopen_stage_line;}
@@ -214,17 +269,17 @@ iqopen_fill_view_preview() {
 " located at: ·${${${(M)QPATH##/*}:+$QPATH:h}:-$PWD}/·"
             ((ZUI[SRC_HIGHLIGHT]))||return 0
             int/iq::get-file-type -s -q $QPATH||\
-                {iqw "Unknown file type, no syntax highlighting";throw NoTool}
+                THROW  "Unknown file type, no syntax highlighting"
             int/iq::get-stx-cmd -q $REPLY||\
-                {iqw "Error: no highlighter command found (e.g.: bat, highlight)"
-                throw NoType;}
+                THROW "Error: no highlighter command found (bat, {src-,}highlight)"
             local -a qcmd=("$reply[@]" "$QPATH")
             iq0items=("${(@f)$($qcmd[@])}")
         else
             QTXT="!NO FILE SELECTED, PRESS F2 TO SHOW FILE TREE!"
         fi
     } always {
-        if catch \* || [[ $iq0items == $~galiases[WRONGSTR] ]];then
+        if CATCH \* || [[ $iq0items == $~galiases[WRONGSTR] ]];then
+            iqw $EXCEPTION
             [[ -f $QPATH ]]&&iq0items=("${(@f)$(<$QPATH)}")
         fi
         if [[ $iq0items != $~galiases[WRONGSTR] ]];then

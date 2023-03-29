@@ -18,7 +18,7 @@ int/iq::init-sm-con() {
     {
         # Options and arguments
         local -A __Opts; local -a __opts
-        int/iq::parse-opts "s -sort C: -dir: R -reverse -refresh" __Opts __opts "$@"||throw BadOpts
+        int/iq::parse-opts "s -sort C: -dir: R -reverse -refresh" __Opts __opts "$@"||THROW BadOpts
     } always {
         ((TRY_BLOCK_ERROR))&&\
             iqw "Bad options given to console"

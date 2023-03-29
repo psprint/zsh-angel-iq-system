@@ -84,7 +84,7 @@ typeset -gU fpath FPATH path PATH
 autoload -z $ZIQDIR/functions/*~*~(.N:t) \
             $ZIQDIR/functions/*/*~(*~|*/ok/qlocal)(.N:t2) \
             $ZIQDIR/bin/*~*~(.N:t) \
-            throw catch #zsweep:pass
+            THROW CATCH #zsweep:pass
 
 builtin autoload +zX ok/qlocal
 

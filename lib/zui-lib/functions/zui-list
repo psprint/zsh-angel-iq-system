@@ -690,7 +690,7 @@ while (( 1 )); do
             -zui_list_translate_color_marks_in_disp_list
 
             # Replace newlines with "\n" (2/3)
-            __disp_list=( "${(@)__disp_list//$'\n'/n}" )
+            __disp_list=( "${(@)__disp_list//$'\n'/\$}" )
         fi
 
         # We need second __disp_list to be able to traverse with mark
