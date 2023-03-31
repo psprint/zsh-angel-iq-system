@@ -42,6 +42,7 @@ trap "REPLY=-2; reply=(); return 1" TERM INT QUIT
 # $1 is window name, $2 is the expected cursor state (0 invisible, 1 visible)
 # Prefer module terminfo, then tput
 -zui_list_cursor_visibility() {
+    print -r -- -zui_list_cursor_visibility "$@">>/tmp/reply
     # If $1 = plain, then just output the
     # codes without any state management
     if [[ "$1" != "plain" ]]; then
@@ -51,9 +52,9 @@ trap "REPLY=-2; reply=(); return 1" TERM INT QUIT
     fi
 
     if [[ -n $terminfo[cvvis] && -n ${terminfo[cnorm]} ]]; then
-        [[ "$2" = 1 ]] && { echo -En $terminfo[cvvis]; echo -En $terminfo[cnorm]; }
-        [[ "$2" = 0 ]] && echo -n $terminfo[civis]
-    elif type tput 2>/dev/null 1>&2; then
+        [[ "$2" = 1 ]] && { print -rn $terminfo[cvvis]; print -rn $terminfo[cnorm]; }
+        [[ "$2" = 0 ]] && print -n $terminfo[civis]
+    elif type tput &>/dev/null; then
         [[ "$2" = 1 ]] && { tput cvvis; tput cnorm; }
         [[ "$2" = 0 ]] && tput civis
     fi 
@@ -364,10 +365,11 @@ integer __prev_start_idx=-1
 local MBEGIN MEND MATCH
 local -a mbegin mend match
 local -a __segments
+local -a bufs=('ZUI[SEARCH_BUFFER]' '' 'ZUI[QUERY_BUFFER]')
 integer __nseg
 
 local -A __cursor_state
-__cursor_state=( "main" 1 "status" 0 "field" 0 )
+__cursor_state=( main 1 status 0 field 0 )
 
 # Escape codes for colors
 local RESET=$'\e[0m' BLACK=$'\e[30m' RED=$'\e[31m' GREEN=$'\e[32m' YELLOW=$'\e[33m'
@@ -461,7 +463,7 @@ local MARK_CODES MARK_END_CODES MARK2_CODES MARK2_END_CODES __actv_text
 # Init list's state
 [[ $ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] != <-> ]] && ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]=1
 [[ $ZUI[CURRENT_IDX] != <-> ]] && ZUI[CURRENT_IDX]=1
-[[ $ZUI[IN_SEARCH] != <-> ]] && ZUI[IN_SEARCH]=0
+[[ $ZUI[IN_QUERY] != <-> ]] && ZUI[IN_QUERY]=0
 [[ $ZUI[TEXT_OFFSET] != <-> ]] && ZUI[TEXT_OFFSET]=0
 [[ $ZUI[UNIQ_MODE] != <-> ]] && ZUI[UNIQ_MODE]=0
 [[ $ZUI[CURRENT_SEGMENT] != <-> ]] && ZUI[CURRENT_SEGMENT]=1
@@ -480,9 +482,9 @@ ZUI[USER_LAST_ELEMENT]=$(( __last_element - ${#ZUILIST_NONSELECTABLE_ELEMENTS} )
 # verify current index
 -zui_list_verify_vars
 
-if [[ $ZUI[START_IN_SEARCH] -eq 1 ]]; then
-    ZUI[IN_SEARCH]=1
-    ZUI[START_IN_SEARCH]=0
+if [[ $ZUI[START_IN_QUERY] -eq 1 ]]; then
+    ZUI[IN_QUERY]=1
+    ZUI[START_IN_QUERY]=0
 fi
 
 if [[ -n $ZUI[SET_SEARCH_TO] ]]; then
@@ -739,7 +741,7 @@ while (( 1 )); do
                          "${__list[${ZUI[CURRENT_IDX]}]}" "${__segments[${ZUI[CURRENT_SEGMENT]}]}" )
             REPLY=1
         fi
-        (( ${+functions[-zui-standard-status-callback]} )) && (( (ZUI[IGNORE_MSG] + ZUI[IN_SEARCH]) == 0 )) && {
+        (( ${+functions[-zui-standard-status-callback]} )) && (( (ZUI[IGNORE_MSG] + ZUI[IN_QUERY]) == 0 )) && {
             -zui-standard-status-callback "$REPLY" "${reply[@]}"
             tpe=$?
         }
@@ -750,11 +752,13 @@ while (( 1 )); do
             -zui_list_setup_user_vars $(((ZUI[UNIQ_MODE])||($#ZUI[SEARCH_BUFFER])))
 
             -zui-log "$__wname_status" "$__status_height" "$__status_width" $ZUI[status_border] $ZUI[status_colorpair] \
-                    "$ZUILIST_GREP_STRING" $ZUI[UNIQ_MODE] $ZUI[IN_SEARCH] \
+                    "$ZUILIST_GREP_STRING" $ZUI[UNIQ_MODE] $ZUI[IN_QUERY] \
                     "" "$selectable" "${${ZUI[SEARCH_BUFFER]:+1}:-0}" \
                     $ZUI[USER_CURRENT_IDX] $ZUI[USER_LAST_ELEMENT]
 
-        if [[ $ZUI[IN_SEARCH] = 1 ]]; then
+        if ((ZUI[IN_QUERY]==3));then
+            -zui_list_status_msg "$ZUI[QUERY_PROMPT]" $ZUI[QUERY_BUFFER]
+        elif ((ZUI[IN_QUERY]==1)); then
             -zui_list_status_msg "[F1-Jump to] Filtering with: " "${ZUI[SEARCH_BUFFER]// /+}"
         fi
 
@@ -766,7 +770,7 @@ while (( 1 )); do
 
         # status_msg_strlen is being set in -zui_list_status_msg()
         zcurses move "$__wname_status" $ZUI[status_border] $(( status_msg_strlen + 2 ))
-        [[ $ZUI[IN_SEARCH] -ne 1 ]] && -zui_list_cursor_visibility "status" 0 || -zui_list_cursor_visibility "status" 1
+        ((!ZUI[IN_QUERY]))&&-zui_list_cursor_visibility status 0||-zui_list_cursor_visibility status 1
         zcurses refresh "$__wname_status"
     }
 
@@ -774,9 +778,9 @@ while (( 1 )); do
 
     if [[ -n $ZUI[current_tfield] ]]; then
         zcurses move "$__wname_main" $ZUI[cursor_y] $(( ZUI[cursor_x] + 2 ))
-        -zui_list_cursor_visibility "field" 1
+        -zui_list_cursor_visibility field 1
     else
-        -zui_list_cursor_visibility "field" 0
+        -zui_list_cursor_visibility field 0
     fi
 
     __final_key="<timeout>" __do_exit="no"
@@ -784,6 +788,8 @@ while (( 1 )); do
         # Wait for input
         key="" keypad="" __final_key=""
         zcurses input "$__wname_main" key keypad
+
+        [[ -n $key$keypad ]]&&print $#key:$key/$#keypad$keypad>>/tmp/reply
 
         # Get the special (i.e. "keypad") key or regular key
         if [[ -n "$key" ]]; then
@@ -803,9 +809,11 @@ while (( 1 )); do
             integer track_cur_idx=$ZUI[CURRENT_IDX]
             [[ -z $ZUI[SEARCH_BUFFER] ]]&&\
                 ZUI[PREV_IDX_NO_SEARCH]=$ZUI[CURRENT_IDX]
+            local BUF= VAR=$bufs[ZUI[IN_QUERY]]
+            [[ -n $VAR ]]&&BUF=${(P)VAR}
             zui-list-input "$ZUI[CURRENT_IDX]" "$ZUI[CURRENT_SEGMENT]" "$ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]" \
                             "$__page_height" "$__page_width" "$__last_element" "$__nseg" "$ZUI[TEXT_OFFSET]" \
-                            "$__final_key" "$ZUI[IN_SEARCH]" "$ZUI[SEARCH_BUFFER]" \
+                            "$__final_key" "$ZUI[IN_QUERY]" "$BUF" \
                             "$ZUI[UNIQ_MODE]" "$ZUILIST_DISABLE_SEARCH" "__list"
             [[ $reply[1] == <-> ]]&&__selection="$reply[1]"
             __action="$reply[2]"
@@ -813,26 +821,35 @@ while (( 1 )); do
             ZUI[CURRENT_SEGMENT]="$reply[4]"
             ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]="$reply[5]"
             ZUI[TEXT_OFFSET]="$reply[6]"
-            ZUI[IN_SEARCH]="$reply[7]"
+            ZUI[IN_QUERY]=$reply[7]
             [[ -z $reply[8] && -n $ZUI[SEARCH_BUFFER] ]]&&\
                 ZUI[CURRENT_IDX]=$ZUI[PREV_IDX_NO_SEARCH]
-            ZUI[SEARCH_BUFFER]="$reply[8]"
-            ZUI[UNIQ_MODE]="$reply[9]"
+            if ((ZUI[IN_QUERY]==1));then
+                ZUI[SEARCH_BUFFER]=$reply[8]
+            elif ((ZUI[IN_QUERY]==3));then
+                ZUI[QUERY_BUFFER]=$reply[8]
+            fi
+            ZUI[UNIQ_MODE]=$reply[9]
+            ZUI[SPECIAL_COMMAND]=$reply[10]
 
+            if [[ -n $ZUI[SPECIAL_COMMAND] ]];then
+                eval $ZUI[SPECIAL_COMMAND_CALLBACK]
+            fi
+ 
             #
             # Remember selected segment at each line?
             # (functionality)
             #
 
-            if [[ "$ZUILIST_TRACK_SEGMENTS" = 1 ]]; then
+            if [[ $ZUILIST_TRACK_SEGMENTS = 1 ]]; then
                 # Remember segment change (element change and
                 # segment change cannot occur at the same time)
                 ZUILIST_ACTIVE_SEGMENTS[$track_cur_idx]=$ZUI[CURRENT_SEGMENT]
 
-                if [[ "$track_cur_idx" != $ZUI[CURRENT_IDX] ]]; then
+                if [[ $track_cur_idx != $ZUI[CURRENT_IDX] ]]; then
                     # Restore segment or set to 1
                     if (( ${+ZUILIST_ACTIVE_SEGMENTS[${ZUI[CURRENT_IDX]}]} )); then
-                        ZUI[CURRENT_SEGMENT]="${ZUILIST_ACTIVE_SEGMENTS[${ZUI[CURRENT_IDX]}]}"
+                        ZUI[CURRENT_SEGMENT]=${ZUILIST_ACTIVE_SEGMENTS[${ZUI[CURRENT_IDX]}]}
                     else
                         ZUI[CURRENT_SEGMENT]=1
                     fi
@@ -845,24 +862,24 @@ while (( 1 )); do
 
             # If a jump is set up by anchor,
             # these parameter(s) will be set
-            local __jump_id="" __jump_data=""
+            local __jump_id= __jump_data=
 
-            if [[ "$__action" = "SELECT" ]]; then
+            if [[ $__action = SELECT ]]; then
                 -zui_util_get_segment $__list[__selection] $ZUI[CURRENT_SEGMENT] __tmp
                 # Is it a hyperlink selection? If not, then examine select_mode
                 # to know if the text selection (ZUI[text_select] is examined in
                 # zui-list-input) should be passed outside the list
-                if -zui_glib_is_any_hyperlink "$__tmp" || [[ $ZUI[select_mode] = (restart|quit) ]]; then
-                    REPLY="$__selection"
-                    reply=( "${__list[@]}" )
-                    __do_exit="yes"
+                if -zui_glib_is_any_hyperlink $__tmp || [[ $ZUI[select_mode] = (restart|quit) ]]; then
+                    REPLY=$__selection
+                    reply=( ${__list[@]} )
+                    __do_exit=yes
                     break
                 fi
 
                 # ZUI[select_mode] == no-restart
                 # No passing outside, will invoke callback, but need to
                 # know if on whole line, or on single text-bit segment
-                if [[ $ZUI[text_mode] = "off" ]] || [[ $ZUI[text_mode] = "hyp" ]] && ! -zui_glib_has_any_hyperlinks $__list[__selection]; then
+                if [[ $ZUI[text_mode] = off ]] || [[ $ZUI[text_mode] = "hyp" ]] && ! -zui_glib_has_any_hyperlinks $__list[__selection]; then
                     # Text-bit navigation is disabled - this must be whole line selection
                     # ... is enabled for with-hyperlinks lines, but line is without hyperlinks - ...
                     (( ${+functions[-zui-standard-text-select-callback]} )) && -zui-standard-text-select-callback "line" $__list[__selection]
@@ -872,12 +889,12 @@ while (( 1 )); do
                     ZUI[pure_text_selected]="$__tmp"
                 fi
             elif [[ "$__action" = "F1" ]]; then
-                if ((!ZUI[IN_SEARCH])); then
+                if ((!ZUI[IN_QUERY])); then
                     if [[ -n $ZUI[PREV_SBUFFER] && -n $ZUI[PREV_SIDX] ]]; then
                         ZUI[SEARCH_BUFFER]=$ZUI[PREV_SBUFFER]
                         ZUI[CURRENT_IDX]=$ZUI[PREV_SIDX]
                     fi
-                    ZUI[IN_SEARCH]=1
+                    ZUI[IN_QUERY]=1
                 else
                     repeat 1; do
                         typeset +U -ga __slist=("$__qlist[@]")
@@ -888,7 +905,7 @@ while (( 1 )); do
                         -zui_glib_msg "Search: \`${ZUI[SEARCH_BUFFER]}' jumped to line " "#${ZUI[CURRENT_IDX]}" " Restore search via F1"
                         ((ZUI[CURRENT_IDX]+=$#ZUILIST_NONSELECTABLE_ELEMENTS))
                         ZUI[SEARCH_BUFFER]=""
-                        ZUI[IN_SEARCH]=0
+                        ZUI[IN_QUERY]=0
                         ZUI[highlight_once]="italic"
                     fi
                     ZUI[IGNORE_MSG]=1

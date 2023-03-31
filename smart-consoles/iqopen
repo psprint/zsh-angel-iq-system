@@ -101,7 +101,7 @@ iqopen_view_switch(){
 
     local -a qt=(·file·\  ·preview·\  ·git·\ )
     local Q=$qt[ZUI[GEN_B_IDX]+1]
-    ((ZUI[IN_SEARCH]))&&iqw "[${(U)Q%%[ ]##}] " "Restored previous " $Q search
+    ((ZUI[IN_QUERY]))&&iqw "[${(U)Q%%[ ]##}] " "Restored previous " $Q search
 
     buffer=$ZUI[SEARCH_BUFFER]
     if ((in0==1));then
@@ -179,6 +179,21 @@ END
     command rm -f "$PATCH"
 }
 
+iqopen_exec_cmd(){
+    ((ZUI[IN_QUERY]!=3))&&ZUI[IN_QUERY]=3||ZUI[IN_QUERY]=0
+    ZUI[QUERY_PROMPT]="Enter command to execute: "
+    in_query=$ZUI[IN_QUERY]
+
+    integer vis
+    ((in_query))&&vis=1
+    -zui_list_cursor_visibility status $vis
+}
+
+iqopen_exec_command_cb() {
+    ZUI[COMMAND]=$ZUI[QUERY_BUFFER]
+    iqopen_hub
+}
+
 separ() {
     REPLY="$ZUI[YELLOW]${(l:COLUMNS*3::—:):-}$ZUI[FMT_END]";
 }
@@ -192,6 +207,7 @@ if ((!$+Opts[--refresh])); then
     -zui_glib_init2 # after emulate
     ZUI[GEN_B_IDX]=0 ZUI[GIT_DIFF]=0
 
+    ZUI[SPECIAL_COMMAND_CALLBACK]=iqopen_exec_command_cb
     # Needed for immediate output from coprocesses (disables buffering).
     ((${+commands[stdbuf]}))&& \
         local -a stdbuf1=( stdbuf -o0 -i0 ) stdbuf2=( stdbuf -o0 -i0 )
@@ -214,7 +230,7 @@ if ((!$+Opts[--refresh])); then
     ZUI[UNIQ_MODE]=0
     [[ $1 == open ]]&&shift
     [[ -n $* ]]&&ZUI[SEARCH_BUFFER]=$*
-    ZUI[START_IN_SEARCH]=1
+    ZUI[START_IN_QUERY]=1
 
     local -a qitems iq0items q0input q0inputp
     integer Q0_SAVE_PIPE
@@ -226,19 +242,21 @@ if ((!$+Opts[--refresh])); then
     fi
 fi
 
-cmd-synh-switch() {iqopen_cmd_synh_switch;}
-cmd-toggle-view() {[[ $1 == view ]]&&local Q=1||local Q=0/1;iqopen_cmd_next $Q;}
-cmd-open-diff-view() {iqopen_cmd_next 2;}
-cmd-open-tig() {zcurses end;command tig "$@";-zui_glib_refresh;}
-cmd-commit() {zcurses end;command git commit -v "$@";read -k 1;-zui_glib_refresh;}
-cmd-push() {zcurses end;command git push "$@";read -k 1;-zui_glib_refresh;}
-cmd-pull() {zcurses end;command git pull "$@";read -k 1;-zui_glib_refresh;}
-cmd-stage-line() {iqopen_stage_line;}
+cmd-ret(){print Press enter to continue…; read -k1;}
+cmd-synh-switch(){iqopen_cmd_synh_switch;}
+cmd-toggle-view(){[[ $1 == view ]]&&local Q=1||local Q=0/1;iqopen_cmd_next $Q;}
+cmd-open-diff-view(){iqopen_cmd_next 2;}
+cmd-open-tig(){zcurses end;command tig "$@";-zui_glib_refresh;}
+cmd-commit(){zcurses end;command git commit -v "$@";cmd-ret;-zui_glib_refresh;}
+cmd-push(){zcurses end;command git push "$@";cmd-ret;-zui_glib_refresh;}
+cmd-pull(){zcurses end;command git pull "$@";cmd-ret;-zui_glib_refresh;}
+cmd-stage-line(){iqopen_stage_line;}
+cmd-exec-command(){iqopen_exec_cmd;}
 
 builtin source -- $ZIQCFG
 
 #    zui::bindkey F3 "{print q:$ZUI[mark]}"
-zui::bindkey F9 '{print view:$ZUI[SEARCH_BUFFER_PREVIEW], gl:$ZUI[SEARCH_BUFFER_GLOBAL], sbuff:$ZUI[SEARCH_BUFFER], current:$ZUI[CURRENT_IDX], PVIEW_Q:$ZUI[CURRENT_IDX_PVIEW_BKP_$ZUI[QPATH]], PVIEW:$ZUI[CURRENT_IDX_PVIEW_BKP], main:$ZUI[CURRENT_IDX_MAIN_BKP] sptr:$ZUI[status_pointer]|tee -a /tmp/reply;}'
+zui::bindkey F9 '{print \\nquery:$ZUI[IN_QUERY], qbuf: $ZUI[QUERY_BUFFER], view:$ZUI[SEARCH_BUFFER_PREVIEW], gl:$ZUI[SEARCH_BUFFER_GLOBAL], sbuff:$ZUI[SEARCH_BUFFER], current:$ZUI[CURRENT_IDX], PVIEW_Q:$ZUI[CURRENT_IDX_PVIEW_BKP_$ZUI[QPATH]], PVIEW:$ZUI[CURRENT_IDX_PVIEW_BKP], main:$ZUI[CURRENT_IDX_MAIN_BKP] sptr:$ZUI[status_pointer]|tee -a /tmp/reply;}'
 zui::bindkey F10 '{builtin source $ZIQ_CON_DIR/iqopen --refresh||\
                     iqw -r "Reload finished with error: " $?;}'
 
@@ -252,7 +270,7 @@ iqopen_hub(){
     return EC
 }
 
-iqopen_fill_view_preview() {
+iqopen_fill_view_preview(){
     local QPATH QTXT
     ZUI[COLORING_PATTERN]="·[^·]##·"
     ZUI[COLORING_MATCH_MULTIPLE]=1
@@ -297,15 +315,18 @@ iqopen_fill_view_preview() {
     }
 }
 
-iqopen_fill_view_tree() {
-    ZUI[COLORING_PATTERN]="(((([^\/—])(#c2,))(#e))|·[^·]##·)"
+iqopen_fill_view_tree(){
+    ZUI[COLORING_PATTERN]="(((([^\/—[:space:]])(#c2,))(#e))|·[^·]##·)"
     ZUI[COLORING_MATCH_MULTIPLE]=1
     ZUI[COLORING_COLOR]=$ZUI[BOLD]$ZUI[YELLOW]
     ZUI[QIDX]=0 ZUI[SRC_HIGHLIGHT_SWITCHED]=0
     reply=()
-    if [[ -n $ANGEL_OPEN_DEFAULT_COMMAND ]];then
-        -zui_glib_special_text "Output of cmd: ·$ANGEL_OPEN_DEFAULT_COMMAND·"
-        iq0items=("${(@f)$(eval $=ANGEL_OPEN_DEFAULT_COMMAND)}")
+    if [[ -n ${ZUI[COMMAND]:=$ANGEL_OPEN_DEFAULT_COMMAND} ]];then
+        ZUI[COMMAND_PREV]=$ZUI[COMMAND]
+        -zui_glib_special_text "Output of cmd: ·$ZUI[COMMAND]·"
+        iq0items=("${(@f)$(eval $=ZUI[COMMAND])}")
+        ZUI[redraw]=1
+        unset 'ZUI[COMMAND]'
     else
         -zui_glib_special_text "Showing files in: ·$PWD·"
         iq0items=(**/*~*~(N.,@))
@@ -318,7 +339,7 @@ iqopen_fill_view_tree() {
     qitems=("$REPLY" "$reply[1]" "$REPLY" "$iq0items[@]")
 }
 
-iqopen_fill_or_set_view_git() {
+iqopen_fill_or_set_view_git(){
     local col=$ZUI[WHITE]
     ZUI[COLORING_PATTERN]="(#s)[^+-]*" ZUI[COLORING_COLOR]=$col
     ZUI[COLORING_MATCH_MULTIPLE]=1
@@ -344,7 +365,7 @@ iqopen_fill_or_set_view_git() {
 }
 
 # Read & publish Configure/make output
--zui-standard-timeout-callback() {
+-zui-standard-timeout-callback(){
     typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(4 3 2 1)
     ((!ZUI[HAVE_0_INPUT]&&!ZUI[VIEW_CHANGE]))&&return
 
@@ -441,7 +462,7 @@ while (( 1 )); do
             EC+=$?
             iqw "" "" "" 'ERROR: Couldn''t find editor, tried '\
                 "\$VISUAL (=$VISUAL) " then "" " \$EDITOR (=$EDITOR)"
-            ZUI[IN_SEARCH]=0
+            ZUI[IN_QUERY]=0
         fi
         [[ -n $REPLY ]]&&\
             (

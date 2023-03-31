@@ -48,7 +48,7 @@ if [[ $1 != --refresh ]]; then
 
     [[ $1 == feat ]]&&shift
     [[ -n $* ]]&&ZUI[SEARCH_BUFFER]=$*
-    ZUI[START_IN_SEARCH]=1
+    ZUI[START_IN_QUERY]=1
 fi
 
 generator_A() {
