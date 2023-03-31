@@ -191,7 +191,58 @@ iqopen_exec_cmd(){
 
 iqopen_exec_command_cb() {
     ZUI[COMMAND]=$ZUI[QUERY_BUFFER]
+    if [[ $ZUI[COMMAND] != $~galiases[WRONGSTR] ]];then
+        builtin print $ZUI[COMMAND]>>!$ZIQCHIST
+    else
+        iqw "No command entered, " "" "" "cannot execute"
+        return 1
+    fi
+    ZUI[QUERY_BUFFER]=
     iqopen_hub
+
+}
+iqopen_create_histories(){
+    : ${ZIQCHIST:=${XDG_CACHE HOME:-$HOME/.cache/angel-iq}/angel-cmd.hst}
+    : ${ZIQSHIST:=${XDG_CACHE HOME:-$HOME/.cache/angel-iq}/angel-srch.hst}
+    command mkdir -p $ZIQCHIST:h $ZIQSHIST:h||return
+    [[ ! -f $ZIQCHIST ]]&&builtin print -n>!$ZIQCHIST
+    [[ ! -f $ZIQSHIST ]]&&builtin print -n>!$ZIQSHIST
+    return 0
+}
+
+iqopen_hist(){
+    local TPE=$1 QDIR=$2 FILE
+    iqopen_create_histories||{iqw "File error, no history…";return 1;}
+    [[ $TPE == CMD ]]&&FILE=$ZIQCHIST||FILE=$ZIQSHIST
+    local -a h=("${(@f)$(<$FILE)}")
+    ((!$#h))&&{iqw "Command history empty, no change done";return 0;}
+    : ${ZUI[${TPE}_NO]:=$#h}
+    if ((QDIR));then
+        ((++ZUI[${TPE}_NO],ZUI[${TPE}_NO]>$#h+1?(ZUI[${TPE}_NO]=$#h+1):1))
+    else
+        ((--ZUI[${TPE}_NO],ZUI[${TPE}_NO]<0?(ZUI[${TPE}_NO]=0):1))
+    fi
+    local ITEM=$h[ZUI[${TPE}_NO]]
+    if ((ZUI[${TPE}_NO]<1||ZUI[${TPE}_NO]>$#h));then
+        ITEM=
+        local D=top
+        ((QDIR))&&D=bottom
+        iqw "At $D of history"
+    else
+        [[ $ITEM == $~galiases[WRONGSTR] && $ZUI[${TPE}_NO] -ne 1 ]]&&\
+            {iqw "Problem with history occurred…";return 1;}
+    fi
+    ZUI[QUERY_BUFFER]=$ITEM buffer=$ITEM
+}
+
+iqopen_hist_top(){
+    local T D=$1
+    if ((ZUI[IN_QUERY]==1));then
+        T=SEARCH
+    elif ((ZUI[IN_QUERY]==3));then
+        T=CMD
+    fi
+    (($#T))&&iqopen_hist $T $D
 }
 
 separ() {
@@ -241,7 +292,6 @@ if ((!$+Opts[--refresh])); then
         exec {Q0_SAVE_PIPE}<&0
     fi
 fi
-
 cmd-ret(){print Press enter to continue…; read -k1;}
 cmd-synh-switch(){iqopen_cmd_synh_switch;}
 cmd-toggle-view(){[[ $1 == view ]]&&local Q=1||local Q=0/1;iqopen_cmd_next $Q;}
@@ -252,6 +302,12 @@ cmd-push(){zcurses end;command git push "$@";cmd-ret;-zui_glib_refresh;}
 cmd-pull(){zcurses end;command git pull "$@";cmd-ret;-zui_glib_refresh;}
 cmd-stage-line(){iqopen_stage_line;}
 cmd-exec-command(){iqopen_exec_cmd;}
+cmd-exec-prev-hist(){iqopen_hist CMD 0;}
+cmd-exec-next-hist(){iqopen_hist CMD 1;}
+cmd-search-next-hist(){iqopen_hist SEARCH 1;}
+cmd-search-prev-hist(){iqopen_hist SEARCH 0;}
+cmd-next-hist(){iqopen_hist_top 1;}
+cmd-prev-hist(){iqopen_hist_top 0;}
 
 builtin source -- $ZIQCFG
 
@@ -316,7 +372,7 @@ iqopen_fill_view_preview(){
 }
 
 iqopen_fill_view_tree(){
-    ZUI[COLORING_PATTERN]="(((([^\/—[:space:]])(#c2,))(#e))|·[^·]##·)"
+    ZUI[COLORING_PATTERN]="(((([^\/—\]\[[:space:]])(#c2,))~^(*(#e)))|·[^·]##·)"
     ZUI[COLORING_MATCH_MULTIPLE]=1
     ZUI[COLORING_COLOR]=$ZUI[BOLD]$ZUI[YELLOW]
     ZUI[QIDX]=0 ZUI[SRC_HIGHLIGHT_SWITCHED]=0
@@ -420,6 +476,9 @@ while (( 1 )); do
     builtin print -rn -- $terminfo[rmcup]$termcap[te]
     # exit?
     [[ -z $REPLY ]]&&break
+    [[ $ZUI[SEARCH_BUFFER] != $~galiases[WRONGSTR] ]]&&
+        {iqopen_create_histories; builtin print $ZUI[SEARCH_BUFFER]>>!$ZIQSHIST;}
+
     local QFILE= REPLY_SAVE=$REPLY; integer QIDX=0
     # no search selection?
     # …from diff?

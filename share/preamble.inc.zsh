@@ -42,7 +42,9 @@ export ZIQDIR="${0:h:h}" \
        ZIQLOG="${0:h:h}"/io.log \
        IQNICK=${IQNICK:-Angel-IQ} \
        ZIQTXT="${0:h:h}/share/txt" \
-       ZIQCFG="${XDG_CONFIG_HOME:-$HOME/.config/angel}/angel.cfg" \
+       ZIQCFG="${XDG_CONFIG_HOME:-$HOME/.config}/angel-iq/angel.cfg" \
+       ZIQCHIST="${XDG_CACHE_HOME:-$HOME/.config}/angel-iq/angel-cmd.hst" \
+       ZIQSHIST="${XDG_CACHE_HOME:-$HOME/.config}/angel-iq/angel-srch.hst" \
        \
        ZIQNUL=/dev/null \
        ZIQDBG=/tmp/reply
