@@ -292,6 +292,7 @@ if ((!$+Opts[--refresh])); then
         exec {Q0_SAVE_PIPE}<&0
     fi
 fi
+
 cmd-ret(){print Press enter to continue…; read -k1;}
 cmd-synh-switch(){iqopen_cmd_synh_switch;}
 cmd-toggle-view(){[[ $1 == view ]]&&local Q=1||local Q=0/1;iqopen_cmd_next $Q;}
@@ -393,6 +394,8 @@ iqopen_fill_view_tree(){
     typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(4 3 2 1)
     separ
     qitems=("$REPLY" "$reply[1]" "$REPLY" "$iq0items[@]")
+
+    ((!ZUI[GIT_DIFF]))&&[[ -n ${(M)qitems[1,15]:#*diff[[:space:]]##--git*} ]]&&iqopen_fill_or_set_view_git 1
 }
 
 iqopen_fill_or_set_view_git(){
