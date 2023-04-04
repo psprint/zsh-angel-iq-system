@@ -42,15 +42,18 @@ export ZIQDIR="${0:h:h}" \
        ZIQLOG="${0:h:h}"/io.log \
        IQNICK=${IQNICK:-Angel-IQ} \
        ZIQTXT="${0:h:h}/share/txt" \
-       ZIQCFG="${XDG_CONFIG_HOME:-$HOME/.config}/angel-iq/angel.cfg" \
+       ZIQOCFG="${XDG_CONFIG_HOME:-$HOME/.config}/angel-iq/angel-open.cfg" \
+       ZIQICFG="${XDG_CONFIG_HOME:-$HOME/.config}/angel-iq/angel-inst.cfg" \
        ZIQCHIST="${XDG_CACHE_HOME:-$HOME/.config}/angel-iq/angel-cmd.hst" \
        ZIQSHIST="${XDG_CACHE_HOME:-$HOME/.config}/angel-iq/angel-srch.hst" \
        \
        ZIQNUL=/dev/null \
        ZIQDBG=/tmp/reply
 
-[[ ! -f $ZIQCFG ]]&&\
-    {command mkdir -p -- $ZIQCFG:h;cp -vf -- "$ZIQDIR/angel.cfg" "$ZIQCFG";}
+[[ ! -f $ZIQOCFG ]]&&\
+    {command mkdir -p -- $ZIQOCFG:h;cp -vf "$ZIQDIR/angel-open.cfg" "$ZIQOCFG";}
+[[ ! -f $ZIQICFG ]]&&\
+    {command mkdir -p -- $ZIQICFG:h;cp -vf "$ZIQDIR/angel-inst.cfg" "$ZIQICFG";}
 
 # Standard work variables
 typeset -g -a reply match mbegin mend

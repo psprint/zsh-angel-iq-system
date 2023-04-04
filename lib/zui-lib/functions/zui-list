@@ -482,14 +482,15 @@ ZUI[USER_LAST_ELEMENT]=$(( __last_element - ${#ZUILIST_NONSELECTABLE_ELEMENTS} )
 # verify current index
 -zui_list_verify_vars
 
-if [[ $ZUI[START_IN_QUERY] -eq 1 ]]; then
-    ZUI[IN_QUERY]=1
+if ((ZUI[START_IN_QUERY])); then
+    ZUI[IN_QUERY]=$ZUI[START_IN_QUERY]
     ZUI[START_IN_QUERY]=0
 fi
 
-if [[ -n $ZUI[SET_SEARCH_TO] ]]; then
-    ZUI[SEARCH_BUFFER]=$ZUI[SET_SEARCH_TO]
-    ZUI[SET_SEARCH_TO]=""
+if [[ -n $ZUI[SET_QUERY_TO] ]]; then
+    ((ZUI[IN_QUERY]==1))&&ZUI[SEARCH_BUFFER]=$ZUI[SET_QUERY_TO]
+    ((ZUI[IN_QUERY]==3))&&ZUI[QUERY_BUFFER]=$ZUI[SET_QUERY_TO]
+    ZUI[SET_QUERY_TO]=""
 fi
 
 if [[ $ZUI[START_IN_UNIQ_MODE] -eq 1 ]]; then
