@@ -729,7 +729,7 @@ while (( 1 )); do
 
         zcurses attr "$__wname_status" "$wrk_stbold" $ZUI[status_colorpair]
 
-        reply=( )
+        reply=()
         local selectable=1 tpe=-1 status_msg_strlen=0
         [[ -n "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)${ZUI[CURRENT_IDX]}]}" ]] && selectable=0
         (( ${ZUI[UNIQ_MODE]} + ${${ZUI[SEARCH_BUFFER]:+1}:-0} )) && selectable=1
@@ -760,7 +760,7 @@ while (( 1 )); do
         if ((ZUI[IN_QUERY]==3));then
             -zui_list_status_msg "$ZUI[QUERY_PROMPT]" $ZUI[QUERY_BUFFER]
         elif ((ZUI[IN_QUERY]==1)); then
-            -zui_list_status_msg "[F1-Jump to] Filtering with: " "${ZUI[SEARCH_BUFFER]// /+}"
+            -zui_list_status_msg "$ZUI[QUERY_PROMPT]" ${ZUI[SEARCH_BUFFER]// / + }
         fi
 
         [[ $ZUI[status_border] = 1 ]] && {
@@ -872,7 +872,7 @@ while (( 1 )); do
                 # zui-list-input) should be passed outside the list
                 if -zui_glib_is_any_hyperlink $__tmp || [[ $ZUI[select_mode] = (restart|quit) ]]; then
                     REPLY=$__selection
-                    reply=( ${__list[@]} )
+                    reply=( "${__list[@]}" )
                     __do_exit=yes
                     break
                 fi
@@ -1039,7 +1039,7 @@ while (( 1 )); do
                 local -a prev_nonselectables
                 var_name="prev_mod${mod}_ice${ice}_nonselectables"
                 prev_nonselectables=( "${(PA@)var_name}" )
-                # Remove previous nonselectables, ^ is negation, ( ) is filled with "|"-joined previous elements
+                # Remove previous nonselectables, ^ is negation, () is filled with "|"-joined previous elements
                 ZUILIST_NONSELECTABLE_ELEMENTS=( ${(@M)ZUILIST_NONSELECTABLE_ELEMENTS:#(#b)^(${~${(j:|:)prev_nonselectables}})} )
             fi
 
@@ -1175,7 +1175,7 @@ while (( 1 )); do
         (( ZUI[timeout_update] )) && break
     done
 
-    [[ "$__do_exit" = "yes" ]] && break
+    [[ $__do_exit == yes ]] && break
 
     ZUI[FIRST]=0
 done
