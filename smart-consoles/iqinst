@@ -151,7 +151,8 @@ iqinst_create_histories(){
 iqinst_hist(){
     local TPE=$1 QDIR=$2 FILE
     [[ $TPE == CMD ]]&&FILE=$ZIQCHIST||FILE=$ZIQSHIST
-    local -aU h=("${(@f)$(<$FILE)}")
+    int/iq::read-all-sys -d$FILE
+    local -aU h=($reply)
     ((!$#h))&&{iqw "Command history empty, no change done";return 0;}
     : ${ZUI[${TPE}_NO]:=$#h}
     if ((QDIR));then
