@@ -478,9 +478,11 @@ case "$key" in
     (q|Q)
         reply=(-1 QUIT)
         ;;
-    (/)
+    (/|$'\e'/)
         if [[ "$disable_search" = "0" ]]; then
             in_query=1
+            [[ -n $ZUI[QUERY_CHANGE_CALLBACK] ]]&&\
+                eval $ZUI[QUERY_CHANGE_CALLBACK] 1
             -zui_list_cursor_visibility status 1
         fi
         ;;
@@ -633,6 +635,7 @@ case "$key" in
         ;;
     ($'\E')
         in_query=0
+        [[ -n $ZUI[QUERY_CHANGE_CALLBACK] ]]&&eval $ZUI[QUERY_CHANGE_CALLBACK] 0
         -zui_list_cursor_visibility status 0
         ;;
     (o|$'\C-O')
@@ -658,7 +661,7 @@ done
 ((!FOUND))&&\
 case "$key" in
     ($'\n'|ENTER)
-        if ((in_query==3));then
+        if ((in_query==3))&&[[ $ZUI[QUERY_BUFFER] != $~galiases[WRONGSTR] ]];then
             special_cmd=query-accept
             -zui_list_cursor_visibility status 0
         elif ((ZUI[instant_select]));then
@@ -671,6 +674,8 @@ case "$key" in
             return $?
         else
             in_query=0
+            [[ -n $ZUI[QUERY_CHANGE_CALLBACK] ]]&&\
+                eval $ZUI[QUERY_CHANGE_CALLBACK] 0e
             -zui_list_cursor_visibility status 0
         fi
         ;;
@@ -863,6 +868,7 @@ case "$key" in
         ;;
     ($'\E')
         in_query=0
+        [[ -n $ZUI[QUERY_CHANGE_CALLBACK] ]]&&eval $ZUI[QUERY_CHANGE_CALLBACK] 0
         -zui_list_cursor_visibility status 0
         ;;
     ($'\C-O')

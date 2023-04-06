@@ -85,6 +85,7 @@ iqinst_cmd_next(){
         ((ZUI[GEN_B_IDX]=(1+ZUI[GEN_B_IDX])%3))
     fi
     iqinst_view_switch $in $ZUI[GEN_B_IDX]
+    iqinst_set_prompt
     iqinst_hub
 }
 
@@ -129,6 +130,11 @@ iqinst_exec_command_cb() {
     ZUI[QUERY_BUFFER]=
     iqinst_reset_hist
     iqinst_hub
+}
+
+iqinst_query_change_cb(){
+    iqinst_set_prompt ${1%e}
+    ZUI[VIEW_CHANGE]=1
 }
 
 iqinst_reset_hist(){
@@ -182,9 +188,22 @@ iqinst_hist_top(){
     (($#T))&&iqinst_hist $T $D
 }
 
+iqinst_set_prompt(){
+    local C=${1:-$ZUI[IN_QUERY]}
+    if ((C==0));then
+        ZUI[QUERY_PROMPT]=
+    elif ((C==1));then
+        iqinst_search_prompt
+    elif ((C==3));then
+        iqinst_exec_prompt
+    else
+        iqw "Internal error, please report"
+    fi
+}
+
 iqinst_search_prompt(){
     local T=files
-    ((ZUI[GEN_B_IDX]==0))&&T=output
+    ((ZUI[GEN_B_IDX]==0))&&T=command\ output
     ((ZUI[GEN_B_IDX]==1))&&T=file\ contents
     ((ZUI[GEN_B_IDX]==2))&&T=command\ history
  
@@ -245,6 +264,8 @@ if ((!$+Opts[--refresh])); then
     ZUI[GEN_B_IDX]=0 ZUI[PREVIEW_FILE_TYPE]=
 
     ZUI[SPECIAL_COMMAND_CALLBACK]=iqinst_exec_command_cb
+    ZUI[QUERY_CHANGE_CALLBACK]=iqinst_query_change_cb
+
     # Needed for immediate output from coprocesses (disables buffering).
     ((${+commands[stdbuf]}))&& \
         local -a stdbuf1=( stdbuf -o0 -i0 ) stdbuf2=( stdbuf -o0 -i0 )
@@ -308,6 +329,7 @@ iqinst_fill_history(){
     typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(4 3 2 1)
     qitems=("$REPLY[3,-1]" "$reply[-1]" "$REPLY[3,-1]" "$qitems[@]")
     ZUI[IN_QUERY]=1
+    in_query=1
 }
 
 iqinst_fill_preview(){
@@ -371,6 +393,7 @@ iqinst_fill_cmd(){
         ZUI[COMMAND_PREV]=$ZUI[COMMAND]
         -zui_glib_special_text "Output of cmd: ·$ZUI[COMMAND]·"
         iq0items=("${(@f)$(eval $=ZUI[COMMAND])}")
+        ZUI[RET]=$?
         ZUI[redraw]=1
         unset 'ZUI[COMMAND]'
     else
@@ -390,6 +413,7 @@ iqinst_fill_cmd(){
     local TM=$ZUI[text_mode]
     ((ZUI[GEN_B_IDX]==2))&&ZUI[text_mode]=off||ZUI[text_mode]=all
     ZUI[VIEW_CHANGE]=$((ZUI[VIEW_CHANGE]+${#${TM:#$ZUI[text_mode]}}))
+    ZUI[VIEW_CHANGE]=$((ZUI[VIEW_CHANGE]+${${ZUI[COMMAND]:+1}:-0}))
     typeset -ga -U ZUILIST_NONSELECTABLE_ELEMENTS=(4 3 2 1)
     ((!ZUI[HAVE_0_INPUT]&&!ZUI[VIEW_CHANGE]))&&return
 
@@ -421,6 +445,13 @@ iqinst_fill_cmd(){
     fi
 
     ((ZUI[VIEW_CHANGE]))||return 0
+    if [[ -n $ZUI[COMMAND] ]];then
+        local CMD=$ZUI[COMMAND]
+        ZUI[GEN_B_IDX]=0
+        iqinst_hub
+        iqw "Executed command: " \`$CMD\` " which returned: " $ZUI[RET]
+    fi
+    builtin unset 'ZUI[COMMAND]'
     iqinst_util_set_current_idx
     ZUI[VIEW_CHANGE]=0
     return 0
@@ -455,7 +486,7 @@ while (( 1 )); do
             QIDX=ZUI[USER_CURRENT_IDX]
             iqw "Opening " $QFILE " scrolled to line: " "#$QIDX"
         # …tree?
-        elif ((ZUI[GEN_B_IDX]%3==0))&&[[ $REPLY_SAVE != *(·|–|—)* ]];then
+        elif [[ $ZUI[GEN_B_IDX] == (0|2) && $REPLY_SAVE != *(·|–|—)* ]];then
             QFILE=$REPLY_SAVE
         fi
     # search selection?
@@ -469,14 +500,18 @@ while (( 1 )); do
                 iqw "Opening " "${QFILE:-error ↔ not found}"\
                         " scrolled to line: " "#$QIDX"
             # or normal?
-            elif ((ZUI[GEN_B_IDX]%3==0))&&[[ $REPLY_SAVE != *(·|–|—)* ]];then
+            elif [[ $ZUI[GEN_B_IDX] == (0|2) && $REPLY_SAVE != *(·|–|—)* ]];then
                 QFILE=$REPLY_SAVE
                 QIDX=0
             fi
         fi
     fi
 
-    if [[ -n $QFILE ]];then
+    if ((ZUI[GEN_B_IDX]==2));then
+        ZUI[COMMAND]=$QFILE
+        ZUI[VIEW_CHANGE]=1
+    elif [[ -f $QFILE || -f **/*/${QFILE:t}(#qNY1) ]];then
+        [[ -f $QFILE ]]||{QFILE=(**/*/$QFILE:t(#qNY1));QFILE=$QFILE[1];}
         REPLY=
         if [[ -n $ANGEL_OPEN_CMD ]];then
             REPLY=$ANGEL_OPEN_CMD
