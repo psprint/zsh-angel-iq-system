@@ -87,6 +87,7 @@ iqinst_cmd_next(){
     iqinst_view_switch $in $ZUI[GEN_B_IDX]
     iqinst_set_prompt
     iqinst_hub
+    return 0
 }
 
 iqinst_view_switch(){
@@ -253,6 +254,10 @@ cmd-next-hist(){iqinst_hist_top 1;}
 cmd-prev-hist(){iqinst_hist_top 0;}
 cmd-next-command(){iqinst_command_top 1;}
 cmd-prev-command(){iqinst_command_top 0;}
+
+# Directories
+cmd-pwd-up(){if builtin cd -q -- ..;then iqinst_cmd_next 0; else iqw "Cannot change directory to: " "" "" ..;fi;}
+cmd-cd(){if builtin cd -q -- "$1";then iqinst_cmd_next 0;else iqw "Cannot change directory to: " "" "" $1;fi;}
 
 if ((!$+Opts[--refresh])); then
     ok/qnstr $PWD&&local APP=$REPLY
