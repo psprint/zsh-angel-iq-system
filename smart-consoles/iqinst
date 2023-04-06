@@ -383,6 +383,7 @@ iqinst_fill_preview(){
 }
 
 iqinst_fill_cmd(){
+    local -a cmd
     ZUI[text_mode]=all
     ZUI[COLORING_PATTERN]="(((([^\/—\]\[[:space:]])(#c2,)))|·[^·]##·)"
     ZUI[COLORING_MATCH_MULTIPLE]=1
@@ -390,12 +391,18 @@ iqinst_fill_cmd(){
     ZUI[QIDX]=0 ZUI[SRC_HIGHLIGHT_SWITCHED]=0
     reply=()
     if [[ -n ${ZUI[COMMAND]:=$ANGEL_INST_DEFAULT_COMMAND} ]];then
+        cmd=("${(z@)ZUI[COMMAND]}")
         ZUI[COMMAND_PREV]=$ZUI[COMMAND]
         -zui_glib_special_text "Output of cmd: ·$ZUI[COMMAND]·"
-        iq0items=("${(@f)$(eval $=ZUI[COMMAND])}")
+        ZUI[TMP]=$(mktemp)
+        eval "$cmd[@]">!$ZUI[TMP]
+        iq0items=("${(@f)$(<$ZUI[TMP])}")
         ZUI[RET]=$?
         ZUI[redraw]=1
-        unset 'ZUI[COMMAND]'
+        builtin unset 'ZUI[COMMAND]' 'ZUI[TMP]'
+        if [[ $cmd[1] == cd || $cmd[1] == builtin && $cmd[2] == cd ]];then
+            iqinst_fill_cmd
+        fi
     else
         -zui_glib_special_text "Showing files in: ·$PWD·"
         iq0items=(**/*~*~(N.,@))
@@ -528,6 +535,12 @@ while (( 1 )); do
                     "$REPLY" ${${QIDX:#0##}:++$QIDX} -- $QFILE
             )
         EC+=$?
+    elif [[ -d $QFILE || -d **/*/$QFILE(#qNY1/) ]];then
+        [[ -d $QFILE ]]||{QFILE=(/**/*/$QFILE(#qNY1/));QFILE=$QFILE]1];}
+        iqw "Changing directory to: " ${QFILE##$PWD/}
+        builtin cd -q -- $QFILE&&iqinst_fill_cmd||iqw "" "" "" \
+            "Problem during changing the directory occurred, current PWD is: " \
+            $PWD
     fi
     builtin zcurses clear main redraw
     builtin zcurses clear status redraw
