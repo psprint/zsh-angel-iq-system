@@ -55,7 +55,8 @@ IFS= read -s -r -k1 </dev/tty;\
 
     # Input/options
     local -A Opts;local -a opts
-    int/iq::parse-opts "i -zle-nt m -msg" Opts opts "$@"||return 7
+    int/iq::parse-opts "i -zle-nt m -msg" Opts opts "$@"||\
+            {iqerr bad options to iq::exec-hop-back; return 7;}
     builtin set -- "$reply[@]"
     int/iq::opt-cascade Opts -i --zle-nt --msg -m
 
