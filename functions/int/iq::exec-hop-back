@@ -44,7 +44,7 @@ IFS= read -s -r -k1 </dev/tty;\
 
     [[ "$1" = <-> && $# -eq 1 ]] && {
         local FD=$1 READ_SOURCE_TEXT
-        int/iq::read-all -f -u$FD
+        int/iq::read-all -u$FD
         READ_SOURCE_TEXT=$REPLY
         ((ZIQ[notify-zle]))&&builtin zle -I
         builtin zle -F $FD; exec {FD}<&-
